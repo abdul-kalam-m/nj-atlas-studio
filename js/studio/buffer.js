@@ -46,8 +46,14 @@ export async function runBuffer({ client, turf, buffer, entries, layerDocs }) {
   return { bufferId: buffer.id, site, ring, targets, ranAt: new Date() };
 }
 
-export function hasParcels(results) {
-  return results.targets.some((target) => target.entry.export_note === 'parcels' && target.features.length);
+// The lines a layer carries into this kind of output (D-073): 'list', 'export' or 'print'.
+export function notesOf(entry, on) {
+  return (entry.export_notes ?? []).filter((note) => note.on.includes(on)).map((note) => note.text);
+}
+
+// Unique notes of the target layers that have results, for a buffer list.
+export function resultNotes(results) {
+  return [...new Set(results.targets.filter((target) => target.features.length).flatMap((target) => notesOf(target.entry, 'list')))];
 }
 
 // Rows for the combined list: Layer, Name, Type, ID, Site, Details.
@@ -65,7 +71,8 @@ export function combinedRows(results, buffer) {
         type: typeField ? (p[typeField.name] ?? '') : '',
         id: p.atlas_id ?? '',
         site: isSite ? 'Site' : '',
-        details: rest.filter(Boolean).map((field) => `${field.label}: ${p[field.name] ?? ''}`).join('; '),
+        details: rest.filter((field) => field && p[field.name] !== null && p[field.name] !== undefined && p[field.name] !== '')
+          .map((field) => `${field.label}: ${p[field.name]}`).join('; '),
       });
     }
   }
@@ -76,18 +83,19 @@ function csvLine(cells) {
   return cells.map((cell) => (/[",\r\n]/.test(cell) ? `"${String(cell).replace(/"/g, '""')}"` : String(cell))).join(',');
 }
 
-// The list as CSV. The first line is always the screening label (D-041); lists with parcels add the parcel line.
-export function resultsCsv(results, buffer, { label, parcelLine, siteLine, credits, headers }) {
-  const preface = [label, ...(hasParcels(results) ? [parcelLine] : []), siteLine, ...credits].map((line) => csvLine([line]));
+// The list as CSV. The first line is always the screening label (D-041); the target layers' list notes follow.
+export function resultsCsv(results, buffer, { label, siteLine, credits, headers }) {
+  const preface = [label, ...resultNotes(results), siteLine, ...credits].map((line) => csvLine([line]));
   const body = toCsv(combinedRows(results, buffer), [['layer', headers.layer], ['name', headers.name], ['type', headers.type],
     ['id', headers.id], ['site', headers.site], ['details', headers.details]]).replace(/^﻿/, '');
   return `﻿${preface.join('\r\n')}\r\n${body}`;
 }
 
-export function resultsGeojson(results, buffer, { label, parcelLine, siteLine, credits }) {
+export function resultsGeojson(results, buffer, { label, siteLine, credits }) {
+  const notes = resultNotes(results);
   return {
     type: 'FeatureCollection',
-    properties: { screening_label: label, ...(hasParcels(results) ? { parcel_note: parcelLine } : {}), site: siteLine, credits },
+    properties: { screening_label: label, ...(notes.length ? { notes } : {}), site: siteLine, credits },
     features: [
       { type: 'Feature', properties: { layer: 'site', distance_ft: buffer.distance_ft }, geometry: results.site },
       { type: 'Feature', properties: { layer: 'ring', distance_ft: buffer.distance_ft }, geometry: results.ring.geometry },

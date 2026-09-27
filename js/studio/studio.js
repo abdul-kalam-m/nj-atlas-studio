@@ -12,11 +12,12 @@ import { areaWhere, conditionsWhere, joinWhere, quote } from './sql.js';
 import { layerSpecs, legendFor, presetStyle, resolve } from './style.js';
 import { toRow } from './transform.js';
 import { loadTurf } from './turf.js';
-import { hasParcels, ringFor, resultsCsv, resultsGeojson, runBuffer, screeningFileName } from './buffer.js';
-import { dataCsv, dataGeojson, fetchLayerData, pngMap, printMap } from './export.js';
+import { notesOf, resultNotes, ringFor, resultsCsv, resultsGeojson, runBuffer, screeningFileName } from './buffer.js';
+import { dataCsv, dataGeojson, fetchLayerData, pngMap, printMap, printRoot, renderPrintRoot } from './export.js';
 import { loadHealth } from './health.js';
 import { countExport, rememberPilot } from './counter.js';
 import { bboxOf, roundGeometry } from './geo.js';
+import { addressWhere, parseAddress } from './search.js';
 import { copyText, debounce, download } from './dom.js';
 import * as panels from './panels.js';
 import { cleanState, toMapFilter, toPredicate } from '../filters.js';
@@ -46,7 +47,7 @@ const app = {
   results: null,
   ring: null,
   table: null,
-  ui: { open: {}, addOpen: false, addQuery: '', candidates: null, candidatesFor: null, status: '' },
+  ui: { tab: 'area', selected: null, sections: { style: true, filter: false, about: false }, addQuery: '', candidates: null, candidatesFor: null, status: '' },
   embed: new URLSearchParams(location.search).get('embed') === '1',
   pilot: null,
 };
@@ -185,7 +186,7 @@ async function refreshLayer(id) {
     rt.queryKey = null;
   }
   panels.renderLayerStatus(app, id);
-  if (app.ui.open[id]?.filter && !rt.stats.loaded) loadStats(id);
+  if (app.ui.selected === id && app.ui.sections.filter && !rt.stats.loaded) loadStats(id);
   // A style still missing its colors or breaks (for example, a source that did not answer when the layer was
   // added) is resolved once and stored, so the map and legend show them.
   const { style } = presetStyle(entry, layer.style);
@@ -212,10 +213,18 @@ export async function loadStats(id) {
   const q = await queryFor(rt, { ...layer, filters: [] });
   const values = {};
   const ranges = {};
+  // Where the server cannot count by value inside an outline, the browser reads the values: show how far it
+  // has got, and let the person stop it (D-054).
+  rt.statsAbort?.abort();
+  const controller = new AbortController();
+  rt.statsAbort = controller;
+  rt.statsProgress = null;
+  const onProgress = (read) => { rt.statsProgress = read; panels.renderStatsProgress(app, id); };
+  const scope = { where: q.whereArea, geometry: q.geometry, signal: controller.signal, onProgress };
   await Promise.all(entry.fields.filter((field) => field.filter !== 'none').map(async (field) => {
     try {
       if (field.filter === 'checklist') {
-        const counts = await app.client.groupCounts(entry.source.url, field.source, { where: q.whereArea, geometry: q.geometry });
+        const counts = await app.client.groupCounts(entry.source.url, field.source, scope);
         const merged = new Map();
         for (const item of counts) {
           const value = toRow({ [field.source]: item.value }, { source: { id_field: '_' }, fields: [field] })[field.name];
@@ -224,13 +233,15 @@ export async function loadStats(id) {
         values[field.name] = [...merged].map(([value, count]) => ({ value, count }))
           .sort((a, b) => (a.value === null) - (b.value === null) || String(a.value).localeCompare(String(b.value), 'en', { numeric: true }));
       } else if (field.filter === 'range' && field.type === 'number' && !field.transform) {
-        ranges[field.name] = await app.client.minMax(entry.source.url, field.source, { where: q.whereArea, geometry: q.geometry });
+        ranges[field.name] = await app.client.minMax(entry.source.url, field.source, scope);
       }
     } catch {
       // a field the service cannot count leaves its control without counts
     }
   }));
-  rt.stats = { values, ranges, loaded: true };
+  if (rt.statsAbort !== controller) return; // a newer count started
+  rt.stats = { values, ranges, loaded: true, cancelled: controller.signal.aborted };
+  rt.statsAbort = null;
   panels.renderLayer(app, id);
 }
 
@@ -368,6 +379,10 @@ export async function setDoc(next, { render = true, fit = false } = {}) {
   const areaChanged = !before || JSON.stringify(before.area) !== JSON.stringify(next.area);
   const maskChanged = !before || before.mask !== next.mask;
   if (areaChanged || maskChanged) await syncArea();
+  if (app.map && app.map.basemap !== next.basemap) {
+    await app.map.setBasemap(next.basemap); // Studio's layers come along (D-071)
+    app.map.basemapControl?.set(next.basemap);
+  }
   if (areaChanged && fit) fitArea();
   ensureLoaders(); // layer runtimes exist before the panels draw them
   panels.renderAll(app);
@@ -401,6 +416,13 @@ const scheduleHash = debounce(async () => {
 // ---- Actions (called by panels.js) ----
 
 export const actions = {
+  setTab(tab) {
+    app.ui.tab = tab;
+    panels.renderTabs(app);
+  },
+  setBasemap(name) {
+    update((doc) => { doc.basemap = name; });
+  },
   async setLevel(level) {
     const area = { ...app.doc.area, level };
     Object.assign(area, trimPlace(area, level));
@@ -424,10 +446,13 @@ export const actions = {
     } catch {
       // colors fall back to the preset's
     }
-    app.ui.addOpen = false;
+    app.ui.selected = id; // a new layer opens its properties (D-070)
+    app.ui.tab = 'layers';
     update((doc) => { doc.layers.unshift(layer); });
   },
   removeLayer(id) {
+    if (app.ui.selected === id) app.ui.selected = null;
+    if (app.table?.id === id) app.table = null;
     update((doc) => {
       doc.layers = doc.layers.filter((l) => l.id !== id);
       for (const buffer of doc.buffers) buffer.targets = buffer.targets.filter((t) => t !== id);
@@ -456,20 +481,35 @@ export const actions = {
     }
     update((doc) => { doc.layers.find((l) => l.id === id).style = { preset: choice.preset, overrides }; });
   },
-  toggleSection(id, section) {
-    const open = app.ui.open[id] ?? {};
-    app.ui.open[id] = { ...open, [section]: !open[section] };
-    if (section === 'filter' && app.ui.open[id].filter && !runtime(id).stats.loaded) loadStats(id);
-    if (section === 'table') {
-      if (app.ui.open[id].table) openTable(id);
-      else closeTable();
-    }
-    panels.renderLayer(app, id);
-  },
-  toggleAdd() {
-    app.ui.addOpen = !app.ui.addOpen;
+  // The layer whose properties are open (D-070). An open table follows the chosen layer.
+  selectLayer(id) {
+    app.ui.selected = id;
+    if (id && app.table && app.table.id !== id) openTable(id);
+    if (id && app.ui.sections.filter && !runtime(id).stats.loaded) loadStats(id);
     panels.renderLayers(app);
   },
+  openTemplates() {
+    panels.openTemplates(app);
+  },
+  sectionToggled(section, open) {
+    app.ui.sections[section] = open;
+    const id = app.ui.selected;
+    if (section === 'filter' && open && id && !runtime(id).stats.loaded) loadStats(id);
+  },
+  toggleTable(id) {
+    if (app.table?.id === id) closeTable();
+    else openTable(id);
+    panels.renderProperties(app);
+  },
+  cancelStats(id) {
+    runtime(id).statsAbort?.abort();
+  },
+  recount(id) {
+    runtime(id).stats.loaded = false;
+    loadStats(id);
+    panels.renderLayer(app, id);
+  },
+
   retry(id) {
     runtime(id).queryKey = null;
     refreshLayer(id);
@@ -479,12 +519,14 @@ export const actions = {
   startSelect() {
     app.draw?.stop();
     app.mode = 'select';
+    actions.setTab('analysis');
     app.map.map.getCanvas().style.cursor = 'pointer';
     panels.renderBuffer(app);
   },
   startDraw(kind) {
     app.mode = null;
     app.draw.start(kind);
+    actions.setTab('analysis');
     panels.renderBuffer(app);
   },
   cancelMode() {
@@ -516,7 +558,36 @@ export const actions = {
     app.ui.candidates = (json.candidates ?? []).filter((c) => c.score >= search.min_score);
     app.ui.candidatesFor = forSite ? 'site' : 'area';
     app.ui.candidateMessage = app.ui.candidates.length ? '' : TEXT.area.addressNone;
+    app.ui.fallbackQuery = app.ui.candidates.length || !search.fallback || !parseAddress(query) ? null : query;
     panels.renderAll(app);
+  },
+  // The slower search of address points, offered when the geocoder finds nothing (D-048).
+  async searchAddressPoints() {
+    const { fallback } = app.registry.catalog.search;
+    const parsed = parseAddress(app.ui.fallbackQuery);
+    if (!parsed) return;
+    app.ui.fallbackAbort?.abort();
+    const controller = new AbortController();
+    app.ui.fallbackAbort = controller;
+    app.ui.candidateMessage = TEXT.area.addressSearching;
+    panels.renderAll(app);
+    try {
+      const slow = app.slowClient ?? (app.slowClient = createClient({ timeoutMs: (fallback.timeout_s ?? 60) * 1000 }));
+      const page = await slow.features(fallback.url, { where: addressWhere(parsed, fallback), outFields: [fallback.address_field, fallback.place_field],
+        num: fallback.max_results, precision: 6, signal: controller.signal });
+      app.ui.candidates = page.features.filter((f) => f.geometry).map((f) => ({ score: 100,
+        address: [f.properties[fallback.address_field], f.properties[fallback.place_field]].filter(Boolean).join(', '),
+        location: { x: f.geometry.coordinates[0], y: f.geometry.coordinates[1] } }));
+      app.ui.candidateMessage = app.ui.candidates.length ? '' : TEXT.area.addressNone;
+    } catch (error) {
+      app.ui.candidateMessage = error.kind === 'cancelled' ? '' : TEXT.layers.failed;
+    }
+    app.ui.fallbackQuery = null;
+    app.ui.fallbackAbort = null;
+    panels.renderAll(app);
+  },
+  cancelAddressPoints() {
+    app.ui.fallbackAbort?.abort();
   },
   async useCandidate(candidate) {
     const point = { type: 'Point', coordinates: [candidate.location.x, candidate.location.y] };
@@ -567,8 +638,9 @@ export const actions = {
     else download(screeningFileName(name, 'geojson'), JSON.stringify(resultsGeojson(app.results, buffer, context)), 'application/geo+json');
     countExport(app.registry.catalog.counter_url, format === 'csv' ? 'csv' : 'geojson', true, app.pilot);
   },
-  async startScreening() {
-    const template = app.registry.catalog.templates?.site_screening;
+  // A template (D-069): its layers and presets, then, when it names targets, a buffer whose site comes next.
+  async applyTemplate(key) {
+    const template = app.registry.catalog.templates?.[key];
     if (!template) return;
     const layers = [];
     for (const item of template.layers) {
@@ -581,14 +653,16 @@ export const actions = {
       layers.push(layer);
     }
     const others = app.doc.layers.filter((l) => !layers.some((t) => t.id === l.id));
-    app.pendingDistance = template.distance_ft;
-    app.pendingTargets = template.targets;
-    app.ui.screening = true;
+    const buffered = Boolean(template.targets?.length);
+    app.pendingDistance = buffered ? template.distance_ft : null;
+    app.pendingTargets = buffered ? template.targets : null;
+    app.ui.screening = buffered;
+    app.ui.templateTitle = template.title;
     await update((doc) => {
       doc.layers = [...layers, ...others].slice(0, MAX_LAYERS);
-      doc.layout = { ...doc.layout, ...template.layout };
+      doc.layout = { ...doc.layout, ...(template.layout ?? {}) };
     });
-    actions.startSelect();
+    if (buffered) actions.startSelect();
   },
 
   // Export
@@ -599,6 +673,20 @@ export const actions = {
     update((doc) => Object.assign(doc.layout, patch));
   },
   print: () => exportImage('pdf'),
+  // Preview the print layout, then print it without drawing the map again.
+  async previewPrint() {
+    panels.flash(app, TEXT.export.preparing);
+    try {
+      const { root, page, complete } = await renderPrintRoot(imageContext());
+      panels.flash(app, complete ? '' : TEXT.export.printTimeout);
+      panels.showPrintPreview(app, root, page, async () => {
+        await printRoot(root, page);
+        countExport(app.registry.catalog.counter_url, 'pdf', true, app.pilot);
+      });
+    } catch (error) {
+      panels.flash(app, String(error.message ?? error));
+    }
+  },
   png: () => exportImage('png'),
   async copyLink() {
     const hash = await encodeDoc(docForSave());
@@ -633,6 +721,7 @@ export const actions = {
 
 function setSite(source, label) {
   app.mode = null;
+  app.ui.changeSite = false;
   app.draw?.stop();
   app.map.map.getCanvas().style.cursor = '';
   const existing = app.doc.buffers[0];
@@ -647,15 +736,26 @@ function setSite(source, label) {
     doc.buffers = [{ id: existing?.id ?? nextBufferId(doc), source: { ...source, ...(source.kind === 'feature' ? { label: label ?? '' } : {}),
       geometry: roundGeometry(source.geometry) }, distance_ft: distance, targets: targets.filter((t) => doc.layers.some((l) => l.id === t)),
     label: TEXT.buffer.ringLabel(distance) }];
-    if (screening && !doc.title) doc.title = TEXT.buffer.templateTitle(label || TEXT.buffer.drawnSite);
+    if (screening && !doc.title) doc.title = TEXT.buffer.templateTitle(app.ui.templateTitle ?? '', label || TEXT.buffer.drawnSite);
     if (screening && !doc.subtitle) doc.subtitle = areaName();
   }).then(() => { if (screening) { app.ui.screening = false; runBufferNow(); } });
 }
 
-async function selectAt(point) {
-  const hits = app.map.featuresAt(point);
-  const hit = hits.find((h) => isSource(app.registry.get(h.key)));
-  if (!hit) return;
+// Select mode (D-067): any feature on the map can be a buffer's site. When a click finds several, ask which.
+async function selectAt(point, lngLat) {
+  const seen = new Set();
+  const hits = app.map.featuresAt(point, 5).filter((hit) => {
+    const key = `${hit.key}|${hit.properties.atlas_id}`;
+    if (!isSource(app.registry.get(hit.key)) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  if (!hits.length) return;
+  if (hits.length === 1) { chooseSite(hits[0]); return; }
+  app.map.showPopup(lngLat, panels.siteChooser(app, hits.slice(0, 8), (hit) => { app.map.closePopup(); chooseSite(hit); }));
+}
+
+async function chooseSite(hit) {
   const entry = app.registry.get(hit.key);
   const rt = runtime(entry.id);
   const types = await typesFor(rt);
@@ -666,7 +766,9 @@ async function selectAt(point) {
   const feature = page.features[0];
   if (!feature) return;
   const row = toRow(feature.properties, entry);
-  setSite({ kind: 'feature', layer: entry.id, atlas_id: row.atlas_id, geometry: feature.geometry }, String(row[entry.label_field] ?? row.atlas_id));
+  // An unnamed site is called by its kind ("Open space area"), not by its ID, which may be a long code.
+  const name = row[entry.label_field] || `${entry.noun.singular[0].toUpperCase()}${entry.noun.singular.slice(1)}`;
+  setSite({ kind: 'feature', layer: entry.id, atlas_id: row.atlas_id, geometry: feature.geometry }, String(name));
 }
 
 async function runBufferNow() {
@@ -690,7 +792,6 @@ async function runBufferNow() {
 function resultsContext(buffer) {
   return {
     label: TEXT.screeningLabel(dataDates()),
-    parcelLine: TEXT.parcelLine,
     siteLine: `${TEXT.buffer.site}: ${buffer.source.label || TEXT.buffer.drawnSite}; ${buffer.distance_ft} ft; ${new Date().toISOString().slice(0, 10)}`,
     credits: app.registry.credits(buffer.targets),
     headers: { ...TEXT.buffer.columns, site: TEXT.buffer.siteMark, details: TEXT.buffer.results },
@@ -727,6 +828,25 @@ function docForSave() {
 
 // ---- Exports ----
 
+// "NJDEP" from "New Jersey Department of Environmental Protection (NJDEP), ..."; other publishers as they are.
+function shortPublisher(publisher) {
+  return /\(([A-Z][A-Za-z.]+)\)/.exec(publisher)?.[1] ?? publisher.split(',')[0];
+}
+
+// What an export will carry, in one line (the owner's review, 2026-09-27).
+function exportSummary() {
+  const { doc } = app;
+  const buffer = doc.buffers[0];
+  return TEXT.export.summary({
+    layers: doc.layers.length,
+    filters: doc.layers.reduce((n, layer) => n + layer.filters.length, 0),
+    buffer: buffer ? `${buffer.distance_ft} ft, ${buffer.source.label || TEXT.buffer.drawnSite}` : null,
+    sources: [...new Set(doc.layers.map((layer) => shortPublisher(app.registry.get(layer.id).source.publisher)))],
+    when: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+  });
+}
+app.exportSummary = exportSummary;
+
 function legendGroups() {
   const groups = [];
   for (const layer of app.doc.layers) {
@@ -757,7 +877,8 @@ function imageContext(failed = failedLayers()) {
   return {
     doc, text: TEXT, bounds: app.map.bounds(), legend: legendGroups(), credits: doc.credits, dates: dataDates(), leftOut: failed,
     label: buffer ? TEXT.screeningLabel(dataDates()) : null,
-    parcelLine: (buffer && app.results && hasParcels(app.results)) || doc.layers.some((l) => app.registry.get(l.id).export_note === 'parcels') ? TEXT.parcelLine : null,
+    notes: [...new Set([...(buffer && app.results ? resultNotes(app.results) : []),
+      ...doc.layers.filter((l) => l.visible).flatMap((l) => notesOf(app.registry.get(l.id), 'print'))])],
     fill: (printMap) => {
       printMap.syncLayers(stack().filter((item) => !failed.includes(app.registry.get(item.key).title)));
       for (const layer of app.doc.layers) {
@@ -821,8 +942,10 @@ async function exportData(id, format) {
       return;
     }
     const preface = [`${entry.title}: ${areaName()}`, entry.license.attribution, `${TEXT.export.dataDates}: ${dataDates()}`];
+    // Copy and hybrid layers are drawn from our copies but exported from the source (D-055, D-072).
+    if (entry.access !== 'live') preface.push(TEXT.export.liveNote(entry.source.publisher, new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')));
     if (app.doc.buffers.length) preface.push(TEXT.screeningLabel(dataDates()));
-    if (entry.export_note === 'parcels') preface.push(TEXT.parcelLine);
+    preface.push(...notesOf(entry, 'export'));
     const base = `${entry.id}_${slug(areaName())}_${new Date().toISOString().slice(0, 10)}`;
     if (format === 'csv') download(`${base}.csv`, dataCsv(entry, features, preface), 'text/csv');
     else download(`${base}.geojson`, JSON.stringify(dataGeojson(entry, features, preface)), 'application/geo+json');
@@ -837,7 +960,6 @@ async function exportData(id, format) {
 // ---- Table ----
 
 async function openTable(id) {
-  for (const other of Object.keys(app.ui.open)) if (other !== id && app.ui.open[other]?.table) app.ui.open[other].table = false;
   app.table = { id, rows: [], offset: 0, sort: null, done: false };
   await loadTablePage();
 }
@@ -924,7 +1046,7 @@ async function boot() {
     return;
   }
   if (app.embed) document.body.classList.add('embed');
-  if (new URLSearchParams(location.search).has('debug')) window.studio = { app, actions, setDoc, update, imageContext, layerData };
+  if (new URLSearchParams(location.search).has('debug')) window.studio = { app, actions, setDoc, update, imageContext, layerData, selectAt, chooseSite };
   app.pilot = rememberPilot();
   app.client = createClient();
   panels.renderShell(app, actions);
@@ -933,14 +1055,15 @@ async function boot() {
   app.levels = places.levels;
   await Promise.all(['county', 'municipality'].map((level) => unitsNow(level).catch(() => [])));
   app.health = await loadHealth(dataUrl('health.json'));
-  app.map = await createStudioMap($('map'));
+  app.areaName = areaName;
+  app.map = await createStudioMap($('map'), { basemap: app.doc.basemap, onBasemap: (name) => actions.setBasemap(name), text: TEXT.basemaps });
   app.draw = new DrawTool(app.map, {
     onDone: (shape) => setSite({ kind: 'drawn', geometry: shape }, TEXT.buffer.drawnSite),
     onCancel: () => panels.renderBuffer(app),
   });
   app.map.map.on('click', (event) => {
     if (app.draw.active()) return;
-    if (app.mode === 'select') { selectAt(event.point); return; }
+    if (app.mode === 'select') { selectAt(event.point, event.lngLat); return; }
     const hit = app.map.featuresAt(event.point)[0];
     if (hit) app.map.showPopup(event.lngLat, panels.popup(app, app.registry.get(hit.key), hit.properties));
     else app.map.closePopup();

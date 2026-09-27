@@ -5,7 +5,15 @@ import { Protocol } from 'https://cdn.jsdelivr.net/npm/pmtiles@4.5.0/+esm';
 import { worldMinus } from './geo.js';
 
 const MAPLIBRE_URL = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
-const BASEMAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+// Basemaps (D-071). 'none' keeps OpenFreeMap's fonts so Studio's own labels still draw.
+export const BASEMAPS = {
+  positron: 'https://tiles.openfreemap.org/styles/positron',
+  liberty: 'https://tiles.openfreemap.org/styles/liberty',
+  none: { version: 8, glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf', sources: {},
+    layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }] },
+};
+const STUDIO_SOURCES = ['mask', 'area', 'rings', 'hits', 'selected', 'sites', 'draft'];
+const isStudioSource = (id) => STUDIO_SOURCES.includes(id) || String(id).startsWith('L:');
 const NJ_BOUNDS = [[-75.6, 38.9], [-73.9, 41.4]];
 const EMPTY = { type: 'FeatureCollection', features: [] };
 const PREFIX = 'L:';
@@ -44,15 +52,21 @@ const OVERLAYS = [
     { id: 'draft-point', type: 'circle', filter: ['==', ['geometry-type'], 'Point'], paint: { 'circle-radius': 4, 'circle-color': '#ffffff', 'circle-stroke-color': '#0E5A66', 'circle-stroke-width': 2 } }] },
 ];
 
-export async function createStudioMap(container, { interactive = true, preserveDrawingBuffer = false, pixelRatio, bounds } = {}) {
+export async function createStudioMap(container, { interactive = true, preserveDrawingBuffer = false, pixelRatio, bounds, basemap = 'positron',
+  onBasemap = null, text = null } = {}) {
   const maplibregl = await loadLibrary();
+  let basemapControl = null;
   const map = new maplibregl.Map({
-    container, style: BASEMAP_STYLE, bounds: bounds ?? NJ_BOUNDS, fitBoundsOptions: { padding: 20 },
+    container, style: BASEMAPS[basemap] ?? BASEMAPS.positron, bounds: bounds ?? NJ_BOUNDS, fitBoundsOptions: { padding: 20 },
     attributionControl: false, interactive, preserveDrawingBuffer, ...(pixelRatio ? { pixelRatio } : {}),
     canvasContextAttributes: preserveDrawingBuffer ? { preserveDrawingBuffer: true } : undefined,
   });
   if (interactive) {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    if (onBasemap) {
+      basemapControl = new BasemapControl(basemap, onBasemap, text);
+      map.addControl(basemapControl, 'top-right');
+    }
     map.addControl(new maplibregl.ScaleControl({ unit: 'imperial' }), 'bottom-right');
   }
   map.addControl(new maplibregl.AttributionControl({ compact: true }));
@@ -60,7 +74,46 @@ export async function createStudioMap(container, { interactive = true, preserveD
     map.once('load', resolve);
     map.once('error', (event) => { if (!map.loaded()) reject(event.error ?? new Error('map failed to load')); });
   });
-  return new StudioMap(maplibregl, map);
+  const studioMap = new StudioMap(maplibregl, map);
+  studioMap.basemap = basemap;
+  studioMap.basemapControl = basemapControl;
+  return studioMap;
+}
+
+// A small select in the map's corner: the basemap is a view setting, saved in the map document (D-071).
+class BasemapControl {
+  constructor(current, onChange, text) {
+    this.current = current;
+    this.onChange = onChange;
+    this.text = text;
+  }
+
+  onAdd() {
+    const select = document.createElement('select');
+    select.className = 'basemap-select';
+    select.setAttribute('aria-label', this.text?.label ?? 'Basemap');
+    for (const key of Object.keys(BASEMAPS)) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = this.text?.[key] ?? key;
+      select.append(option);
+    }
+    select.value = this.current;
+    select.addEventListener('change', () => this.onChange(select.value));
+    this.select = select;
+    this.container = document.createElement('div');
+    this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group basemap-control';
+    this.container.append(select);
+    return this.container;
+  }
+
+  set(value) {
+    if (this.select) this.select.value = value;
+  }
+
+  onRemove() {
+    this.container.remove();
+  }
 }
 
 export class StudioMap {
@@ -112,6 +165,31 @@ export class StudioMap {
     this.map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
   }
 
+  // Change the basemap, carrying Studio's sources and layers (with their data) into the new style: data, mask
+  // and outline go below the new basemap's labels, the overlays above everything.
+  setBasemap(name) {
+    if (!BASEMAPS[name] || name === this.basemap) return Promise.resolve();
+    this.basemap = name;
+    return new Promise((resolve) => {
+      this.map.once('style.load', () => {
+        this.map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
+        resolve();
+      });
+      this.map.setStyle(BASEMAPS[name], {
+        transformStyle: (previous, next) => {
+          const sources = Object.fromEntries(Object.entries(previous.sources).filter(([id]) => isStudioSource(id)));
+          const ours = previous.layers.filter((layer) => isStudioSource(layer.source));
+          const below = ours.filter((layer) => layer.source.startsWith('L:') || layer.source === 'mask' || layer.source === 'area');
+          const above = ours.filter((layer) => !below.includes(layer));
+          const firstLabel = next.layers.findIndex((layer) => layer.type === 'symbol');
+          const layers = firstLabel < 0 ? [...next.layers, ...below, ...above]
+            : [...next.layers.slice(0, firstLabel), ...below, ...next.layers.slice(firstLabel), ...above];
+          return { ...next, sources: { ...next.sources, ...sources }, layers };
+        },
+      });
+    });
+  }
+
   setData(key, featureCollection) {
     this.map.getSource(`${PREFIX}${key}`)?.setData(featureCollection);
   }
@@ -130,11 +208,13 @@ export class StudioMap {
     return this.dataLayers.flatMap((layer) => layer.layerIds).filter((id) => !id.endsWith(':labels') && this.map.getLayer(id));
   }
 
-  // Features under a point: [{ key, properties, geometry }], top layer first.
-  featuresAt(point) {
+  // Features under a point, within `pad` pixels (points are small targets): [{ key, properties, geometry }],
+  // top layer first.
+  featuresAt(point, pad = 0) {
     const ids = this.dataLayerIds();
     if (!ids.length) return [];
-    return this.map.queryRenderedFeatures(point, { layers: ids })
+    const where = pad ? [[point.x - pad, point.y - pad], [point.x + pad, point.y + pad]] : point;
+    return this.map.queryRenderedFeatures(where, { layers: ids })
       .map((feature) => ({ key: feature.layer.metadata?.key, properties: feature.properties, geometry: feature.geometry }));
   }
 

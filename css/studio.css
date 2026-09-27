@@ -6,15 +6,28 @@ html:has(body.studio) { overflow: hidden; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .studio-layout { flex: 1 1 auto; display: grid; grid-template-columns: 380px minmax(0, 1fr); min-height: 0; }
-.studio-panel { position: relative; overflow-y: auto; overflow-x: hidden; border-right: 1px solid var(--line); background: var(--panel); }
+.studio-panel { position: relative; display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-height: 0;
+  border-right: 1px solid var(--line); background: var(--panel); }
 .studio-panel * { min-width: 0; }
-.panel-block { border-bottom: 1px solid var(--line); }
-.panel-block > summary { list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
-.panel-block > summary::-webkit-details-marker { display: none; }
-.panel-block > summary::before { content: '▸'; color: var(--muted); font-size: 0.8rem; }
-.panel-block[open] > summary::before { content: '▾'; }
-.panel-block > summary h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-.panel-body { padding: 0 16px 14px; display: grid; gap: 10px; }
+.tab-panels { position: relative; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+.panel-body { padding: 12px 16px 16px; display: grid; gap: 10px; align-content: start; }
+.panel-body:focus-visible { outline-offset: -2px; }
+
+/* The map document at a glance (D-068) */
+.doc-bar { padding: 10px 16px 6px; display: grid; gap: 2px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.doc-bar input { border: 1px solid transparent; background: transparent; font-weight: 600; font-size: 1rem; padding: 3px 6px; margin-left: -6px; min-height: 30px; }
+.doc-bar input:hover, .doc-bar input:focus { border-color: var(--line); background: var(--paper); }
+.doc-meta { color: var(--muted); font-size: 0.82rem; }
+
+/* Tabs (D-068) */
+.tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); background: var(--paper); }
+.tab-bar [role="tab"] { border: none; border-bottom: 3px solid transparent; background: none; padding: 8px 4px; min-height: 40px;
+  font-size: 0.88rem; font-weight: 600; color: var(--muted); border-radius: 0; }
+.tab-bar [role="tab"][aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-bar [role="tab"]:hover { color: var(--ink); }
+
+/* Basemap (D-071) */
+.basemap-control .basemap-select { border: none; min-height: 29px; padding: 2px 6px; font-size: 0.8rem; background: #fff; }
 .panel-body h3 { font-size: 0.85rem; margin-top: 4px; }
 
 .field { display: grid; gap: 4px; }
@@ -51,9 +64,12 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
   border: 1px solid transparent; background: none; padding: 5px 6px; min-height: 32px; }
 .catalog-item:hover:not(:disabled) { border-color: var(--line); background: var(--panel); }
 .layer-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.layer { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; display: grid; gap: 6px; }
+.layer { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px; display: grid; gap: 2px; }
+.layer.selected { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
 .layer-head { display: flex; align-items: center; gap: 6px; }
-.layer-title { font-weight: 600; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.95rem; }
+.layer-title { font-weight: 600; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.95rem;
+  border: none; background: none; text-align: left; padding: 2px 0; min-height: 28px; color: var(--ink); }
+.layer-title:hover { color: var(--accent); text-decoration: underline; }
 .layer-meta { display: grid; grid-template-columns: minmax(0, 1fr) 90px; align-items: center; gap: 8px; }
 .tabs { display: flex; gap: 4px; flex-wrap: wrap; }
 .tab { border: 1px solid var(--line); background: var(--paper); border-radius: var(--radius); padding: 2px 10px; min-height: 28px; font-size: 0.84rem; }
@@ -68,8 +84,34 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
 .spinner { display: inline-block; width: 10px; height: 10px; margin-left: 6px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -1px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Layer properties (D-070): beside the panel on wide screens, below the tabs on phones */
+.layer-props { position: absolute; top: 0; bottom: 0; left: 100%; width: 340px; z-index: 3; overflow-y: auto; background: var(--paper);
+  border-right: 1px solid var(--line); box-shadow: 4px 0 12px rgba(0, 0, 0, 0.08); padding: 12px 14px; display: grid; gap: 10px; align-content: start; }
+.props-head { display: flex; align-items: center; gap: 8px; }
+.props-head h2 { flex: 1 1 auto; font-size: 1rem; }
+.prop-section { border-top: 1px solid var(--line); padding-top: 6px; }
+.prop-section > summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; padding: 4px 0; }
+.prop-section > .section { border-top: none; padding-top: 4px; }
+.catalog-dialog { width: min(520px, calc(100vw - 32px)); max-height: min(80vh, 720px); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.catalog-dialog[open] { display: grid; gap: 10px; grid-template-rows: auto auto minmax(0, 1fr); }
+.catalog-dialog .catalog { max-height: none; overflow-y: auto; }
+.template-item { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: var(--radius); padding: 8px 10px; }
+.template-item:hover { border-color: var(--accent); }
+.dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dialog-head h2 { font-size: 1.05rem; }
+
+/* Print preview and export summary */
+.export-summary { font-size: 0.86rem; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px; }
+.print-preview { border: 1px solid var(--line); border-radius: 10px; padding: 14px; max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); }
+.print-preview[open] { display: grid; gap: 10px; }
+.preview-sheet { overflow: hidden; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2); background: #fff; }
+.preview-scale { transform-origin: top left; }
+.preview-scale .print-root { display: block; }
+
 /* Buffer results */
-.site-line { font-size: 0.9rem; }
+.site-line { font-size: 0.95rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; }
+.site-picker { display: grid; gap: 8px; border-left: 3px solid var(--line); padding-left: 10px; }
+.button-row.small { gap: 12px; font-size: 0.85rem; }
 .results { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
 .label-box { font-size: 0.8rem; border: 1px solid #c97b63; background: #fbf0ec; padding: 6px 8px; border-radius: var(--radius); }
 .result-counts { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 0.9rem; }
@@ -98,6 +140,7 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
 .map-flash.error { background: var(--danger); }
 .map-offline { top: 48px; background: var(--danger); }
 .embed-open { display: none; }
+.site-choices { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 2px; font-size: 0.88rem; }
 .popup-layer { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .popup h3 { font-size: 1rem; margin-bottom: 4px; }
 .popup dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; margin: 0; font-size: 0.85rem; }
@@ -120,10 +163,12 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
 
 /* Phones: the panel stacks above the map */
 @media (max-width: 760px) {
-  html:has(body.studio), .studio { overflow: auto; }
-  .studio-layout { grid-template-columns: 1fr; grid-template-rows: auto minmax(60vh, 1fr); overflow-y: auto; }
-  .studio-panel { border-right: none; border-bottom: 1px solid var(--line); max-height: none; }
-  .studio-map-column { min-height: 60vh; order: -1; } /* a shared map opens on the map */
+  /* Phones: the map stays on screen and the tabs sit under it, like a bottom sheet (D-062, D-068). */
+  .studio-layout { grid-template-columns: 1fr; grid-template-rows: 52vh minmax(0, 1fr); }
+  .studio-panel { border-right: none; border-top: 1px solid var(--line); }
+  .studio-map-column { order: -1; min-height: 0; }
+  .studio-panel { grid-template-rows: auto auto minmax(0, 1fr) auto; }
+  .layer-props { position: static; width: auto; max-height: 45vh; box-shadow: none; border-right: none; border-top: 1px solid var(--line); }
   .field.inline { grid-template-columns: 1fr; }
   .site-header { padding: 8px 12px; }
 }

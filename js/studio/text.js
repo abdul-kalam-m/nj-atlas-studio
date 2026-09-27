@@ -16,6 +16,10 @@ export const TEXT = {
   count: (n, plural) => `${n} ${plural}`,
 
   panels: { area: 'Area', layers: 'Layers', buffer: 'Buffer', export: 'Export' },
+  tabs: { area: 'Area', layers: 'Layers', analysis: 'Analysis', export: 'Export' },
+  docBar: { layers: (n) => (n === 1 ? '1 layer' : `${n} layers`), buffer: (feet) => `${feet} ft buffer` },
+  basemaps: { label: 'Basemap', positron: 'Light', liberty: 'Streets', none: 'None' },
+  templates: { start: 'Start from template', heading: 'Templates' },
 
   area: {
     level: 'Level',
@@ -25,8 +29,10 @@ export const TEXT = {
     address: 'Address',
     addressGo: 'Go',
     addressNone: 'No match',
+    addressSlower: 'Search address points (slower)',
+    addressSearching: 'Searching address points…',
     addressTooShort: 'Type at least 4 characters',
-    touching: 'Includes items touching the area.',
+    touching: 'Area slicing uses a simplified outline (about 10 m). Counts may differ by up to 1% from an exact outline. Items touching the area are included.',
   },
 
   levels: { state: 'State', county: 'County', municipality: 'Municipality', tract: 'Census tract', block_group: 'Block group' },
@@ -52,6 +58,7 @@ export const TEXT = {
     table: 'Table',
     about: 'About',
     zoomIn: (plural) => `Zoom in to see ${plural}`,
+    dense: (plural) => `Too many ${plural} to draw here. Zoom in or add a filter.`,
     paused: 'Paused: the source changed.',
     failed: 'Source not responding',
     healthWarning: 'Last night’s check failed for this source.',
@@ -70,6 +77,9 @@ export const TEXT = {
     clear: 'Clear',
     examples: 'Examples',
     more: (n) => `+${n} more`,
+    counting: (read, total) => `Counting values: ${read} of ${total}`,
+    cancelled: 'Counts stopped.',
+    recount: 'Count again',
   },
 
   style: {
@@ -88,7 +98,8 @@ export const TEXT = {
   buffer: {
     site: 'Site',
     select: 'Select on map',
-    selectHint: 'Click a parcel or another selectable item.',
+    selectHint: 'Click anything on the map: a parcel, a school, a park, a flood zone…',
+    chooseSite: 'Which one?',
     draw: { point: 'Point', line: 'Line', area: 'Area' },
     drawHint: 'Click to add points. Double-click or Enter to finish. Backspace undoes a point; Escape cancels.',
     coordinates: 'Coordinates',
@@ -100,6 +111,10 @@ export const TEXT = {
     targets: 'List inside the ring',
     noTargets: 'Add a layer that can be listed (parcels, wetlands, schools…).',
     run: 'Run',
+    changeSite: 'Change site',
+    all: 'All',
+    none: 'None',
+    stale: 'Changed since the last run.',
     clear: 'Clear',
     ringLabel: (distance) => `${distance} ft`,
     results: 'Inside the ring',
@@ -109,8 +124,7 @@ export const TEXT = {
     downloadShapes: 'Shapes',
     siteMark: 'Site',
     template: 'Site screening',
-    templateStart: 'Start a site screening map',
-    templateTitle: (site) => `Site screening: ${site}`,
+    templateTitle: (template, site) => `${template}: ${site}`,
     drawnSite: 'Drawn site',
     columns: { layer: 'Layer', name: 'Name', type: 'Type', id: 'ID' },
   },
@@ -120,7 +134,6 @@ export const TEXT = {
     + 'Interpretation and flood hazard areas with a verification. Riparian zones under N.J.A.C. 7:13 are measured from the '
     + 'top of bank and vary by water type (300, 150 or 50 ft), so a ring around a stream line only approximates them. '
     + `Data as of ${dates}.`,
-  parcelLine: 'Parcel data can lag the municipal tax list. This is not a certified list of property owners.',
 
   export: {
     title: 'Title',
@@ -134,6 +147,12 @@ export const TEXT = {
     scaleBar: 'Scale bar',
     northArrow: 'North arrow',
     print: 'Print / PDF',
+    preview: 'Preview',
+    previewHeading: 'Print preview',
+    summary: ({ layers, filters, buffer, sources, when }) => [
+      layers === 1 ? '1 layer' : `${layers} layers`, buffer ? `a buffer (${buffer})` : null,
+      filters ? (filters === 1 ? '1 filter' : `${filters} filters`) : null].filter(Boolean).join(', ')
+      + (sources.length ? `. Data from ${sources.join(', ')}, live as of ${when}.` : '.'),
     png: 'PNG',
     link: 'Copy link',
     linkCopied: 'Link copied',
@@ -151,6 +170,7 @@ export const TEXT = {
     credit: 'Made with NJ Atlas Studio',
     dataDates: 'Data',
     queried: (when) => `queried ${when}`,
+    liveNote: (publisher, when) => `Counts and shapes queried live from ${publisher} at ${when}; the on-screen map may come from a slightly older copy.`,
     built: (when) => `map copy ${when}`,
     scale: 'Scale',
     north: 'N',

@@ -9,6 +9,7 @@ export const MIN_DISTANCE_FT = 1;
 export const MAX_DISTANCE_FT = 5280;
 export const BUFFER_PRESETS_FT = [50, 100, 200, 300, 500, 1000];
 export const LEVELS = ['state', 'county', 'municipality', 'tract', 'block_group'];
+export const BASEMAPS = ['positron', 'liberty', 'none']; // D-071
 const PLACE_PATTERNS = { county_fips: /^\d{3}$/, mun_code: /^\d{4}$/, tract_geoid: /^34\d{9}$/, bg_geoid: /^34\d{10}$/ };
 export const LEVEL_KEY = { county: 'county_fips', municipality: 'mun_code', tract: 'tract_geoid', block_group: 'bg_geoid' };
 const PAPERS = ['letter', 'tabloid'];
@@ -91,7 +92,7 @@ export function validate(input, known = null) {
     else doc.area[key] = String(value);
   }
   doc.mask = raw.mask !== false;
-  doc.basemap = raw.basemap === 'none' ? 'none' : 'positron';
+  doc.basemap = BASEMAPS.includes(raw.basemap) ? raw.basemap : 'positron';
   if (isObject(raw.view) && Array.isArray(raw.view.center) && raw.view.center.length === 2
     && raw.view.center.every(Number.isFinite) && Number.isFinite(raw.view.zoom)) {
     doc.view = { center: raw.view.center, zoom: raw.view.zoom, bearing: Number.isFinite(raw.view.bearing) ? raw.view.bearing : 0 };

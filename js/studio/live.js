@@ -9,7 +9,7 @@ const GET_LIMIT = 1500; // longer requests are POSTed (a form POST needs no CORS
 export class LiveError extends Error {
   constructor(kind, message, status = null) {
     super(message);
-    this.kind = kind; // 'timeout' | 'network' | 'http' | 'arcgis' | 'rate_limited'
+    this.kind = kind; // 'timeout' | 'network' | 'http' | 'arcgis' | 'rate_limited' | 'cancelled'
     this.status = status;
   }
 }
@@ -56,13 +56,17 @@ export function createClient({ fetchFn = globalThis.fetch.bind(globalThis), maxC
     }
   }
 
-  async function once(url, params) {
+  // `signal` cancels the request (the person pressed Cancel); the timeout aborts it separately.
+  async function once(url, params, signal = null) {
+    if (signal?.aborted) throw new LiveError('cancelled', `${url}: cancelled`);
     const target = proxyFor(url) ?? url;
     const body = new URLSearchParams({ ...params, f: params.f ?? 'json' });
     const query = body.toString();
     const post = query.length > GET_LIMIT;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const cancel = () => controller.abort();
+    signal?.addEventListener('abort', cancel, { once: true });
     const started = Date.now();
     let response;
     try {
@@ -70,9 +74,11 @@ export function createClient({ fetchFn = globalThis.fetch.bind(globalThis), maxC
         ? { method: 'POST', body: query, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, signal: controller.signal }
         : { signal: controller.signal });
     } catch (error) {
+      if (signal?.aborted) throw new LiveError('cancelled', `${url}: cancelled`);
       throw new LiveError(error.name === 'AbortError' ? 'timeout' : 'network', `${url}: ${error.message}`);
     } finally {
       clearTimeout(timer);
+      signal?.removeEventListener('abort', cancel);
     }
     if (response.status === 429) {
       const wait = Number(response.headers.get('Retry-After'));
@@ -94,17 +100,17 @@ export function createClient({ fetchFn = globalThis.fetch.bind(globalThis), maxC
     return json;
   }
 
-  async function request(url, params) {
+  async function request(url, params, signal = null) {
     return slot(async () => {
       try {
-        return await once(url, params);
+        return await once(url, params, signal);
       } catch (error) {
         const retryable = error.kind === 'timeout' || error.kind === 'network' || error.kind === 'rate_limited'
           || (error.status && error.status >= 500);
         if (!retryable) throw error;
         onEvent({ type: 'retry', url, kind: error.kind });
         await sleep(error.kind === 'rate_limited' ? error.waitMs : 2000);
-        return once(url, params);
+        return once(url, params, signal);
       }
     });
   }
@@ -138,8 +144,9 @@ export function createClient({ fetchFn = globalThis.fetch.bind(globalThis), maxC
 
   // One field's values within an area, read page by page, when the server cannot group by it there.
   // NJDEP's MapServer refuses statistics combined with an area outline (found in testing, 2026-09-27).
+  // options.onProgress(read) reports progress and options.signal cancels (D-054).
   async function fieldValues(url, field, options, cap = 20000) {
-    const page = await allFeatures(url, { ...options, outFields: [field], returnGeometry: false }, cap);
+    const page = await allFeatures(url, { ...options, outFields: [field], returnGeometry: false }, cap, options.onProgress);
     return page.features.map((feature) => feature.properties?.[field] ?? null);
   }
 
@@ -150,7 +157,7 @@ export function createClient({ fetchFn = globalThis.fetch.bind(globalThis), maxC
       const json = await request(`${url}/query`, {
         ...base(options), groupByFieldsForStatistics: field, orderByFields: 'n DESC',
         outStatistics: JSON.stringify([{ statisticType: 'count', onStatisticField: oid, outStatisticFieldName: 'n' }]),
-      });
+      }, options.signal);
       return (json.features ?? []).map((feature) => {
         const attributes = feature.attributes ?? {};
         const key = Object.keys(attributes).find((name) => name.toLowerCase() === field.toLowerCase());
@@ -172,7 +179,7 @@ export function createClient({ fetchFn = globalThis.fetch.bind(globalThis), maxC
         outStatistics: JSON.stringify([
           { statisticType: 'min', onStatisticField: field, outStatisticFieldName: 'lo' },
           { statisticType: 'max', onStatisticField: field, outStatisticFieldName: 'hi' }]),
-      });
+      }, options.signal);
       const attributes = json.features?.[0]?.attributes ?? {};
       const pick = (name) => attributes[Object.keys(attributes).find((key) => key.toLowerCase() === name)];
       return { min: pick('lo') ?? null, max: pick('hi') ?? null };
@@ -193,7 +200,7 @@ export function createClient({ fetchFn = globalThis.fetch.bind(globalThis), maxC
     if (options.orderBy) params.orderByFields = options.orderBy;
     if (options.offset !== undefined) params.resultOffset = String(options.offset);
     if (options.num !== undefined) params.resultRecordCount = String(options.num);
-    const json = await request(`${url}/query`, params);
+    const json = await request(`${url}/query`, params, options.signal);
     return { features: json.features ?? [], exceeded: Boolean(json.exceededTransferLimit || json.properties?.exceededTransferLimit) };
   }
 

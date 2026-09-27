@@ -68,7 +68,7 @@ async function renderMap(ctx, size, pixelRatio) {
   document.body.append(holder);
   let studioMap = null;
   try {
-    studioMap = await createStudioMap(holder, { interactive: false, preserveDrawingBuffer: true, pixelRatio, bounds: ctx.bounds });
+    studioMap = await createStudioMap(holder, { interactive: false, preserveDrawingBuffer: true, pixelRatio, bounds: ctx.bounds, basemap: ctx.doc.basemap });
     studioMap.map.fitBounds([[ctx.bounds[0], ctx.bounds[1]], [ctx.bounds[2], ctx.bounds[3]]], { duration: 0, padding: 0 });
     ctx.fill(studioMap);
     const complete = await studioMap.idle(20000);
@@ -93,7 +93,7 @@ function sideParts(ctx, scale) {
   if (marks.length) parts.push(el('div', { class: 'print-marks' }, marks));
   if (doc.layout.notes) parts.push(el('p', { class: 'print-notes', text: doc.layout.notes }));
   if (ctx.label) parts.push(el('p', { class: 'print-label', text: ctx.label }));
-  if (ctx.parcelLine) parts.push(el('p', { class: 'print-label', text: ctx.parcelLine }));
+  for (const note of ctx.notes ?? []) parts.push(el('p', { class: 'print-label', text: note }));
   parts.push(el('p', { class: 'print-credits', text: ctx.credits.join(' · ') }));
   parts.push(el('p', { class: 'print-credits', text: `${text.export.dataDates}: ${ctx.dates}` }));
   if (ctx.leftOut?.length) parts.push(el('p', { class: 'print-credits', text: text.export.leftOut(ctx.leftOut.join(', ')) }));
@@ -101,8 +101,8 @@ function sideParts(ctx, scale) {
   return parts;
 }
 
-// The print layout on the page, ready for the browser's print dialog: { root, complete, cleanup }.
-export async function buildPrintLayout(ctx) {
+// The print layout, not yet on the page: { root, page, complete }. The preview shows it; printRoot prints it.
+export async function renderPrintRoot(ctx) {
   const { doc, text } = ctx;
   const page = pageSize(doc.layout);
   const frame = frameSize(doc.layout);
@@ -115,25 +115,44 @@ export async function buildPrintLayout(ctx) {
       el('aside', { class: 'print-side' }, sideParts(ctx, rendered.scale)),
     ]),
   ]);
+  return { root, page, complete: rendered.complete };
+}
+
+// Put a layout on the page for the print dialog: { cleanup }.
+export async function attachForPrint(root, page) {
   const pageRule = el('style', { id: 'print-page', text: `@page { size: ${page.widthIn}in ${page.heightIn}in; margin: ${MARGIN_IN}in; }` });
   document.head.append(pageRule);
   document.body.append(root);
   document.body.classList.add('printing');
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  const cleanup = () => {
-    root.remove();
-    pageRule.remove();
-    document.body.classList.remove('printing');
+  return {
+    cleanup: () => {
+      root.remove();
+      pageRule.remove();
+      document.body.classList.remove('printing');
+    },
   };
-  return { root, complete: rendered.complete, cleanup };
 }
 
-// Print layout, then the browser's print dialog (Save as PDF).
-export async function printMap(ctx) {
-  const { complete, cleanup } = await buildPrintLayout(ctx);
+// The print layout on the page, ready for the browser's print dialog: { root, complete, cleanup }.
+export async function buildPrintLayout(ctx) {
+  const { root, page, complete } = await renderPrintRoot(ctx);
+  const { cleanup } = await attachForPrint(root, page);
+  return { root, complete, cleanup };
+}
+
+// A layout already built (for example, previewed), then the browser's print dialog (Save as PDF).
+export async function printRoot(root, page) {
+  const { cleanup } = await attachForPrint(root, page);
   window.addEventListener('afterprint', cleanup, { once: true });
   window.print();
   setTimeout(cleanup, 60000); // browsers that never fire afterprint
+}
+
+// Print layout, then the browser's print dialog.
+export async function printMap(ctx) {
+  const { root, page, complete } = await renderPrintRoot(ctx);
+  await printRoot(root, page);
   return complete;
 }
 
@@ -219,7 +238,7 @@ export async function pngMap(ctx) {
     c.font = '11px system-ui, sans-serif';
     y += 42;
   }
-  const paragraphs = [doc.layout.notes, ctx.label, ctx.parcelLine, ctx.credits.join(' · '), `${text.export.dataDates}: ${ctx.dates}`, text.export.credit].filter(Boolean);
+  const paragraphs = [doc.layout.notes, ctx.label, ...(ctx.notes ?? []), ctx.credits.join(' · '), `${text.export.dataDates}: ${ctx.dates}`, text.export.credit].filter(Boolean);
   for (const paragraph of paragraphs) {
     for (const line of wrap(c, paragraph, width - 4)) {
       y += 14;
