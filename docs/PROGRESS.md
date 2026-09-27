@@ -602,3 +602,25 @@ Template (from OPERATING_GUIDE.md §4):
 ### Analysis and Export polish · done · 2026-09-27
 - Checks (browser): the site line reads "Property parcels · 12 CHURCHLANDING RD" with the picker folded; the §1.4 answer holds (0, 2, 3); changing the distance marks the results "Changed since the last run." Export opens with "4 layers, a buffer (500 ft, 12 CHURCHLANDING RD). Data from NJOGIS, NJDEP, live as of 4:13 PM." The print preview shows the letter layout at a readable size, with the screening label and parcel line.
 
+### Buffer tool (D-074 to D-078) · done · 2026-09-27
+- The owner's request in chat: "I think you got the buffer wrong", with two example maps (rings around clinics, buffers around points) and a specification: select a layer and a subset of features; several distances at once, each styled; dissolve or not; feet or meters; accurate distances; map layers with names and a legend; not for boundary layers.
+- Changed:
+  - site/js/studio/{buffer,geoprocess,stateplane,buffer-worker}.js (new);
+  - screening.js (was buffer.js), studio.js, panels.js, mapdoc.js (v2), export.js, text.js, turf.js;
+  - index.html, studio.css;
+  - 15 boundary recipes (`buffer_role: target`), layer.schema.json, pipeline/recipes.py, tools/lint_text.py, ci.yml, package.json (dev dependency `@turf/jsts` 2.7.2);
+  - tests: buffer.test.js, stateplane.test.js, geodesic.mjs, screening.test.js (was buffer.test.js), mapdoc.test.js, fixtures/mapdocs/v2-buffers.json, test_recipes.py, test_lint_text.py.
+- Checks:
+  - 192 Python tests and 204 JavaScript tests pass, and the lint passes.
+  - The grid matches PROJ to 0.1 mm. With the scale correction, ground distances are right to 1 part in a million, and every vertex of a 1,000 ft buffer is within 0.03 ft by Vincenty's geodesic.
+  - Browser (Pennsville):
+    - The v2 fixture opened with 5 schools buffered at 500 and 1,000 ft (10 shapes) and 331 Category 1 water segments dissolved at 100 m (1 shape), both in the worker.
+    - Filtering to Elementary School gave 3 schools and re-ran by itself, and the name became "Schools buffer (Elementary School)". Adding 2,000 ft, restyling 500 ft (red, dotted) and dissolving gave 3 shapes, and the legend showed each ring's own style.
+    - Selecting 2 schools on the map gave "Schools buffer (2 selected)", and Escape ended the selection. Switching to meters kept the numbers. Municipalities are not offered as input.
+    - A click inside a ring showed "2,000 m · 2 schools, merged". Buffer rows sit under their layers in the Layers tab.
+    - The 878-character link reopened both buffers and re-ran them. Print preview and PNG carry the buffer legend.
+    - With module workers disabled, the page ran the buffer itself. Parcels (6,559) stopped in 0.5 s with "Over 2,000 parcels…". Cancel kept the previous layer.
+    - Site screening still gives the §1.4 answer (2 wetland areas, 3 flood areas, 0 Category 1 waters).
+    - At phone width there is no horizontal scroll.
+- Assumptions: screening stays as a second tool (D-076), and which layers count as boundaries (D-074). Both are for the owner's review.
+

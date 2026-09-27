@@ -39,6 +39,7 @@ NJ-Atlas is a point-and-click atlas of New Jersey open data, and **NJ Atlas Stud
 .venv\Scripts\python tools\serve.py          # http://127.0.0.1:8080  (add ?selftest)
 .venv\Scripts\python tools\gate.py G<n> [--layer <id>]
 .venv\Scripts\python -m pytest -m "not network"
+npm ci                            # once: the JSTS build the buffer tests use (D-075)
 npm test
 node tools\healthcheck.mjs        # every live and hybrid source (network)
 node tools\trial.mjs              # live performance against IMPLEMENTATION_GUIDE.md §3.5 (network)

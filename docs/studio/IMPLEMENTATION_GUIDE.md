@@ -1,6 +1,6 @@
 # NJ Atlas Studio: implementation guide
 
-**Revision C, 2026-09-27. Status: approved by the owner in chat, 2026-09-27. Built 2026-09-27 (S0 to S5, and the S6 counter); see PROGRESS.md "Studio". Decisions taken while building are D-046 to D-066, approved by the owner the same day with conditions; the interface then became four tabs with a layer properties panel and buffers from any layer (D-067 to D-073).**
+**Revision C, 2026-09-27. Status: approved by the owner in chat, 2026-09-27. Built 2026-09-27 (S0 to S5, and the S6 counter); see PROGRESS.md "Studio". Decisions taken while building are D-046 to D-066, approved by the owner the same day with conditions; the interface then became four tabs with a layer properties panel and buffers from any layer (D-067 to D-073). The Analysis tab then gained the Buffer tool, a geoprocessing step that makes map layers, and the earlier ring-and-list tool became Site screening (D-074 to D-078; see "Buffer layers (as built)" under §4.7).**
 
 - **Project sheet (Rev C):** https://claude.ai/artifact/VmS2iJpL5vBgmNn5HgJVL4
 - **Layer catalog:** [CATALOG.md](CATALOG.md)
@@ -207,7 +207,11 @@ Keep today's modules: `places.js`, `filters.js`, `format.js`, `csv.js`, `data.js
 | `draw.js` | Minimal drawing: click points, double-click to finish; Escape cancels, Backspace removes the last point |
 | `search.js`* | The slower address search: typed address to house number, street and place (D-048) |
 | `panels.js` | The four tabs (D-068), the layer list and properties panel (D-070), dialogs, legend, table |
-| `buffer.js` | Draw the ring (turf), run distance queries per target, build the results list |
+| `screening.js` | Site screening: draw the ring (turf), run distance queries per target, build the results list (called `buffer.js` before D-076) |
+| `buffer.js`* | Buffer layers (D-076): the recipe's defaults, names, limits, map layer specs, legend rows and download |
+| `geoprocess.js`* | The buffer step: shapes onto State Plane, JSTS buffers, dissolve in chunks, back to longitude and latitude (D-075) |
+| `stateplane.js`* | New Jersey State Plane (Transverse Mercator, Krüger's series) and the grid's scale (D-075) |
+| `buffer-worker.js` | Runs `geoprocess.js` in a module worker; Cancel ends the worker |
 | `clip.js` | Cut live-queried line and polygon features at the area's edge (turf) for exports |
 | `export.js` | PNG, the print layout, and CSV and GeoJSON downloads |
 | `health.js` | Read `site/data/health.json` and mark failing layers |
@@ -222,6 +226,7 @@ Keep today's modules: `places.js`, `filters.js`, `format.js`, `csv.js`, `data.js
 | pmtiles | 4.5.0 | Backbone, copy and hybrid tiles | Always |
 | hyparquet | 1.31.1 | Backbone rows | Always |
 | @turf/buffer, @turf/intersect, @turf/bbox-clip, @turf/helpers | 7.4.0 | Rings and clipping | When the Buffer or Export panel opens |
+| @turf/jsts | 2.7.2 | Buffer layers (D-075): the JSTS build inside @turf/buffer | In the buffer worker, when a buffer runs |
 
 All load from jsDelivr with exact versions (OPERATING_GUIDE.md §5). Add the turf packages to the allowed list in `tools/lint_text.py`.
 
@@ -410,9 +415,9 @@ Each preset has a `label` (its name in the Style panel) and a `kind`. The schema
 - **Format:** v1 uses `f=geojson`, so no decoder is needed. Esri's compact binary format (`f=pbf`) is a later optimization.
 - **Server-drawn images** are not used for styled layers.
 
-### 4.7 Buffers
+### 4.7 Site screening (called Buffers before D-076)
 
-- **Sources (D-067):** a clicked feature of any layer (its full shape is fetched from the source by its ID; when a click finds several features, Studio asks which), or a drawn point, line or area.
+- **Sources (D-067, D-074):** a clicked feature of any layer (its full shape is fetched from the source by its ID; when a click finds several features, Studio asks which), or a drawn point, line or area.
 - **Ring:** Studio draws it in the browser with `@turf/buffer` (units: feet), styled as a dashed outline **above the mask**.
 - **Finding targets:** for each target layer, run one query:
   - with `distance_query: true`, POST `query` with `geometry=<source>`, `distance=<ft>`, `units=esriSRUnit_Foot`, `spatialRel=esriSpatialRelIntersects`, `outFields=<list_fields sources>`;
@@ -425,6 +430,17 @@ Each preset has a `label` (its name in the Style panel) and a `kind`. The schema
   - Caps: up to 5,000 results per layer. Above that, say so and offer the export only.
 - **Labels:** the §1.4 screening label appears on the panel, in file names (`screening_<site>_<date>.csv`) and in the first CSV line. Results that include parcels add the parcel line.
 - **Known answer:** §1.4. The distance-query results must equal the counts in §1.4 exactly.
+
+### Buffer layers (as built, D-074 to D-078)
+
+- **Input:** a layer on the map that is not a boundary layer (D-074). Choose all its features in the area, a filter (the layer's own filter to start with, then its own), or features selected on the map (click to add or remove; Escape or Done ends). The count shows before running.
+- **Distances:** 1 to 6, in feet or meters (one unit per buffer), up to 5 miles or 8,000 m. Each has its own style: fill color and opacity, outline color, width (0 hides it) and solid, dashed or dotted.
+- **Dissolve:** off gives one shape per feature and distance, with the feature's name; on gives one shape per distance, with the number of features.
+- **Measurement (D-075):** on New Jersey State Plane, corrected by the grid's scale; 7 decimals out. The work runs in `buffer-worker.js`.
+- **Output:** one GeoJSON source per buffer; a fill and an outline per distance, largest first, so smaller rings stay on top, drawn just beneath the input layer (D-077). Legend and print rows follow the input layer. A click inside a buffer shows its name, distance, and the feature's name or the number merged.
+- **Document (v2):** `buffers: [{id, layer, name, select: all|filter|picked, filters, picked, unit: ft|m, dissolve, visible, distances: [{value, style: {fill, fill_opacity, outline, outline_width, outline_style}}]}]`. Site screenings are under `screenings` (v1 `buffers`). The recipe runs when a document opens. After a buffer has run, a change to its inputs, distances, dissolve or the area runs it again; Cancel stops that until the next run.
+- **Limits (D-078):** 4 buffers, 6 distances, 2,000 input features, 500 selected. "Over 2,000 <plural>. Filter them or choose a smaller area."
+- **Known answers (tests):** a 1,000 ft buffer's vertices lie 1,000 ft (±0.03 ft) from the point by Vincenty's geodesic; a 250 m buffer's within 0.1 m; the grid matches PROJ to 0.1 mm at six NJ points; a dissolve in chunks has the same area as one done all at once.
 
 ### 4.8 Clipped data export
 
