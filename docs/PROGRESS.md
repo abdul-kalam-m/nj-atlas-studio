@@ -13,7 +13,7 @@ Agents append to the end of each section; they never rewrite earlier entries. Th
 | M4 More layers | Done; G1 passed for 4 layers, G3 re-run passed 2026-09-25 | G1 per layer, G3 | Signed off 2026-09-26 (owner, in chat) |
 | M5 Downloads and plain language | Done; G4 passed; G5 passed except the trial with a real non-GIS person | G4, G5 | Signed off 2026-09-26 (owner, in chat) |
 | M5B Boundary and data filters | Done; G1 passed for 3 new layers, G3/G4/G5 re-run passed 2026-09-25 (G5 trial with a real person still open); D-021 to D-023 approved | G1, G3, G4, G5 | Signed off 2026-09-26 (owner, in chat) |
-| M6 Publish v1 | O-1 and O-3 answered; release prepared from the 9 published layers. Waiting on owner: O-4 (GitHub repository and Pages), a commit, then the push | G6 | |
+| M6 Publish v1 | Published 2026-09-27 at the owner's instruction (D-047): https://abdul-kalam-m.github.io/nj-atlas-studio/ (Studio) and /atlas/ (the atlas), from https://github.com/abdul-kalam-m/nj-atlas-studio. Live checks passed | G6 | |
 | M7 Large layers (optional) | Built locally: 3,481,240 parcels in 564 municipalities; G7 automated and manual steps 2-6 passed 2026-09-26. **Parked by D-031 (2026-09-27):** parcels are live in Studio v1; the code, tests and local build are kept, nothing is published | G7 | |
 | Studio S0-S5 (NJ Atlas Studio) | Built 2026-09-27: 35 layers (7 copy, 5 hybrid, 23 live), styles, buffers and site screening, print, PNG, link, map file, embed, clipped data. GS0-GS4 passed; GS5 passed except printing in Edge and Firefox (the owner's check). Map copies wait on the owner's storage (O-6) | GS0-GS5 | |
 | Studio S6 Pilot | Export counter code done (S6-T2), not deployed; recruiting, timed tests and the pilot are the owner's | G-Studio | |
@@ -24,7 +24,7 @@ Open questions waiting on the human. Remove an entry only when the human answers
 
 The owner asked on 2026-09-26 for all reviews at the end. Everything below waits for them:
 
-1. **M6 publish (critical):** O-4 (create the GitHub repository; Pages from `gh-pages`), permission to commit, then the push command printed by `tools/release.py`. `build/pages` holds the release, ready to push. After the push the agent runs G6 live (M6-T4).
+1. ~~**M6 publish**~~: done 2026-09-27 (D-047).
 2. **M7 reviews** (parked by D-031, approved 2026-09-27; needed only if parcels are ever copied): D-025 (split by municipality), D-026 (parcels tagged by tax district), D-027 (no GeoJSON for split layers), D-028 (`zero_is_blank`, `yymmdd`); O-5 (the parcel fields applied by default, PARCELS_REVIEW.md); the parcels license (O-3); sign-off of the G7 entry.
 3. **M7 hosting** (parked by D-031): O-6 (Cloudflare R2 bucket, public URL, CORS), then the upload printed by `tools/r2_manifest.py` (1,693 files, 3.18 GB), then `r2_base_url` in `catalog/hosting.json`. G7 step 1 runs after that.
 4. **Studio licenses (O-3):** the owner reviews each curated layer's license (CATALOG.md "License") before it is published. The three live recipes keep their reviewed licenses; nj_parcels stays a draft.
@@ -569,3 +569,9 @@ Template (from OPERATING_GUIDE.md §4):
 - Automated: `pipeline validate` (35 recipes), `pytest -m "not network"` (188), `npm test` (174), `tools/lint_text.py`, `pipeline check` on the map copies, `node tools/healthcheck.mjs` (28 layers) and `node tools/trial.mjs` (all within budget).
 - Manual (browser, 2026-09-27): GS1: Pennsville parcels 6,559 and Jersey City 59,011; schools 3,736, 12 congressional and 40 legislative districts (health check known answers); links reopen identically; mask off shows the whole state. GS2: map copies draw locally and their counts are live. GS3: land use six classes; roads one entry per class plus Ramp. GS4: the §1.4 answer, the ring above the mask, both counties at the county line, labels, no notice wording. GS5: letter layout, PNG at 2×, map file round trip (tests), embed, land use within 1%. Not yet done: printing in Edge and Firefox, tabloid and portrait in a real print dialog, the PNG with all 8 slots (tested with 6).
 - Signed off: (owner)
+
+### Release and live check · 2026-09-27
+- Checks: `python tools/release.py` built the seven copy layers, wrote both catalogs, and passed the data checks, lint, 188 Python and 174 JavaScript tests; `build/pages` held 331 MB of data (largest file 53 MB) from commit 2135cfb. Pushed to the new `gh-pages` branch (no force needed), and Pages built in 42 s.
+- Live (2026-09-27, https://abdul-kalam-m.github.io/nj-atlas-studio/): Studio, the atlas at `/atlas/`, the catalogs, the area lists and outlines, and health.json answer 200; a map copy answers a range request with 206. In the browser, Pennsville counts are 6,559 parcels, 331 Category 1 waters, 1,052 wetland areas and 245 flood areas. The site screening buffer around block 301, lot 19 gives 2 wetland areas, 3 flood areas and 0 Category 1 waters (the §1.4 answer). No console errors.
+- Assumptions: the release draws the five hybrid layers live until the map copies are hosted (D-052); the export counter is off (`counter_url` is null).
+- Follow-ups (owner): review D-046 to D-066 and the Studio licenses; O-6 storage for the map copies; deploy the counter; S6 pilot.
