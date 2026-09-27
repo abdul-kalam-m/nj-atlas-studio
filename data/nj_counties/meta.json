@@ -16,7 +16,7 @@
     },
     "pmtiles": {
       "path": "nj_counties/nj_counties.pmtiles",
-      "bytes": 507180
+      "bytes": 507178
     },
     "csv": {
       "path": "nj_counties/nj_counties.csv",

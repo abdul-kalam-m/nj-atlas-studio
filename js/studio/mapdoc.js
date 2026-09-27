@@ -1,10 +1,13 @@
 // The map document: one JSON object for the screen, the link, the .map.json file and the print (D-034,
-// IMPLEMENTATION_GUIDE.md §4.2; the schema is documented in catalog/mapdoc.schema.json).
-// Pure: no imports. Problems are codes with details; site/js/studio/text.js turns them into words.
+// IMPLEMENTATION_GUIDE.md §4.2). Version 2 (D-076) keeps site screenings under `screenings` (version 1 called them
+// `buffers`) and buffer layers under `buffers`.
+// Imports pure modules only. Problems are codes with details; site/js/studio/text.js turns them into words.
+import { MAX_PICKED, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, defaultStyle, validDistance } from './buffer.js';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export const MAX_LAYERS = 8;
 export const MAX_BUFFERS = 4;
+export const MAX_SCREENINGS = 4;
 export const MIN_DISTANCE_FT = 1;
 export const MAX_DISTANCE_FT = 5280;
 export const BUFFER_PRESETS_FT = [50, 100, 200, 300, 500, 1000];
@@ -14,8 +17,8 @@ const PLACE_PATTERNS = { county_fips: /^\d{3}$/, mun_code: /^\d{4}$/, tract_geoi
 export const LEVEL_KEY = { county: 'county_fips', municipality: 'mun_code', tract: 'tract_geoid', block_group: 'bg_geoid' };
 const PAPERS = ['letter', 'tabloid'];
 const ORIENTATIONS = ['landscape', 'portrait'];
-const KNOWN_KEYS = ['schema_version', 'title', 'subtitle', 'created_at', 'area', 'mask', 'basemap', 'view', 'layers', 'buffers',
-  'layout', 'credits', 'source_versions', 'extensions'];
+const KNOWN_KEYS = ['schema_version', 'title', 'subtitle', 'created_at', 'area', 'mask', 'basemap', 'view', 'layers', 'screenings',
+  'buffers', 'layout', 'credits', 'source_versions', 'extensions'];
 const OPS = ['in', 'contains', 'range'];
 
 export function emptyArea() {
@@ -33,6 +36,7 @@ export function createDoc(now = new Date()) {
     basemap: 'positron',
     view: null,
     layers: [],
+    screenings: [],
     buffers: [],
     layout: { paper: 'letter', orientation: 'landscape', legend: true, scale_bar: true, north_arrow: true, notes: '' },
     credits: [],
@@ -53,9 +57,11 @@ function checkGeometry(geometry) {
   return isObject(geometry) && types.includes(geometry.type) && Array.isArray(geometry.coordinates);
 }
 
-// Upgrade older documents one version at a time. v1 is the first version, so there is nothing to do yet;
-// a v2 adds `migrate_v1_to_v2` here and a fixture in tests/fixtures/mapdocs/.
-const MIGRATIONS = {};
+// Upgrade older documents one version at a time, each with a fixture in tests/fixtures/mapdocs/.
+const MIGRATIONS = {
+  // v1 -> v2 (D-076): v1's buffers were site screenings.
+  1: (doc) => ({ ...doc, schema_version: 2, screenings: Array.isArray(doc.buffers) ? doc.buffers : [], buffers: [] }),
+};
 
 export function migrate(doc) {
   let current = doc;
@@ -67,9 +73,28 @@ export function migrate(doc) {
   return current;
 }
 
-// Check and clean a document. `known` lists the layer IDs this Studio has (null: skip that check).
+const isColor = (value) => typeof value === 'string' && /^#[0-9A-Fa-f]{6}$/.test(value);
+const clamp = (value, min, max, fallback) => (Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback);
+
+function cleanFilters(filters) {
+  return (Array.isArray(filters) ? filters : []).filter((condition) => isObject(condition) && isText(condition.field) && OPS.includes(condition.op));
+}
+
+function cleanRingStyle(style, fallback) {
+  const s = isObject(style) ? style : {};
+  return {
+    fill: isColor(s.fill) ? s.fill : fallback.fill,
+    fill_opacity: clamp(s.fill_opacity, 0, 1, fallback.fill_opacity),
+    outline: isColor(s.outline) ? s.outline : fallback.outline,
+    outline_width: clamp(s.outline_width, 0, 8, fallback.outline_width),
+    outline_style: OUTLINE_STYLES.includes(s.outline_style) ? s.outline_style : 'solid',
+  };
+}
+
+// Check and clean a document. `known` lists the layer IDs this Studio has, and `bufferable` those that can be
+// buffered (boundary layers cannot, D-074); null skips that check.
 // Returns { doc, problems, notices }: problems stop the document from opening; notices are things dropped.
-export function validate(input, known = null) {
+export function validate(input, known = null, bufferable = null) {
   const problems = [];
   const notices = [];
   if (!isObject(input)) return { doc: null, problems: [{ code: 'notDocument' }], notices };
@@ -106,8 +131,7 @@ export function validate(input, known = null) {
     if (known && !known.has(layer.id)) { notices.push({ code: 'unknownLayer', detail: layer.id }); continue; }
     if (seen.has(layer.id)) continue;
     seen.add(layer.id);
-    const filters = (Array.isArray(layer.filters) ? layer.filters : [])
-      .filter((condition) => isObject(condition) && isText(condition.field) && OPS.includes(condition.op));
+    const filters = cleanFilters(layer.filters);
     const style = isObject(layer.style) ? layer.style : {};
     doc.layers.push({
       id: layer.id,
@@ -118,35 +142,62 @@ export function validate(input, known = null) {
     });
   }
 
-  const buffers = Array.isArray(raw.buffers) ? raw.buffers : [];
-  if (buffers.length > MAX_BUFFERS) problems.push({ code: 'tooManyBuffers', detail: buffers.length });
-  for (const buffer of buffers.slice(0, MAX_BUFFERS)) {
-    if (!isObject(buffer)) { problems.push({ code: 'badBuffer' }); continue; }
-    const distance = buffer.distance_ft;
+  const screenings = Array.isArray(raw.screenings) ? raw.screenings : [];
+  if (screenings.length > MAX_SCREENINGS) problems.push({ code: 'tooManyScreenings', detail: screenings.length });
+  for (const screening of screenings.slice(0, MAX_SCREENINGS)) {
+    if (!isObject(screening)) { problems.push({ code: 'badScreening' }); continue; }
+    const distance = screening.distance_ft;
     if (!Number.isFinite(distance) || distance < MIN_DISTANCE_FT || distance > MAX_DISTANCE_FT) {
       problems.push({ code: 'badDistance', detail: distance });
       continue;
     }
-    const source = isObject(buffer.source) ? buffer.source : {};
+    const source = isObject(screening.source) ? screening.source : {};
     if (!['feature', 'drawn'].includes(source.kind) || !checkGeometry(source.geometry)) {
-      problems.push({ code: 'badBufferSource' });
+      problems.push({ code: 'badScreeningSource' });
       continue;
     }
     if (source.kind === 'feature' && (!isText(source.layer) || !isText(source.atlas_id))) {
-      problems.push({ code: 'badBufferSource' });
+      problems.push({ code: 'badScreeningSource' });
       continue;
     }
-    const targets = (Array.isArray(buffer.targets) ? buffer.targets : []).filter(isText);
+    const targets = (Array.isArray(screening.targets) ? screening.targets : []).filter(isText);
     const missing = targets.filter((id) => !doc.layers.some((layer) => layer.id === id));
     if (missing.length) notices.push({ code: 'targetNotOnMap', detail: missing.join(', ') });
-    doc.buffers.push({
-      id: isText(buffer.id) ? buffer.id : `b${doc.buffers.length + 1}`,
+    doc.screenings.push({
+      id: isText(screening.id) ? screening.id : `s${doc.screenings.length + 1}`,
       source: source.kind === 'feature'
         ? { kind: 'feature', layer: source.layer, atlas_id: source.atlas_id, label: isText(source.label) ? source.label : '', geometry: source.geometry }
         : { kind: 'drawn', geometry: source.geometry },
       distance_ft: distance,
       targets: targets.filter((id) => !missing.includes(id)),
-      label: isText(buffer.label) ? buffer.label.slice(0, 80) : '',
+      label: isText(screening.label) ? screening.label.slice(0, 80) : '',
+    });
+  }
+
+  // Buffer layers (D-076): the recipe only; Studio runs it again when the document opens.
+  const buffers = Array.isArray(raw.buffers) ? raw.buffers : [];
+  if (buffers.length > MAX_BUFFERS) problems.push({ code: 'tooManyBuffers', detail: buffers.length });
+  for (const buffer of buffers.slice(0, MAX_BUFFERS)) {
+    if (!isObject(buffer) || !isText(buffer.layer)) { problems.push({ code: 'badBuffer' }); continue; }
+    if (!doc.layers.some((layer) => layer.id === buffer.layer)) { notices.push({ code: 'bufferLayerMissing', detail: buffer.layer }); continue; }
+    if (bufferable && !bufferable.has(buffer.layer)) { notices.push({ code: 'notBufferable', detail: buffer.layer }); continue; }
+    const unit = buffer.unit ?? 'ft';
+    const rings = Array.isArray(buffer.distances) ? buffer.distances : [];
+    if (!UNITS.includes(unit) || !rings.length || rings.length > MAX_RINGS) { problems.push({ code: 'badBuffer' }); continue; }
+    const bad = rings.find((ring) => !isObject(ring) || !validDistance(ring.value, unit));
+    if (bad) { problems.push({ code: 'badBufferDistance', detail: `${isObject(bad) ? bad.value : bad} ${unit}` }); continue; }
+    const index = doc.buffers.length;
+    doc.buffers.push({
+      id: isText(buffer.id) ? buffer.id : `b${index + 1}`,
+      layer: buffer.layer,
+      name: isText(buffer.name) ? buffer.name.slice(0, 80) : '',
+      select: SELECTS.includes(buffer.select) ? buffer.select : 'all',
+      filters: cleanFilters(buffer.filters),
+      picked: (Array.isArray(buffer.picked) ? buffer.picked : []).filter(isText).slice(0, MAX_PICKED),
+      unit,
+      dissolve: buffer.dissolve === true,
+      visible: buffer.visible !== false,
+      distances: rings.map((ring, i) => ({ value: ring.value, style: cleanRingStyle(ring.style, defaultStyle(index, i)) })),
     });
   }
 
@@ -167,9 +218,12 @@ export function validate(input, known = null) {
   return { doc: problems.length ? null : doc, problems, notices };
 }
 
-// The ID a new buffer gets: b1, b2, ... not already used.
-export function nextBufferId(doc) {
+function nextId(items, prefix) {
   let n = 1;
-  while (doc.buffers.some((buffer) => buffer.id === `b${n}`)) n += 1;
-  return `b${n}`;
+  while (items.some((item) => item.id === `${prefix}${n}`)) n += 1;
+  return `${prefix}${n}`;
 }
+
+// The ID a new buffer gets: b1, b2, ... not already used; screenings get s1, s2, ...
+export const nextBufferId = (doc) => nextId(doc.buffers, 'b');
+export const nextScreeningId = (doc) => nextId(doc.screenings, 's');

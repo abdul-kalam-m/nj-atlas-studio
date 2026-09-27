@@ -33,7 +33,23 @@ function northArrow() {
   ]);
 }
 
+// '#08519C', 0.3 -> 'rgba(8,81,156,0.3)'
+export function hexToRgba(hex, alpha) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${alpha})`;
+}
+
+// A buffer ring's swatch (D-076): its fill at its opacity, and its outline's color, width and style.
+export function ringSwatchStyle(style) {
+  const width = style.outline_width > 0 ? Math.max(1, Math.min(3, Math.round(style.outline_width))) : 0;
+  return `background:${hexToRgba(style.fill, style.fill_opacity)};border:${width}px ${style.outline_style} ${style.outline}`;
+}
+
 function swatchNode(swatch) {
+  if (swatch.opacity !== undefined) {
+    return el('span', { class: 'swatch', style: `width:18px;height:12px;${ringSwatchStyle({ fill: swatch.color, fill_opacity: swatch.opacity,
+      outline: swatch.outline, outline_width: swatch.outlineWidth, outline_style: swatch.dash })}` });
+  }
   const style = swatch.geometry === 'line'
     ? `background:${swatch.color};height:${Math.max(2, swatch.width)}px;width:22px;margin:6px 0`
     : swatch.geometry === 'point'
@@ -210,7 +226,17 @@ export async function pngMap(ctx) {
         y += 16;
         const s = row.swatch;
         c.fillStyle = s.color;
-        if (s.dashed) { c.strokeStyle = '#9A3B26'; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 20, y - 4); c.stroke(); c.setLineDash([]); }
+        if (s.opacity !== undefined) {
+          c.fillStyle = hexToRgba(s.color, s.opacity);
+          c.fillRect(x, y - 10, 18, 11);
+          if (s.outlineWidth > 0) {
+            c.strokeStyle = s.outline;
+            c.lineWidth = Math.min(3, s.outlineWidth);
+            c.setLineDash(s.dash === 'dashed' ? [4, 2] : s.dash === 'dotted' ? [1, 2] : []);
+            c.strokeRect(x, y - 10, 18, 11);
+            c.setLineDash([]);
+          }
+        } else if (s.dashed) { c.strokeStyle = '#9A3B26'; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 20, y - 4); c.stroke(); c.setLineDash([]); }
         else if (s.geometry === 'line') c.fillRect(x, y - 5, 20, Math.max(2, s.width));
         else if (s.geometry === 'point') { c.beginPath(); c.arc(x + 6, y - 4, 5, 0, Math.PI * 2); c.fill(); }
         else if (s.fill) c.fillRect(x, y - 10, 18, 11);

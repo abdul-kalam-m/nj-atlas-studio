@@ -3,9 +3,10 @@
 import { el } from './dom.js';
 import { isTarget, isSource } from './registry.js';
 import { presetStyle } from './style.js';
-import { combinedRows, resultNotes } from './buffer.js';
-import { BUFFER_PRESETS_FT, MAX_LAYERS } from './mapdoc.js';
-import { legendNode } from './export.js';
+import { combinedRows, resultNotes } from './screening.js';
+import { BUFFER_PRESETS_FT, MAX_BUFFERS, MAX_LAYERS } from './mapdoc.js';
+import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, bufferName, formatDistance } from './buffer.js';
+import { legendNode, ringSwatchStyle } from './export.js';
 import { formatCount, formatValue } from '../format.js';
 import { pickerLevels, unitsFor, LEVEL_KEYS, pickerNeeds } from '../places.js';
 
@@ -70,7 +71,8 @@ export function renderDocBar(app) {
   }
   if (document.activeElement !== input) input.value = app.doc.title;
   bar.querySelector('.doc-meta').textContent = [app.areaName?.() ?? '', T.docBar.layers(app.doc.layers.length),
-    app.doc.buffers.length ? T.docBar.buffer(app.doc.buffers[0].distance_ft) : null].filter(Boolean).join(' · ');
+    app.doc.buffers.length ? T.docBar.buffers(app.doc.buffers.length) : null,
+    app.doc.screenings.length ? T.docBar.screening(app.doc.screenings[0].distance_ft) : null].filter(Boolean).join(' · ');
 }
 
 export function renderAll(app) {
@@ -79,7 +81,7 @@ export function renderAll(app) {
   renderDocBar(app);
   renderArea(app);
   renderLayers(app);
-  renderBuffer(app);
+  renderAnalysis(app);
   renderExport(app);
   renderLegend(app);
   renderTable(app);
@@ -255,7 +257,9 @@ function readFilters(container, entry) {
   return conditions;
 }
 
-function filterSection(app, layer, rt) {
+// A layer's filter controls. A buffer reuses them for its own filter (D-076): `prefix` keeps element IDs apart
+// and `onChange` receives the new conditions.
+function filterSection(app, layer, rt, { prefix = layer.id, onChange = (filters) => app.actions.setFilters(layer.id, filters) } = {}) {
   const T = app.text;
   const { entry } = rt;
   const current = new Map(layer.filters.map((c) => [c.field, c]));
@@ -263,7 +267,7 @@ function filterSection(app, layer, rt) {
   let timer = null;
   const emit = (delay) => {
     clearTimeout(timer);
-    timer = setTimeout(() => app.actions.setFilters(layer.id, readFilters(container, entry)), delay);
+    timer = setTimeout(() => onChange(readFilters(container, entry)), delay);
   };
   if (!rt.stats.loaded) {
     container.append(el('p', { class: 'hint progress-line', 'data-progress': layer.id }, [el('span', { text: T.loading }),
@@ -275,9 +279,9 @@ function filterSection(app, layer, rt) {
   for (const field of entry.fields) {
     if (field.filter === 'checklist') {
       if (!rt.stats.loaded || rt.stats.cancelled) continue;
-      container.append(checklist(app, layer.id, field, rt.stats.values[field.name] ?? [], current.get(field.name), () => emit(0)));
+      container.append(checklist(app, prefix, field, rt.stats.values[field.name] ?? [], current.get(field.name), () => emit(0)));
     } else if (field.filter === 'search') {
-      const id = `f-${layer.id}-${field.name}`;
+      const id = `f-${prefix}-${field.name}`;
       const input = el('input', { type: 'search', id, value: current.get(field.name)?.value ?? '', autocomplete: 'off' });
       input.addEventListener('input', () => emit(400));
       container.append(el('div', { class: 'field filter', 'data-field': field.name }, [el('label', { for: id, text: field.label }), input]));
@@ -285,7 +289,7 @@ function filterSection(app, layer, rt) {
       const type = field.type === 'date' ? 'date' : 'number';
       const range = rt.stats.ranges?.[field.name] ?? {};
       const bound = (name, label) => {
-        const id = `f-${layer.id}-${field.name}-${name}`;
+        const id = `f-${prefix}-${field.name}-${name}`;
         const value = current.get(field.name)?.[name];
         const input = el('input', { type, id, step: type === 'number' ? 'any' : null, value: value ?? '',
           placeholder: range[name] !== undefined && range[name] !== null ? String(range[name]) : '' });
@@ -301,9 +305,9 @@ function filterSection(app, layer, rt) {
   const nodes = [];
   if (entry.examples?.length) {
     nodes.push(el('div', { class: 'examples' }, entry.examples.map((example) => el('button', { type: 'button', class: 'chip-button',
-      text: example.label, onclick: () => app.actions.setFilters(layer.id, example.conditions) }))));
+      text: example.label, onclick: () => onChange(example.conditions) }))));
   }
-  if (layer.filters.length) nodes.push(el('button', { type: 'button', class: 'link-button', text: T.filters.clear, onclick: () => app.actions.setFilters(layer.id, []) }));
+  if (layer.filters.length) nodes.push(el('button', { type: 'button', class: 'link-button', text: T.filters.clear, onclick: () => onChange([]) }));
   return el('div', { class: 'section' }, [...nodes, container]);
 }
 
@@ -497,111 +501,350 @@ export function renderLayers(app) {
   ].filter(Boolean));
   $('panel-layers').replaceChildren(...[buttons,
     app.doc.layers.length ? el('ol', { id: 'layer-list', class: 'layer-list' }) : el('p', { class: 'hint', text: T.layers.empty })].filter(Boolean));
-  for (const layer of app.doc.layers) renderLayer(app, layer.id);
+  for (const layer of app.doc.layers) {
+    renderLayer(app, layer.id);
+    for (const buffer of app.doc.buffers) if (buffer.layer === layer.id) $('layer-list').append(bufferRow(app, buffer));
+  }
   renderProperties(app);
 }
 
-// ---- Buffer ----
+// A buffer layer in the layer list (D-077): show, name (opens it in Analysis), remove, and its status.
+function bufferRow(app, buffer) {
+  const T = app.text;
+  const name = bufferName(buffer, app.registry.get(buffer.layer), T.buffer);
+  const visible = el('input', { type: 'checkbox', id: `bv-${buffer.id}`, checked: buffer.visible, 'aria-label': `${T.layers.show}: ${name}` });
+  visible.addEventListener('change', () => app.actions.setBuffer(buffer.id, { visible: visible.checked }));
+  return el('li', { class: 'layer buffer-row', 'data-buffer-row': buffer.id }, [
+    el('div', { class: 'layer-head' }, [visible,
+      el('button', { type: 'button', class: 'layer-title', text: name, onclick: () => app.actions.openBuffer(buffer.id) }),
+      el('span', { class: 'badge', text: T.buffer.badge }),
+      el('button', { type: 'button', class: 'icon', 'aria-label': `${T.buffer.remove}: ${name}`, text: '×', onclick: () => app.actions.removeBuffer(buffer.id) })]),
+    bufferStatusNode(app, buffer)]);
+}
+
+// ---- Analysis (D-068, D-076): the Buffer tool and Site screening ----
+
+export function renderAnalysis(app) {
+  const T = app.text;
+  const tool = app.ui.tool;
+  const switcher = el('div', { class: 'segmented', role: 'group', 'aria-label': T.analysis.tools }, ['buffer', 'screening'].map((key) =>
+    el('button', { type: 'button', 'aria-pressed': String(tool === key), text: T.analysis[key], onclick: () => app.actions.setTool(key) })));
+  $('panel-analysis').replaceChildren(switcher, ...(tool === 'screening' ? screeningNodes(app) : bufferToolNodes(app)));
+}
+
+function bufferToolNodes(app) {
+  const T = app.text;
+  const sources = app.bufferableLayers?.() ?? [];
+  const nodes = app.doc.buffers.map((buffer) => (app.ui.editing === buffer.id ? bufferEditor(app, buffer, sources) : bufferCard(app, buffer)));
+  if (!sources.length) nodes.push(el('p', { class: 'hint', text: T.buffer.noInput }));
+  else if (app.doc.buffers.length >= MAX_BUFFERS) nodes.push(el('p', { class: 'hint', text: T.buffer.limit }));
+  else {
+    nodes.push(el('div', { class: 'button-row' }, el('button', { type: 'button', class: app.doc.buffers.length ? 'secondary' : 'primary',
+      text: T.buffer.new, onclick: () => app.actions.newBuffer() })));
+  }
+  return nodes;
+}
+
+function nounFor(entry, n) {
+  return n === 1 ? entry.noun.singular : entry.noun.plural;
+}
+
+function countText(app, buffer) {
+  const count = app.inputCounts.get(buffer.id)?.count;
+  if (count === null || count === undefined) return '';
+  return app.text.buffer.count(formatCount(count), nounFor(app.registry.get(buffer.layer), count));
+}
+
+export function renderBufferCount(app, id) {
+  const node = document.querySelector(`[data-buffer-count="${CSS.escape(id)}"]`);
+  const buffer = app.doc.buffers.find((b) => b.id === id);
+  if (node && buffer) node.textContent = countText(app, buffer);
+}
+
+// Running (with Cancel), failed, made, or out of date.
+function bufferStatusNode(app, buffer) {
+  const B = app.text.buffer;
+  const entry = app.registry.get(buffer.layer);
+  const job = app.bufferJobs.get(buffer.id);
+  const output = app.outputs.get(buffer.id);
+  const error = app.bufferErrors.get(buffer.id);
+  const node = el('p', { class: 'status', 'data-buffer-status': buffer.id, role: 'status' });
+  if (job) {
+    node.append(el('span', { text: job.phase === 'reading' ? B.reading(formatCount(job.read)) : B.running(formatCount(job.done), formatCount(job.total)) }),
+      el('span', { class: 'spinner', 'aria-hidden': 'true' }), ' ',
+      el('button', { type: 'button', class: 'link-button', text: app.text.cancel, onclick: () => app.actions.cancelBuffer(buffer.id) }));
+    return node;
+  }
+  if (error) {
+    node.classList.add('error');
+    node.textContent = error.kind === 'tooMany' ? B.tooMany(formatCount(MAX_BUFFER_FEATURES), entry.noun.plural)
+      : error.kind === 'nothing' ? B.nothing(entry.noun.plural) : B.failed;
+    return node;
+  }
+  if (!output) {
+    node.textContent = B.notRun;
+    return node;
+  }
+  const parts = [B.made(formatCount(output.inputs), nounFor(entry, output.inputs), output.distances.length)];
+  if (output.skipped) parts.push(B.skipped(output.skipped));
+  if (output.key !== app.bufferKey(buffer)) parts.push(B.stale);
+  node.textContent = parts.join(' ');
+  return node;
+}
+
+export function renderBufferProgress(app, id) {
+  const buffer = app.doc.buffers.find((b) => b.id === id);
+  if (!buffer) return;
+  for (const node of document.querySelectorAll(`[data-buffer-status="${CSS.escape(id)}"]`)) node.replaceWith(bufferStatusNode(app, buffer));
+}
+
+function outputButtons(app, buffer) {
+  const T = app.text;
+  if (!app.outputs.has(buffer.id)) return [];
+  return [
+    el('button', { type: 'button', class: 'secondary', text: T.buffer.zoom, onclick: () => app.actions.zoomToBuffer(buffer.id) }),
+    el('button', { type: 'button', class: 'secondary', text: `${T.buffer.download} (${T.formats.geojson})`, onclick: () => app.actions.downloadBuffer(buffer.id) }),
+  ];
+}
+
+// A buffer not being edited: its name, distances with their swatches, and status.
+function bufferCard(app, buffer) {
+  const T = app.text;
+  const name = bufferName(buffer, app.registry.get(buffer.layer), T.buffer);
+  const visible = el('input', { type: 'checkbox', id: `bc-${buffer.id}`, checked: buffer.visible, 'aria-label': `${T.layers.show}: ${name}` });
+  visible.addEventListener('change', () => app.actions.setBuffer(buffer.id, { visible: visible.checked }));
+  const chips = [...buffer.distances].sort((a, b) => a.value - b.value).map((ring) => el('span', { class: 'ring-chip' }, [
+    el('span', { class: 'ring-swatch small', style: ringSwatchStyle(ring.style), 'aria-hidden': 'true' }), formatDistance(ring.value, buffer.unit)]));
+  return el('div', { class: 'buffer-card', 'data-buffer': buffer.id }, [
+    el('div', { class: 'buffer-head' }, [visible, el('strong', { text: name }),
+      el('button', { type: 'button', class: 'link-button', text: T.buffer.edit, onclick: () => app.actions.editBuffer(buffer.id) }),
+      el('button', { type: 'button', class: 'icon', 'aria-label': `${T.buffer.remove}: ${name}`, text: '×', onclick: () => app.actions.removeBuffer(buffer.id) })]),
+    el('div', { class: 'ring-chips' }, chips),
+    bufferStatusNode(app, buffer),
+    ...(app.outputs.has(buffer.id) ? [el('div', { class: 'button-row' }, outputButtons(app, buffer))] : []),
+  ]);
+}
+
+// One distance: its value, a swatch that opens its style, and remove.
+function ringRow(app, buffer, ring, index) {
+  const B = app.text.buffer;
+  const { id } = buffer;
+  const label = formatDistance(ring.value, buffer.unit);
+  const input = el('input', { type: 'number', id: `bd-${id}-${index}`, min: '0', max: String(MAX_DISTANCE[buffer.unit]), step: 'any',
+    value: String(ring.value), 'aria-label': B.distance(index + 1) });
+  input.addEventListener('change', () => {
+    if (!app.actions.setRing(id, index, Number(input.value))) {
+      flash(app, app.text.problems.badBufferDistance(`${input.value} ${buffer.unit}`));
+      input.value = String(ring.value);
+    }
+  });
+  const open = app.ui.ringStyle === `${id}:${index}`;
+  const row = el('div', { class: 'ring-row' }, [input, el('span', { class: 'unit', text: buffer.unit }),
+    el('button', { type: 'button', class: 'ring-swatch', style: ringSwatchStyle(ring.style), 'aria-expanded': String(open), 'aria-label': B.styleOf(label),
+      title: B.styleOf(label), onclick: () => app.actions.toggleRingStyle(id, index) }),
+    buffer.distances.length > 1 ? el('button', { type: 'button', class: 'icon', 'aria-label': B.removeDistance(label), text: '×', onclick: () => app.actions.removeRing(id, index) }) : null,
+  ].filter(Boolean));
+  return open ? el('div', { class: 'ring' }, [row, ringStyleForm(app, buffer, ring, index)]) : row;
+}
+
+// Fill color and opacity, outline color, width and style: each distance on its own (D-076).
+function ringStyleForm(app, buffer, ring, index) {
+  const B = app.text.buffer;
+  const { style } = ring;
+  const prefix = `rs-${buffer.id}-${index}`;
+  const set = (patch) => app.actions.setRingStyle(buffer.id, index, patch);
+  const field = (input, label) => el('div', { class: 'field inline' }, [el('label', { for: input.id, text: label }), input]);
+  const color = (key) => {
+    const input = el('input', { type: 'color', id: `${prefix}-${key}`, value: style[key] });
+    input.addEventListener('change', () => set({ [key]: input.value }));
+    return input;
+  };
+  const opacity = el('input', { type: 'range', id: `${prefix}-opacity`, min: '0', max: '1', step: '0.05', value: String(style.fill_opacity) });
+  opacity.addEventListener('change', () => set({ fill_opacity: Number(opacity.value) }));
+  const width = el('input', { type: 'number', id: `${prefix}-width`, min: '0', max: '8', step: '0.5', value: String(style.outline_width) });
+  width.addEventListener('change', () => {
+    const value = Number(width.value);
+    if (Number.isFinite(value) && value >= 0 && value <= 8) set({ outline_width: value });
+    else width.value = String(style.outline_width);
+  });
+  const dash = el('select', { id: `${prefix}-dash` }, OUTLINE_STYLES.map((key) => el('option', { value: key, text: B.outlineStyles[key] })));
+  dash.value = style.outline_style;
+  dash.addEventListener('change', () => set({ outline_style: dash.value }));
+  return el('div', { class: 'ring-style' }, [field(color('fill'), B.fill), field(opacity, B.fillOpacity), field(color('outline'), B.outline),
+    field(width, B.outlineWidth), field(dash, B.outlineStyle)]);
+}
+
+// The buffer being edited, top to bottom: name, input layer, which features, distances, dissolve, Create.
+function bufferEditor(app, buffer, sources) {
+  const T = app.text;
+  const B = T.buffer;
+  const { id } = buffer;
+  const entry = app.registry.get(buffer.layer);
+  const name = bufferName(buffer, entry, B);
+  const nodes = [];
+
+  const nameInput = el('input', { type: 'text', id: `bn-${id}`, value: buffer.name, placeholder: bufferName({ ...buffer, name: '' }, entry, B),
+    autocomplete: 'off', 'aria-label': B.name });
+  nameInput.addEventListener('change', () => app.actions.setBuffer(id, { name: nameInput.value.trim().slice(0, 80) }));
+  nodes.push(el('div', { class: 'buffer-head' }, [nameInput,
+    el('button', { type: 'button', class: 'secondary', text: B.close, onclick: () => app.actions.editBuffer(id) }),
+    el('button', { type: 'button', class: 'icon', 'aria-label': `${B.remove}: ${name}`, text: '×', onclick: () => app.actions.removeBuffer(id) })]));
+
+  const layerSelect = el('select', { id: `bl-${id}` }, sources.map((source) => el('option', { value: source.id, text: source.title })));
+  layerSelect.value = buffer.layer;
+  layerSelect.addEventListener('change', () => app.actions.setBufferLayer(id, layerSelect.value));
+  nodes.push(el('div', { class: 'field' }, [el('label', { for: layerSelect.id, text: B.input }), layerSelect]));
+
+  const radios = SELECTS.map((key) => {
+    const radio = el('input', { type: 'radio', name: `bs-${id}`, id: `bs-${id}-${key}`, value: key, checked: buffer.select === key });
+    radio.addEventListener('change', () => { if (radio.checked) app.actions.setBufferSelect(id, key); });
+    return el('label', { class: 'check', for: radio.id }, [radio, el('span', { text: key === 'all' ? B.select.all(entry.noun.plural) : B.select[key] })]);
+  });
+  nodes.push(el('fieldset', { class: 'filter' }, [el('legend', { text: B.selectLabel }), ...radios]));
+  if (buffer.select === 'filter') {
+    const rt = app.runtimes.get(buffer.layer);
+    if (rt) nodes.push(filterSection(app, { id: buffer.layer, filters: buffer.filters }, rt, { prefix: `b-${id}`, onChange: (filters) => app.actions.setBufferFilters(id, filters) }));
+  }
+  if (buffer.select === 'picked') {
+    const picking = app.mode === 'pick' && app.ui.pickFor === id;
+    nodes.push(el('div', { class: 'button-row' }, [
+      el('button', { type: 'button', class: `secondary${picking ? ' on' : ''}`, 'aria-pressed': String(picking), text: picking ? B.done : B.pick,
+        onclick: () => (picking ? app.actions.cancelMode() : app.actions.startPick(id)) }),
+      buffer.picked.length ? el('button', { type: 'button', class: 'link-button', text: B.clearPicked, onclick: () => app.actions.clearPicked(id) }) : null,
+    ].filter(Boolean)));
+    if (picking) nodes.push(el('p', { class: 'hint', text: B.pickHint(entry.noun.plural) }));
+  }
+  nodes.push(el('p', { class: 'hint', 'data-buffer-count': id, text: countText(app, buffer) }));
+
+  const units = el('div', { class: 'segmented small', role: 'group', 'aria-label': B.unit }, UNITS.map((unit) =>
+    el('button', { type: 'button', 'aria-pressed': String(buffer.unit === unit), text: B.units[unit], onclick: () => app.actions.setBufferUnit(id, unit) })));
+  nodes.push(el('fieldset', { class: 'filter distances' }, [el('legend', { text: B.distances }), units,
+    ...buffer.distances.map((ring, index) => ringRow(app, buffer, ring, index)),
+    buffer.distances.length < MAX_RINGS ? el('button', { type: 'button', class: 'link-button', text: B.addDistance, onclick: () => app.actions.addRing(id) }) : null,
+    el('p', { class: 'hint', text: B.measured })].filter(Boolean)));
+
+  const dissolve = el('input', { type: 'checkbox', id: `bz-${id}`, checked: buffer.dissolve });
+  dissolve.addEventListener('change', () => app.actions.setBuffer(id, { dissolve: dissolve.checked }));
+  nodes.push(el('label', { class: 'check', for: dissolve.id }, [dissolve, el('span', { text: B.dissolve })]));
+
+  nodes.push(el('div', { class: 'button-row' }, [
+    el('button', { type: 'button', class: 'primary', text: app.outputs.has(id) ? B.rerun : B.run, disabled: app.bufferJobs.has(id),
+      onclick: () => app.actions.runBuffer(id) }),
+    ...outputButtons(app, buffer)]));
+  nodes.push(bufferStatusNode(app, buffer));
+  return el('div', { class: 'buffer-card editing', 'data-buffer': id }, nodes);
+}
+
+export function bufferPopup(app, buffer, props) {
+  const B = app.text.buffer;
+  const entry = app.registry.get(buffer.layer);
+  const output = app.outputs.get(buffer.id);
+  const distance = output?.distances[props.ring];
+  const detail = props.name ? String(props.name) : props.count ? B.dissolved(formatCount(props.count), nounFor(entry, props.count)) : '';
+  return el('div', { class: 'popup' }, [el('p', { class: 'popup-layer', text: bufferName(buffer, entry, B) }),
+    el('h3', { text: distance !== undefined ? formatDistance(distance, output.unit) : '' }), detail ? el('p', { text: detail }) : null].filter(Boolean));
+}
+
+// ---- Analysis: site screening ----
 
 function sitePicker(app, sources) {
   const T = app.text;
   const nodes = [el('div', { class: 'button-row' }, [
-    el('button', { type: 'button', class: `secondary${app.mode === 'select' ? ' on' : ''}`, text: T.buffer.select, disabled: !sources.length, onclick: () => app.actions.startSelect() }),
-    ...['point', 'line', 'area'].map((kind) => el('button', { type: 'button', class: 'secondary', text: T.buffer.draw[kind], onclick: () => app.actions.startDraw(kind) }))])];
+    el('button', { type: 'button', class: `secondary${app.mode === 'select' ? ' on' : ''}`, text: T.screening.select, disabled: !sources.length, onclick: () => app.actions.startSelect() }),
+    ...['point', 'line', 'area'].map((kind) => el('button', { type: 'button', class: 'secondary', text: T.screening.draw[kind], onclick: () => app.actions.startDraw(kind) }))])];
   if (app.mode === 'select' || app.draw?.active()) {
-    nodes.push(el('p', { class: 'hint' }, [el('span', { text: app.mode === 'select' ? T.buffer.selectHint : T.buffer.drawHint }), ' ',
+    nodes.push(el('p', { class: 'hint' }, [el('span', { text: app.mode === 'select' ? T.screening.selectHint : T.screening.drawHint }), ' ',
       el('button', { type: 'button', class: 'link-button', text: T.cancel, onclick: () => app.actions.cancelMode() })]));
   }
   nodes.push(...addressForm(app, true));
-  const coordinates = el('input', { id: 'site-coordinates', type: 'text', placeholder: T.buffer.coordinatesHint, autocomplete: 'off' });
-  const coordinateForm = el('form', { class: 'inline-form' }, [el('label', { for: 'site-coordinates', class: 'visually-hidden', text: T.buffer.coordinates }),
+  const coordinates = el('input', { id: 'site-coordinates', type: 'text', placeholder: T.screening.coordinatesHint, autocomplete: 'off' });
+  const coordinateForm = el('form', { class: 'inline-form' }, [el('label', { for: 'site-coordinates', class: 'visually-hidden', text: T.screening.coordinates }),
     coordinates, el('button', { type: 'submit', class: 'secondary', text: T.apply })]);
   coordinateForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    if (!app.actions.useCoordinates(coordinates.value)) flash(app, T.buffer.coordinatesBad);
+    if (!app.actions.useCoordinates(coordinates.value)) flash(app, T.screening.coordinatesBad);
   });
   nodes.push(coordinateForm);
   return nodes;
 }
 
-// The Analysis tab (D-068), top to bottom: the site, the distance, what to list, Run, and the results.
-export function renderBuffer(app) {
+// Site screening, top to bottom: the site, the distance, what to list, Run, and the results.
+function screeningNodes(app) {
   const T = app.text;
-  const buffer = app.doc.buffers[0];
+  const screening = app.doc.screenings[0];
   const layers = app.doc.layers.map((l) => app.registry.get(l.id));
   const sources = layers.filter(isSource);
   const targets = layers.filter(isTarget);
-  const nodes = [el('h3', { text: T.buffer.site })];
-  if (!buffer) {
+  const nodes = [el('h3', { text: T.screening.site })];
+  if (!screening) {
     nodes.push(...sitePicker(app, sources));
-    $('panel-buffer').replaceChildren(...nodes);
-    return;
+    return nodes;
   }
-  const siteLayer = buffer.source.kind === 'feature' ? app.registry.get(buffer.source.layer)?.title : null;
+  const siteLayer = screening.source.kind === 'feature' ? app.registry.get(screening.source.layer)?.title : null;
   nodes.push(el('p', { class: 'site-line' }, [
-    siteLayer ? el('span', { class: 'badge', text: siteLayer }) : null, ' ', el('strong', { text: buffer.source.label || T.buffer.drawnSite }), ' ',
-    el('button', { type: 'button', class: 'link-button', 'aria-expanded': app.ui.changeSite ? 'true' : 'false', text: T.buffer.changeSite,
-      onclick: () => { app.ui.changeSite = !app.ui.changeSite; renderBuffer(app); } }), ' ',
-    el('button', { type: 'button', class: 'link-button', text: T.buffer.clear, onclick: () => app.actions.clearBuffer() })].filter(Boolean)));
+    siteLayer ? el('span', { class: 'badge', text: siteLayer }) : null, ' ', el('strong', { text: screening.source.label || T.screening.drawnSite }), ' ',
+    el('button', { type: 'button', class: 'link-button', 'aria-expanded': app.ui.changeSite ? 'true' : 'false', text: T.screening.changeSite,
+      onclick: () => { app.ui.changeSite = !app.ui.changeSite; renderAnalysis(app); } }), ' ',
+    el('button', { type: 'button', class: 'link-button', text: T.screening.clear, onclick: () => app.actions.clearScreening() })].filter(Boolean)));
   if (app.ui.changeSite || app.mode === 'select' || app.draw?.active()) nodes.push(el('div', { class: 'site-picker' }, sitePicker(app, sources)));
 
-  const distance = el('select', { id: 'buffer-distance' }, [...BUFFER_PRESETS_FT.map((ft) => el('option', { value: String(ft), text: `${ft} ${T.buffer.feet}` })),
-    el('option', { value: 'custom', text: T.buffer.custom })]);
-  const custom = el('input', { type: 'number', id: 'buffer-custom', min: '1', max: '5280', step: '1', value: String(buffer.distance_ft), 'aria-label': `${T.buffer.custom} (${T.buffer.feet})` });
-  const isPreset = BUFFER_PRESETS_FT.includes(buffer.distance_ft);
-  distance.value = isPreset ? String(buffer.distance_ft) : 'custom';
+  const distance = el('select', { id: 'screening-distance' }, [...BUFFER_PRESETS_FT.map((ft) => el('option', { value: String(ft), text: `${ft} ${T.screening.feet}` })),
+    el('option', { value: 'custom', text: T.screening.custom })]);
+  const custom = el('input', { type: 'number', id: 'screening-custom', min: '1', max: '5280', step: '1', value: String(screening.distance_ft), 'aria-label': `${T.screening.custom} (${T.screening.feet})` });
+  const isPreset = BUFFER_PRESETS_FT.includes(screening.distance_ft);
+  distance.value = isPreset ? String(screening.distance_ft) : 'custom';
   custom.hidden = isPreset;
   distance.addEventListener('change', () => {
     if (distance.value === 'custom') { custom.hidden = false; custom.focus(); } else app.actions.setDistance(Number(distance.value));
   });
   custom.addEventListener('change', () => app.actions.setDistance(Number(custom.value)));
-  nodes.push(el('div', { class: 'field inline' }, [el('label', { for: 'buffer-distance', text: T.buffer.distance }), distance, custom]));
+  nodes.push(el('div', { class: 'field inline' }, [el('label', { for: 'screening-distance', text: T.screening.distance }), distance, custom]));
 
   if (targets.length) {
     const boxes = targets.map((entry) => {
-      const box = el('input', { type: 'checkbox', id: `t-${entry.id}`, checked: buffer.targets.includes(entry.id) });
+      const box = el('input', { type: 'checkbox', id: `t-${entry.id}`, checked: screening.targets.includes(entry.id) });
       box.addEventListener('change', () => app.actions.setTargets(targets.filter((t) => $(`t-${t.id}`).checked).map((t) => t.id)));
       return el('label', { class: 'check', for: box.id }, [box, el('span', { text: entry.title })]);
     });
-    nodes.push(el('fieldset', { class: 'filter' }, [el('legend', { text: T.buffer.targets }),
+    nodes.push(el('fieldset', { class: 'filter' }, [el('legend', { text: T.screening.targets }),
       el('div', { class: 'button-row small' }, [
-        el('button', { type: 'button', class: 'link-button', text: T.buffer.all, onclick: () => app.actions.setTargets(targets.map((t) => t.id)) }),
-        el('button', { type: 'button', class: 'link-button', text: T.buffer.none, onclick: () => app.actions.setTargets([]) })]),
+        el('button', { type: 'button', class: 'link-button', text: T.screening.all, onclick: () => app.actions.setTargets(targets.map((t) => t.id)) }),
+        el('button', { type: 'button', class: 'link-button', text: T.screening.none, onclick: () => app.actions.setTargets([]) })]),
       ...boxes]));
-  } else nodes.push(el('p', { class: 'hint', text: T.buffer.noTargets }));
+  } else nodes.push(el('p', { class: 'hint', text: T.screening.noTargets }));
 
-  const results = app.results && app.results.bufferId === buffer.id ? app.results : null;
-  const stale = results && (results.key !== JSON.stringify([buffer.source.geometry, buffer.distance_ft])
-    || results.targets.map((t) => t.id).join() !== buffer.targets.join());
+  const results = app.results && app.results.bufferId === screening.id ? app.results : null;
+  const stale = results && (results.key !== JSON.stringify([screening.source.geometry, screening.distance_ft])
+    || results.targets.map((t) => t.id).join() !== screening.targets.join());
   nodes.push(el('div', { class: 'button-row' }, [
-    el('button', { type: 'button', class: 'primary', text: app.ui.running ? T.loading : T.buffer.run,
-      disabled: app.ui.running || !buffer.targets.length, onclick: () => app.actions.runBuffer() }),
-    stale ? el('span', { class: 'hint', text: T.buffer.stale }) : null].filter(Boolean)));
-  if (results) nodes.push(resultsNode(app, buffer));
-  $('panel-buffer').replaceChildren(...nodes);
+    el('button', { type: 'button', class: 'primary', text: app.ui.running ? T.loading : T.screening.run,
+      disabled: app.ui.running || !screening.targets.length, onclick: () => app.actions.runScreening() }),
+    stale ? el('span', { class: 'hint', text: T.screening.stale }) : null].filter(Boolean)));
+  if (results) nodes.push(resultsNode(app, screening));
+  return nodes;
 }
 
-function resultsNode(app, buffer) {
+function resultsNode(app, screening) {
   const T = app.text;
   const results = app.results;
   const counts = el('ul', { class: 'result-counts' }, results.targets.map((target) => el('li', {}, [
     el('span', { text: target.entry.title }),
-    el('strong', { text: target.error ? T.layers.failed : target.capped ? T.buffer.capped('5,000') : formatCount(target.count) })])));
+    el('strong', { text: target.error ? T.layers.failed : target.capped ? T.screening.capped('5,000') : formatCount(target.count) })])));
   const total = results.targets.reduce((sum, t) => sum + (t.count ?? 0), 0);
-  const rows = combinedRows(results, buffer);
+  const rows = combinedRows(results, screening);
   const table = el('table', { class: 'results-table' }, [
-    el('thead', {}, el('tr', {}, [T.buffer.columns.layer, T.buffer.columns.name, T.buffer.columns.type].map((h) => el('th', { scope: 'col', text: h })))),
+    el('thead', {}, el('tr', {}, [T.screening.columns.layer, T.screening.columns.name, T.screening.columns.type].map((h) => el('th', { scope: 'col', text: h })))),
     el('tbody', {}, rows.slice(0, 100).map((row) => el('tr', { class: row.site ? 'site-row' : null }, [
-      el('td', { text: row.layer }), el('td', { text: `${row.name}${row.site ? ` (${T.buffer.siteMark})` : ''}` }), el('td', { text: row.type })]))),
+      el('td', { text: row.layer }), el('td', { text: `${row.name}${row.site ? ` (${T.screening.siteMark})` : ''}` }), el('td', { text: row.type })]))),
   ]);
   return el('div', { class: 'results' }, [
-    el('h3', { text: `${T.buffer.results}: ${T.buffer.total(formatCount(total))}` }),
+    el('h3', { text: `${T.screening.results}: ${T.screening.total(formatCount(total))}` }),
     el('p', { class: 'label-box', text: T.screeningLabel(new Date().toISOString().slice(0, 10)) }),
     ...resultNotes(results).map((note) => el('p', { class: 'label-box', text: note })),
     counts,
     el('div', { class: 'button-row' }, [
-      el('button', { type: 'button', class: 'secondary', text: T.buffer.downloadList, onclick: () => app.actions.downloadResults('csv') }),
-      el('button', { type: 'button', class: 'secondary', text: `${T.buffer.downloadShapes} (${T.formats.geojson})`, onclick: () => app.actions.downloadResults('geojson') }),
+      el('button', { type: 'button', class: 'secondary', text: T.screening.downloadList, onclick: () => app.actions.downloadResults('csv') }),
+      el('button', { type: 'button', class: 'secondary', text: `${T.screening.downloadShapes} (${T.formats.geojson})`, onclick: () => app.actions.downloadResults('geojson') }),
       el('button', { type: 'button', class: 'secondary', 'aria-pressed': app.ui.showHits === false ? 'false' : 'true', text: T.layers.show, onclick: () => app.actions.toggleHits() })]),
     el('div', { class: 'table-scroll small' }, table),
   ]);
@@ -638,6 +881,11 @@ export function renderExport(app) {
       el('button', { type: 'button', class: 'link-button', text: T.formats.csv, onclick: () => app.actions.exportData(layer.id, 'csv') }),
       el('button', { type: 'button', class: 'link-button', text: T.formats.geojson, onclick: () => app.actions.exportData(layer.id, 'geojson') })]);
   });
+  for (const buffer of doc.buffers) {
+    if (!app.outputs.has(buffer.id)) continue;
+    data.push(el('li', {}, [el('span', { text: bufferName(buffer, app.registry.get(buffer.layer), T.buffer) }),
+      el('button', { type: 'button', class: 'link-button', text: T.formats.geojson, onclick: () => app.actions.downloadBuffer(buffer.id) })]));
+  }
   $('panel-export').replaceChildren(...[
     el('p', { class: 'export-summary', text: app.exportSummary?.() ?? '' }),
     text('subtitle', T.export.subtitle), text('notes', T.export.notes, true),
@@ -684,7 +932,7 @@ export function renderLegend(app) {
   if (!node || !app.registry) return;
   const groups = app.legendGroups?.() ?? [];
   node.hidden = !groups.length;
-  const label = app.embed && app.doc.buffers.length ? el('p', { class: 'label-box', text: app.text.screeningLabel(new Date().toISOString().slice(0, 10)) }) : null;
+  const label = app.embed && app.doc.screenings.length ? el('p', { class: 'label-box', text: app.text.screeningLabel(new Date().toISOString().slice(0, 10)) }) : null;
   const phone = window.matchMedia?.('(max-width: 760px)').matches;
   const open = node.querySelector('details')?.open ?? !phone; // keep the reader's choice between redraws
   node.replaceChildren(el('details', { open }, [el('summary', { text: app.text.export.legend }), legendNode(groups), label].filter(Boolean)));
@@ -692,7 +940,7 @@ export function renderLegend(app) {
 
 // Several features under one click in select mode: one button each (D-067).
 export function siteChooser(app, hits, onChoose) {
-  return el('div', { class: 'popup' }, [el('p', { class: 'popup-layer', text: app.text.buffer.chooseSite }),
+  return el('div', { class: 'popup' }, [el('p', { class: 'popup-layer', text: app.text.screening.chooseSite }),
     el('ul', { class: 'site-choices' }, hits.map((hit) => {
       const entry = app.registry.get(hit.key);
       const name = hit.properties[entry.label_field] ?? hit.properties.atlas_id ?? app.text.notRecorded;

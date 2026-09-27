@@ -16,7 +16,7 @@
     },
     "pmtiles": {
       "path": "nj_census_tracts/nj_census_tracts.pmtiles",
-      "bytes": 7376968
+      "bytes": 7377279
     },
     "csv": {
       "path": "nj_census_tracts/nj_census_tracts.csv",

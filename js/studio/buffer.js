@@ -1,109 +1,127 @@
-// Buffers (D-033, IMPLEMENTATION_GUIDE.md §4.7). Studio draws the ring; each target layer's service finds what lies
-// within the distance of the site's edge (a distance query), or, for layers without one, inside the ring. Buffers
-// never carry the area filter: results may lie outside the town or county.
-import { conditionsWhere, joinWhere } from './sql.js';
-import { toRow } from './transform.js';
-import { outFields } from './registry.js';
-import { toCsv, slug } from '../csv.js';
+// Buffer layers (D-076): a geoprocessing step, as in a desktop GIS. Take one layer's features (all of them in the
+// area, a filtered subset, or those picked on the map), buffer them by one or more distances in feet or meters,
+// and get a map layer per distance, each with its own style, merged (dissolved) or kept one per feature.
+// The document keeps the recipe, not the shapes: a link or map file runs it again when it opens.
+// Pure: no imports.
 
-export const RESULT_CAP = 5000;
+export const MAX_RINGS = 6;
+export const MAX_BUFFER_FEATURES = 2000;
+export const MAX_PICKED = 500;
+export const UNITS = ['ft', 'm'];
+export const METERS_PER_UNIT = { ft: 0.3048, m: 1 };
+export const MAX_DISTANCE = { ft: 26400, m: 8000 }; // 5 miles; 8 km
+export const SELECTS = ['all', 'filter', 'picked'];
+export const OUTLINE_STYLES = ['solid', 'dashed', 'dotted'];
+const DASHES = { dashed: [4, 2.5], dotted: [0.1, 2.2] };
 
-export async function ringFor(turf, geometry, distanceFt) {
-  const ring = turf.buffer({ type: 'Feature', properties: {}, geometry }, distanceFt, { units: 'feet', steps: 16 });
-  return { type: 'Feature', properties: { distance_ft: distanceFt }, geometry: ring.geometry };
+// ColorBrewer sequential ramps, dark to light: one ramp per buffer, the smallest distance darkest.
+export const PALETTES = [
+  ['#08519C', '#3182BD', '#6BAED6', '#9ECAE1', '#C6DBEF'],
+  ['#A63603', '#E6550D', '#FD8D3C', '#FDAE6B', '#FDD0A2'],
+  ['#54278F', '#756BB1', '#9E9AC8', '#BCBDDC', '#DADAEB'],
+  ['#006D2C', '#31A354', '#74C476', '#A1D99B', '#C7E9C0'],
+];
+
+export function toMeters(value, unit) {
+  return value * (METERS_PER_UNIT[unit] ?? 1);
 }
 
-function listColumns(entry) {
-  const names = [entry.label_field, ...(entry.list_fields ?? [])];
-  return entry.fields.filter((field) => names.includes(field.name));
+export function validDistance(value, unit) {
+  return Number.isFinite(value) && value > 0 && value <= (MAX_DISTANCE[unit] ?? 0);
 }
 
-// One target layer: its matches as rows and GeoJSON features (output names).
-async function runTarget(client, entry, layerDoc, site, ring, distanceFt) {
-  const types = await client.fieldTypes(entry.source.url);
-  const where = joinWhere(entry.source.where, conditionsWhere(entry, layerDoc?.filters ?? [], types));
-  const options = entry.distance_query
-    ? { where, geometry: site, distanceFt, outFields: outFields(entry, listColumns(entry)), precision: 6 }
-    : { where, geometry: ring.geometry, outFields: outFields(entry, listColumns(entry)), precision: 6 };
-  const page = await client.allFeatures(entry.source.url, options, RESULT_CAP + 1);
-  const capped = page.features.length > RESULT_CAP;
-  const features = page.features.slice(0, RESULT_CAP).map((feature) => ({
-    type: 'Feature', geometry: feature.geometry, properties: { layer: entry.id, ...toRow(feature.properties ?? {}, entry) } }));
-  return { id: entry.id, entry, features, count: capped ? null : features.length, capped };
+// "1,000 ft", "2.5 m"
+export function formatDistance(value, unit) {
+  return `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${unit}`;
 }
 
-// { site, ring, targets: [{ id, entry, features, count, capped, error }], ranAt }
-export async function runBuffer({ client, turf, buffer, entries, layerDocs }) {
-  const site = buffer.source.geometry;
-  const ring = await ringFor(turf, site, buffer.distance_ft);
-  const targets = await Promise.all(entries.map(async (entry) => {
-    try {
-      return await runTarget(client, entry, layerDocs.find((layer) => layer.id === entry.id), site, ring, buffer.distance_ft);
-    } catch (error) {
-      return { id: entry.id, entry, features: [], count: null, capped: false, error };
+export function defaultStyle(bufferIndex, ringIndex) {
+  const palette = PALETTES[bufferIndex % PALETTES.length];
+  return { fill: palette[Math.min(ringIndex, palette.length - 1)], fill_opacity: 0.3, outline: palette[0], outline_width: 1.5, outline_style: 'solid' };
+}
+
+// A new buffer of `layer`, with one ring, not yet run.
+export function newBuffer(id, layer, bufferIndex, { unit = 'ft', distance = 500 } = {}) {
+  return { id, layer, name: '', select: 'all', filters: [], picked: [], unit, dissolve: false, visible: true,
+    distances: [{ value: distance, style: defaultStyle(bufferIndex, 0) }] };
+}
+
+// The next ring's distance: double the largest, within the limit.
+export function nextDistance(buffer) {
+  const largest = Math.max(0, ...buffer.distances.map((ring) => ring.value));
+  if (!largest) return buffer.unit === 'm' ? 100 : 500;
+  return Math.min(MAX_DISTANCE[buffer.unit], largest * 2);
+}
+
+// Ring indexes from the largest distance to the smallest: the drawing order, so smaller rings stay on top.
+export function drawingOrder(buffer) {
+  return buffer.distances.map((ring, index) => ({ index, value: ring.value })).sort((a, b) => b.value - a.value).map((ring) => ring.index);
+}
+
+// A short account of a filter: "Elementary, Middle", "3 values", "Acres 5–10".
+export function filterSummary(filters, fields, text) {
+  const parts = filters.map((condition) => {
+    const field = fields.find((f) => f.name === condition.field);
+    if (condition.op === 'in') {
+      const values = [...(condition.values ?? []), ...(condition.include_blank ? [text.blank] : [])];
+      return values.length <= 3 ? values.join(', ') : text.values(values.length);
     }
-  }));
-  return { bufferId: buffer.id, site, ring, targets, ranAt: new Date() };
+    if (condition.op === 'contains') return `${field?.label ?? condition.field} “${condition.value}”`;
+    const min = condition.min ?? '';
+    const max = condition.max ?? '';
+    return `${field?.label ?? condition.field} ${min}–${max}`;
+  });
+  return parts.filter(Boolean).join('; ');
 }
 
-// The lines a layer carries into this kind of output (D-073): 'list', 'export' or 'print'.
-export function notesOf(entry, on) {
-  return (entry.export_notes ?? []).filter((note) => note.on.includes(on)).map((note) => note.text);
+// The name on the map, in the legend and in the Layers tab.
+export function bufferName(buffer, entry, text) {
+  if (buffer.name) return buffer.name;
+  const title = entry?.title ?? buffer.layer;
+  if (buffer.select === 'picked') return text.pickedName(title, buffer.picked.length);
+  if (buffer.select === 'filter' && buffer.filters.length) return text.filteredName(title, filterSummary(buffer.filters, entry?.fields ?? [], text));
+  return text.name(title);
 }
 
-// Unique notes of the target layers that have results, for a buffer list.
-export function resultNotes(results) {
-  return [...new Set(results.targets.filter((target) => target.features.length).flatMap((target) => notesOf(target.entry, 'list')))];
+// What the output depends on. When it changes, the drawn output is out of date.
+export function outputKey(buffer, areaKey) {
+  return JSON.stringify([buffer.layer, buffer.select, buffer.select === 'filter' ? buffer.filters : [],
+    buffer.select === 'picked' ? buffer.picked : [], buffer.unit, buffer.distances.map((ring) => ring.value), buffer.dissolve,
+    buffer.select === 'picked' ? null : areaKey]);
 }
 
-// Rows for the combined list: Layer, Name, Type, ID, Site, Details.
-export function combinedRows(results, buffer) {
-  const rows = [];
-  for (const target of results.targets) {
-    const { entry } = target;
-    const [typeField, ...rest] = (entry.list_fields ?? []).map((name) => entry.fields.find((field) => field.name === name));
-    for (const feature of target.features) {
-      const p = feature.properties;
-      const isSite = buffer.source.kind === 'feature' && buffer.source.layer === entry.id && buffer.source.atlas_id === p.atlas_id;
-      rows.push({
-        layer: entry.title,
-        name: p[entry.label_field] ?? '',
-        type: typeField ? (p[typeField.name] ?? '') : '',
-        id: p.atlas_id ?? '',
-        site: isSite ? 'Site' : '',
-        details: rest.filter((field) => field && p[field.name] !== null && p[field.name] !== undefined && p[field.name] !== '')
-          .map((field) => `${field.label}: ${p[field.name]}`).join('; '),
-      });
+// MapLibre layer specs for a buffer's output source: a fill and an outline per ring, largest first.
+export function bufferSpecs(buffer) {
+  const specs = [];
+  for (const index of drawingOrder(buffer)) {
+    const { style } = buffer.distances[index];
+    const filter = ['==', ['get', 'ring'], index];
+    specs.push({ id: `r${index}-fill`, type: 'fill', filter, paint: { 'fill-color': style.fill, 'fill-opacity': style.fill_opacity } });
+    if (style.outline_width > 0) {
+      const paint = { 'line-color': style.outline, 'line-width': style.outline_width };
+      if (DASHES[style.outline_style]) paint['line-dasharray'] = DASHES[style.outline_style];
+      specs.push({ id: `r${index}-line`, type: 'line', filter, paint,
+        layout: { 'line-join': 'round', 'line-cap': style.outline_style === 'dotted' ? 'round' : 'butt' } });
     }
   }
-  return rows;
+  return specs;
 }
 
-function csvLine(cells) {
-  return cells.map((cell) => (/[",\r\n]/.test(cell) ? `"${String(cell).replace(/"/g, '""')}"` : String(cell))).join(',');
+// Legend rows, smallest distance first.
+export function bufferLegend(buffer) {
+  return [...buffer.distances].sort((a, b) => a.value - b.value).map((ring) => ({
+    swatch: { geometry: 'polygon', fill: true, color: ring.style.fill, opacity: ring.style.fill_opacity, outline: ring.style.outline,
+      outlineWidth: ring.style.outline_width, dash: ring.style.outline_style },
+    label: formatDistance(ring.value, buffer.unit),
+  }));
 }
 
-// The list as CSV. The first line is always the screening label (D-041); the target layers' list notes follow.
-export function resultsCsv(results, buffer, { label, siteLine, credits, headers }) {
-  const preface = [label, ...resultNotes(results), siteLine, ...credits].map((line) => csvLine([line]));
-  const body = toCsv(combinedRows(results, buffer), [['layer', headers.layer], ['name', headers.name], ['type', headers.type],
-    ['id', headers.id], ['site', headers.site], ['details', headers.details]]).replace(/^﻿/, '');
-  return `﻿${preface.join('\r\n')}\r\n${body}`;
-}
-
-export function resultsGeojson(results, buffer, { label, siteLine, credits }) {
-  const notes = resultNotes(results);
+// The output as a download: one feature per buffer shape, with the distance and unit it was made with.
+export function bufferDownload(output, { name, notes }) {
   return {
     type: 'FeatureCollection',
-    properties: { screening_label: label, ...(notes.length ? { notes } : {}), site: siteLine, credits },
-    features: [
-      { type: 'Feature', properties: { layer: 'site', distance_ft: buffer.distance_ft }, geometry: results.site },
-      { type: 'Feature', properties: { layer: 'ring', distance_ft: buffer.distance_ft }, geometry: results.ring.geometry },
-      ...results.targets.flatMap((target) => target.features),
-    ],
+    properties: { name, layer: output.layer, unit: output.unit, dissolved: output.dissolve, notes },
+    features: output.features.map((feature) => ({ type: 'Feature', geometry: feature.geometry,
+      properties: { ...feature.properties, distance: output.distances[feature.properties.ring] ?? null, unit: output.unit } })),
   };
-}
-
-export function screeningFileName(siteName, extension, date = new Date()) {
-  return `screening_${slug(siteName || 'site')}_${date.toISOString().slice(0, 10)}.${extension}`;
 }
