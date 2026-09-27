@@ -285,11 +285,11 @@ function stack() {
     const source = fromTiles
       ? { type: 'vector', url: `pmtiles://${tileUrl(entry)}`, attribution: entry.license.attribution }
       : { type: 'geojson', data: rt.loader?.lastData ?? EMPTY, attribution: entry.license.attribution };
-    items.push({
-      key: layer.id, source, sourceSignature: fromTiles ? tileUrl(entry) : 'geojson',
-      specs: layerSpecs(entry, style, { id: 'l', source: 'x', sourceLayer: fromTiles ? entry.id : null,
-        filter: fromTiles ? tileFilter(entry, layer) : null, opacity: layer.opacity }),
-    });
+    const specs = layerSpecs(entry, style, { id: 'l', source: 'x', sourceLayer: fromTiles ? entry.id : null,
+      filter: fromTiles ? tileFilter(entry, layer) : null, opacity: layer.opacity });
+    // A map copy draws from its own minimum zoom only (D-066); live layers handle zoom in tiles.js.
+    if (fromTiles) for (const spec of specs) spec.minzoom = entry.tiles.min_zoom;
+    items.push({ key: layer.id, source, sourceSignature: fromTiles ? tileUrl(entry) : 'geojson', specs });
   }
   return items;
 }
@@ -951,7 +951,10 @@ async function boot() {
     app.map.map.getCanvas().style.cursor = app.mode === 'select' ? 'pointer' : hit ? 'pointer' : '';
   });
   const moved = debounce(() => {
-    for (const layer of app.doc.layers) runtime(layer.id).loader?.update(app.map.bounds(), app.map.zoom());
+    for (const layer of app.doc.layers) {
+      runtime(layer.id).loader?.update(app.map.bounds(), app.map.zoom());
+      panels.renderLayerStatus(app, layer.id);
+    }
     panels.renderLegend(app);
     scheduleHash();
   }, 150);

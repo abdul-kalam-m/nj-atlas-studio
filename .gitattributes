@@ -1,5 +1,5 @@
-# Normalize text in source control.
-* text=auto
+# Normalize text in source control; every text file is LF, on every platform.
+* text=auto eol=lf
 
 *.md text eol=lf
 *.json text eol=lf

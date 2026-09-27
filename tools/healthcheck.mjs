@@ -8,7 +8,7 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createClient, fieldTypesOf } from '../site/js/studio/live.js';
 
 const ROOT = new URL('..', import.meta.url);
-const ORIGIN = 'https://nj-atlas-studio.github.io';
+const ORIGIN = 'https://abdul-kalam-m.github.io'; // the Studio site (D-047)
 const args = process.argv.slice(2);
 const includeDrafts = args.includes('--all');
 const only = args.filter((arg) => !arg.startsWith('--'));

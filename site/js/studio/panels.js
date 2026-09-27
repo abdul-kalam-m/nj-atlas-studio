@@ -140,7 +140,8 @@ function statusText(app, rt, layer) {
   if (app.health?.[layer.id] && app.health[layer.id].ok === false && rt.status !== 'ready') return T.layers.healthWarning;
   if (rt.status === 'error') return T.layers.failed;
   if (rt.status === 'loading' || rt.total === null) return T.loading;
-  if (rt.drawStatus === 'zoom') return T.layers.zoomIn(rt.entry.noun.plural);
+  const belowTiles = rt.entry.tiles && !rt.loader && app.map && app.map.zoom() < rt.entry.tiles.min_zoom;
+  if (rt.drawStatus === 'zoom' || belowTiles) return T.layers.zoomIn(rt.entry.noun.plural);
   const total = formatCount(rt.total);
   return layer.filters.length ? T.layers.matching(formatCount(rt.matched), total) : T.layers.inArea(total);
 }

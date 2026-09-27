@@ -32,7 +32,7 @@
   "label_field": "land_use",
   "access": "hybrid",
   "area_mode": "intersects",
-  "tiles": {"min_zoom": 8, "max_zoom": 14},
+  "tiles": {"min_zoom": 9, "max_zoom": 14},
   "styles": {
     "by_type": {"label": "By type (Anderson Level I)", "kind": "categories", "field": "land_use_type", "palette": "anderson_level1", "opacity": 0.7},
     "fill": {"label": "One color", "kind": "single", "color": "#B7A99A", "opacity": 0.5}

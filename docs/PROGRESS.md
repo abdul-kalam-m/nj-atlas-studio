@@ -29,7 +29,7 @@ The owner asked on 2026-09-26 for all reviews at the end. Everything below waits
 3. **M7 hosting** (parked by D-031): O-6 (Cloudflare R2 bucket, public URL, CORS), then the upload printed by `tools/r2_manifest.py` (1,693 files, 3.18 GB), then `r2_base_url` in `catalog/hosting.json`. G7 step 1 runs after that.
 4. **Studio licenses (O-3):** the owner reviews each curated layer's license (CATALOG.md "License") before it is published. The three live recipes keep their reviewed licenses; nj_parcels stays a draft.
 5. **Atlas release contents:** `build/pages` (prepared 2026-09-26) still carries contaminated sites and overburdened communities as copies. Under D-030 they are live, so the next `tools/release.py` run would leave them out of the atlas until Studio's live client exists (S1). Pushing the prepared release as it is remains possible.
-6. **Studio review (all at the end, as the owner asked):** decisions D-046 to D-065, taken while building; the licenses applied at the owner's instruction (LICENSE_REVIEW.md "Studio layers"); the public repository and Pages site (D-047).
+6. **Studio review (all at the end, as the owner asked):** decisions D-046 to D-066, taken while building; the licenses applied at the owner's instruction (LICENSE_REVIEW.md "Studio layers"); the public repository and Pages site (D-047).
 7. **Studio hosting (owner's account):** a bucket for the five map copies (O-6; `tools/publish_tiles.py` lists the files) and the export counter (workers/counter/README.md).
 
 ## Gate log
@@ -516,7 +516,7 @@ Template (from OPERATING_GUIDE.md §4):
 - Follow-ups: S0-T3 (map document schema), then S0-T4 (live trial)
 
 ### Owner instruction · 2026-09-27
-- In chat: "Build the full tool. Connect with Github and commit if required. License proceed with the best recommendation. Log all the decisions taken for review and validation." The agent built S0-T3 to S5 and S6-T2, applied the recommended licenses (D-046), created the public repository (D-047), and logged every decision taken while building as D-046 to D-065, each marked for owner review.
+- In chat: "Build the full tool. Connect with Github and commit if required. License proceed with the best recommendation. Log all the decisions taken for review and validation." The agent built S0-T3 to S5 and S6-T2, applied the recommended licenses (D-046), created the public repository (D-047), and logged every decision taken while building as D-046 to D-066, each marked for owner review.
 
 ### S0-T3 · Map document schema and module · done · 2026-09-27
 - Changed: catalog/mapdoc.schema.json (new), site/js/studio/mapdoc.js, share.js, text.js; tests/js/mapdoc.test.js; tests/fixtures/mapdocs/v1-screening.json
@@ -538,7 +538,7 @@ Template (from OPERATING_GUIDE.md §4):
 
 ### S2-T1 · Map copies for the hybrid layers · built · 2026-09-27
 - Changed: pipeline/hybrid.py (streamed download, map copy only), build.py, check.py (rules H1 to H4), normalize.py (repairs, D-063)
-- Checks: sizes against the §3.2 estimates: roads 65.7 MB (estimate 75 or less), wetlands 87.8 MB (225), streams 44.8 MB (110), flood zones 67.0 MB (1,000), land use LANDUSE_SIZE. All pass `pipeline check`.
+- Checks: sizes against the §3.2 estimates: roads 65.7 MB (estimate 75 or less), wetlands 87.8 MB (225), streams 44.8 MB (110), flood zones 67.0 MB (1,000), land use 282.4 MB (640). All pass `pipeline check`; about 548 MB in all, against the 2 GB estimate.
 - Assumptions: flood zones lost 8,610 zero-area slivers to the 1 m generalization, from the map copy only (D-065).
 - Follow-ups (owner): storage and upload (O-6, S2-T2); releases draw these layers live until then (D-052)
 

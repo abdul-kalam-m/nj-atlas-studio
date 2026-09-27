@@ -2,18 +2,20 @@
 
 A release turns the reviewed layers into a static website on GitHub Pages. The agent prepares it and the owner publishes it. This follows DECISIONS.md D-009: data never enters the main branch's history, and each release is a single commit on a `gh-pages` branch.
 
-## One-time setup (owner)
+## One-time setup
 
-1. **O-4:** create an empty GitHub repository, for example `nj-atlas`, and push the main branch to it.
-2. In the repository's **Settings → Pages**, choose "Deploy from a branch", branch `gh-pages`, folder `/ (root)`.
-3. **O-1:** choose a code license and add a `LICENSE` file.
+Done on 2026-09-27 at the owner's instruction (D-047): the repository is https://github.com/abdul-kalam-m/nj-atlas-studio (public, MIT), and Pages deploys from the `gh-pages` branch, folder `/ (root)`.
+
+## What a release publishes (Studio, D-064)
+
+Studio at the site root and the atlas at `/atlas/`, plus an explicit list of data files: `catalog.json` (atlas), `studio.json` (Studio), `places.json` and `places/`, `outlines/`, `health.json`, `release.json` and the folders of the copy layers. Live layers need no files. Hybrid map copies are not on Pages: until `tiles_base_url` is set in `catalog/hosting.json` (O-6), the release's `studio.json` has them drawn live (D-052).
 
 ## Every release
 
 1. **Owner, licenses (O-3).** For each layer to publish, read the terms at its `source.landing_page` and `license.url`. Then fill in `license.name`, `license.url`, `reviewed_by` and `reviewed_on`, and set `status` to `published`. Counties and municipalities must be published, because the area pickers need them. If any data layer is published, census tracts and block groups must be too, because every data layer's place columns come from them; `release.py` names any that are missing. [LICENSE_REVIEW.md](LICENSE_REVIEW.md) lists the evidence gathered so far.
 2. **Agent, rehearsal (optional).** `python tools/release.py --rehearsal` runs the whole process with drafts included. It never offers a push command.
 3. **Agent, release.** `python tools/release.py` does the following:
-   - clears `site/data/` and rebuilds the published layers (add `--refresh` to download fresh data);
+   - clears the copy layers' folders in `site/data/` and rebuilds them (add `--refresh` to download fresh data); hybrid and parked folders are kept;
    - writes the catalog and runs every automated check;
    - writes `site/data/release.json`;
    - prepares `build/pages/` as a new repository with one commit.
@@ -25,7 +27,7 @@ A release turns the reviewed layers into a static website on GitHub Pages. The a
    git -C build/pages push --force <your GitHub repository URL> gh-pages
    ```
 
-   The force push is intended: it replaces the previous release, so old data files don't pile up in history.
+   The force push is intended: it replaces the previous release, so old data files don't pile up in history. The first release has no previous `gh-pages` branch, so a plain push is enough.
 5. **Agent, live check (M6-T4).** Run the G6 checks against the Pages URL and record them in PROGRESS.md.
 
 ## Large layers on Cloudflare R2 (M7)

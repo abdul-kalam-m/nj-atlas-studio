@@ -14,7 +14,7 @@ Studio is built (stages S0 to S5, and the S6 export counter), with every automat
 - storage for the five map copies (O-6); until then those layers are drawn live;
 - deploying the export counter ([workers/counter/README.md](workers/counter/README.md));
 - the pilot (S6): five municipalities and three non-GIS testers;
-- a review of the decisions taken while building (D-046 to D-064) and of the licenses applied at the owner's instruction ([docs/LICENSE_REVIEW.md](docs/LICENSE_REVIEW.md)).
+- a review of the decisions taken while building (D-046 to D-066) and of the licenses applied at the owner's instruction ([docs/LICENSE_REVIEW.md](docs/LICENSE_REVIEW.md)).
 
 Checks: 188 Python tests, 174 JavaScript tests, the data checks, the plain-language lint, `node tools/healthcheck.mjs` (every live source, nightly in CI) and `node tools/trial.mjs` (live performance, [docs/studio/TRIAL.md](docs/studio/TRIAL.md)).
 

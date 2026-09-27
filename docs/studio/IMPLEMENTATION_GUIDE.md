@@ -1,6 +1,6 @@
 # NJ Atlas Studio: implementation guide
 
-**Revision C, 2026-09-27. Status: approved by the owner in chat, 2026-09-27. Built 2026-09-27 (S0 to S5, and the S6 counter); see PROGRESS.md "Studio". Decisions taken while building are D-046 to D-064 in DECISIONS.md, for the owner's review.**
+**Revision C, 2026-09-27. Status: approved by the owner in chat, 2026-09-27. Built 2026-09-27 (S0 to S5, and the S6 counter); see PROGRESS.md "Studio". Decisions taken while building are D-046 to D-066 in DECISIONS.md, for the owner's review.**
 
 - **Project sheet (Rev C):** https://claude.ai/artifact/VmS2iJpL5vBgmNn5HgJVL4
 - **Layer catalog:** [CATALOG.md](CATALOG.md)
