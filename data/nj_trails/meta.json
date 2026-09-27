@@ -1,0 +1,246 @@
+{
+  "id": "nj_trails",
+  "rows": 12761,
+  "source_count": 12761,
+  "fetched_at": "2026-09-25T05:45:08Z",
+  "bounds": [
+    -75.555318,
+    38.92987,
+    -73.902713,
+    41.357559
+  ],
+  "files": {
+    "parquet": {
+      "path": "nj_trails/nj_trails.parquet",
+      "bytes": 11172799
+    },
+    "pmtiles": {
+      "path": "nj_trails/nj_trails.pmtiles",
+      "bytes": 12368728
+    },
+    "csv": {
+      "path": "nj_trails/nj_trails.csv",
+      "bytes": 3158706
+    },
+    "geojson": {
+      "path": "nj_trails/nj_trails.geojson",
+      "bytes": 26256803
+    }
+  },
+  "repaired_shapes": 0,
+  "dropped_empty_shapes": 0,
+  "tagged_by_nearest": 5,
+  "place_tag_coverage": 0.9998,
+  "values": {
+    "difficulty": [
+      {
+        "value": "Difficult",
+        "count": 25
+      },
+      {
+        "value": "Easy",
+        "count": 300
+      },
+      {
+        "value": "Moderate",
+        "count": 109
+      },
+      {
+        "value": "Unknown",
+        "count": 1891
+      },
+      {
+        "value": null,
+        "count": 10436
+      }
+    ],
+    "surface": [
+      {
+        "value": "Paved",
+        "count": 5023
+      },
+      {
+        "value": "Unknown",
+        "count": 2522
+      },
+      {
+        "value": "Unpaved",
+        "count": 4336
+      },
+      {
+        "value": null,
+        "count": 880
+      }
+    ],
+    "hiking": [
+      {
+        "value": "No",
+        "count": 217
+      },
+      {
+        "value": "Unknown",
+        "count": 2414
+      },
+      {
+        "value": "Yes",
+        "count": 8082
+      },
+      {
+        "value": null,
+        "count": 2048
+      }
+    ],
+    "biking": [
+      {
+        "value": "No",
+        "count": 3647
+      },
+      {
+        "value": "Unknown",
+        "count": 2878
+      },
+      {
+        "value": "Yes",
+        "count": 3880
+      },
+      {
+        "value": null,
+        "count": 2356
+      }
+    ],
+    "accessible": [
+      {
+        "value": "No",
+        "count": 1379
+      },
+      {
+        "value": "Unknown",
+        "count": 5989
+      },
+      {
+        "value": "Yes",
+        "count": 1712
+      },
+      {
+        "value": null,
+        "count": 3681
+      }
+    ]
+  },
+  "ranges": {
+    "length_mi": {
+      "min": 1.7e-05,
+      "max": 121.46022714
+    }
+  },
+  "selftest": [
+    {
+      "label": "Easy trails",
+      "state": {
+        "layer": "nj_trails",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "difficulty",
+            "op": "in",
+            "values": [
+              "Easy"
+            ]
+          }
+        ]
+      },
+      "expected": 300
+    },
+    {
+      "label": "Bike trails in Morris County",
+      "state": {
+        "layer": "nj_trails",
+        "place": {
+          "county_fips": "027",
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "biking",
+            "op": "in",
+            "values": [
+              "Yes"
+            ]
+          }
+        ]
+      },
+      "expected": 916
+    },
+    {
+      "label": "Wheelchair-accessible trails",
+      "state": {
+        "layer": "nj_trails",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "accessible",
+            "op": "in",
+            "values": [
+              "Yes"
+            ]
+          }
+        ]
+      },
+      "expected": 1712
+    },
+    {
+      "label": "All trail sections",
+      "expected": 12761,
+      "state": {
+        "layer": "nj_trails",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      }
+    },
+    {
+      "label": "Place check: Middlesex County",
+      "state": {
+        "layer": "nj_trails",
+        "place": {
+          "county_fips": "023",
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 1715
+    },
+    {
+      "label": "Area check: Block Group 1, Census Tract 90",
+      "state": {
+        "layer": "nj_trails",
+        "place": {
+          "county_fips": "023",
+          "mun_code": "1225",
+          "tract_geoid": "34023009000",
+          "bg_geoid": "340230090001"
+        },
+        "conditions": []
+      },
+      "expected": 9
+    }
+  ]
+}

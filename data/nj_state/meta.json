@@ -1,0 +1,52 @@
+{
+  "id": "nj_state",
+  "rows": 1,
+  "source_count": 1,
+  "fetched_at": "2026-09-25T17:28:45Z",
+  "bounds": [
+    -75.563418,
+    38.852893,
+    -73.893629,
+    41.357655
+  ],
+  "files": {
+    "parquet": {
+      "path": "nj_state/nj_state.parquet",
+      "bytes": 209283
+    },
+    "pmtiles": {
+      "path": "nj_state/nj_state.pmtiles",
+      "bytes": 45244
+    },
+    "csv": {
+      "path": "nj_state/nj_state.csv",
+      "bytes": 89
+    },
+    "geojson": {
+      "path": "nj_state/nj_state.geojson",
+      "bytes": 334990
+    }
+  },
+  "repaired_shapes": 0,
+  "dropped_empty_shapes": 0,
+  "tagged_by_nearest": 0,
+  "place_tag_coverage": null,
+  "values": {},
+  "ranges": {},
+  "selftest": [
+    {
+      "label": "All states",
+      "expected": 1,
+      "state": {
+        "layer": "nj_state",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      }
+    }
+  ]
+}

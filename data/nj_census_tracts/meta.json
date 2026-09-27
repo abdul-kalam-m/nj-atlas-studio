@@ -1,0 +1,149 @@
+{
+  "id": "nj_census_tracts",
+  "rows": 2181,
+  "source_count": 2181,
+  "fetched_at": "2026-09-25T17:29:01Z",
+  "bounds": [
+    -75.563586,
+    38.788657,
+    -73.88506,
+    41.357607
+  ],
+  "files": {
+    "parquet": {
+      "path": "nj_census_tracts/nj_census_tracts.parquet",
+      "bytes": 11347000
+    },
+    "pmtiles": {
+      "path": "nj_census_tracts/nj_census_tracts.pmtiles",
+      "bytes": 7376968
+    },
+    "csv": {
+      "path": "nj_census_tracts/nj_census_tracts.csv",
+      "bytes": 244965
+    },
+    "geojson": {
+      "path": "nj_census_tracts/nj_census_tracts.geojson",
+      "bytes": 19748203
+    }
+  },
+  "repaired_shapes": 0,
+  "dropped_empty_shapes": 0,
+  "tagged_by_nearest": 0,
+  "place_tag_coverage": 1.0,
+  "values": {},
+  "ranges": {
+    "population_2020": {
+      "min": 0.0,
+      "max": 12984.0
+    },
+    "housing_units_2020": {
+      "min": 0.0,
+      "max": 8984.0
+    },
+    "land_sq_mi": {
+      "min": 0.0,
+      "max": 269.42363643108524
+    }
+  },
+  "selftest": [
+    {
+      "label": "Tracts with 8,000 people or more",
+      "state": {
+        "layer": "nj_census_tracts",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "population_2020",
+            "op": "range",
+            "min": 8000,
+            "max": null
+          }
+        ]
+      },
+      "expected": 19
+    },
+    {
+      "label": "Census tracts in Newark",
+      "state": {
+        "layer": "nj_census_tracts",
+        "place": {
+          "county_fips": "013",
+          "mun_code": "0714",
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 88
+    },
+    {
+      "label": "Tracts where nobody lives",
+      "state": {
+        "layer": "nj_census_tracts",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "population_2020",
+            "op": "range",
+            "min": null,
+            "max": 0
+          }
+        ]
+      },
+      "expected": 6
+    },
+    {
+      "label": "All census tracts",
+      "expected": 2181,
+      "state": {
+        "layer": "nj_census_tracts",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      }
+    },
+    {
+      "label": "Place check: Atlantic County",
+      "state": {
+        "layer": "nj_census_tracts",
+        "place": {
+          "county_fips": "001",
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 74
+    },
+    {
+      "label": "Area check: Census Tract 1, Atlantic City",
+      "state": {
+        "layer": "nj_census_tracts",
+        "place": {
+          "county_fips": "001",
+          "mun_code": "0102",
+          "tract_geoid": "34001000100",
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 1
+    }
+  ]
+}

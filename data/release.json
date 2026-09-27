@@ -1,0 +1,42 @@
+{
+  "date": "2026-09-27",
+  "commit": "2135cfb",
+  "rehearsal": false,
+  "layers": [
+    {
+      "id": "nj_block_groups",
+      "rows": 6599,
+      "status": "published"
+    },
+    {
+      "id": "nj_census_tracts",
+      "rows": 2181,
+      "status": "published"
+    },
+    {
+      "id": "nj_counties",
+      "rows": 21,
+      "status": "published"
+    },
+    {
+      "id": "nj_municipalities",
+      "rows": 564,
+      "status": "published"
+    },
+    {
+      "id": "nj_state",
+      "rows": 1,
+      "status": "published"
+    },
+    {
+      "id": "nj_preserved_open_space",
+      "rows": 95031,
+      "status": "published"
+    },
+    {
+      "id": "nj_trails",
+      "rows": 12761,
+      "status": "published"
+    }
+  ]
+}

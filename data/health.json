@@ -1,0 +1,174 @@
+{
+  "checked_at": "2026-09-27T08:06:16Z",
+  "rate_limited": 0,
+  "layers": {
+    "nj_bridges": {
+      "ok": true,
+      "problem": null,
+      "count": 7878,
+      "ms": 1293
+    },
+    "nj_c1_waters": {
+      "ok": true,
+      "problem": null,
+      "count": 100059,
+      "ms": 390
+    },
+    "nj_child_care": {
+      "ok": true,
+      "problem": null,
+      "count": 4083,
+      "ms": 315
+    },
+    "nj_colleges": {
+      "ok": true,
+      "problem": null,
+      "count": 78,
+      "ms": 3363
+    },
+    "nj_congressional_districts": {
+      "ok": true,
+      "problem": null,
+      "count": 12,
+      "ms": 5265
+    },
+    "nj_contaminated_sites": {
+      "ok": true,
+      "problem": null,
+      "count": 12609,
+      "ms": 423
+    },
+    "nj_election_districts": {
+      "ok": true,
+      "problem": null,
+      "count": 6348,
+      "ms": 3270
+    },
+    "nj_flood_zones": {
+      "ok": true,
+      "problem": null,
+      "count": 109075,
+      "ms": 692
+    },
+    "nj_fuel_stations": {
+      "ok": true,
+      "problem": null,
+      "count": 1773,
+      "ms": 301
+    },
+    "nj_hospitals": {
+      "ok": true,
+      "problem": null,
+      "count": 71,
+      "ms": 1849
+    },
+    "nj_land_use": {
+      "ok": true,
+      "problem": null,
+      "count": 590537,
+      "ms": 1433
+    },
+    "nj_legislative_districts": {
+      "ok": true,
+      "problem": null,
+      "count": 40,
+      "ms": 3789
+    },
+    "nj_long_term_care": {
+      "ok": true,
+      "problem": null,
+      "count": 730,
+      "ms": 1812
+    },
+    "nj_overburdened_communities": {
+      "ok": true,
+      "problem": null,
+      "count": 3180,
+      "ms": 393
+    },
+    "nj_parcels": {
+      "ok": true,
+      "problem": null,
+      "count": 3481240,
+      "ms": 765
+    },
+    "nj_roads": {
+      "ok": true,
+      "problem": null,
+      "count": 489277,
+      "ms": 2151
+    },
+    "nj_schools": {
+      "ok": true,
+      "problem": null,
+      "count": 3736,
+      "ms": 708
+    },
+    "nj_school_districts_elementary": {
+      "ok": true,
+      "problem": null,
+      "count": 171,
+      "ms": 1296
+    },
+    "nj_school_districts_secondary": {
+      "ok": true,
+      "problem": null,
+      "count": 46,
+      "ms": 1888
+    },
+    "nj_school_districts_unified": {
+      "ok": true,
+      "problem": null,
+      "count": 339,
+      "ms": 1548
+    },
+    "nj_streams": {
+      "ok": true,
+      "problem": null,
+      "count": 269525,
+      "ms": 813
+    },
+    "nj_subwatersheds": {
+      "ok": true,
+      "problem": null,
+      "count": 970,
+      "ms": 276
+    },
+    "nj_tax_blocks": {
+      "ok": true,
+      "problem": null,
+      "count": 165961,
+      "ms": 430
+    },
+    "nj_tidal_flood_elevation": {
+      "ok": true,
+      "problem": null,
+      "count": 54571,
+      "ms": 466
+    },
+    "nj_wards": {
+      "ok": true,
+      "problem": null,
+      "count": 829,
+      "ms": 1674
+    },
+    "nj_waterbodies": {
+      "ok": true,
+      "problem": null,
+      "count": 39774,
+      "ms": 522
+    },
+    "nj_wellhead_areas": {
+      "ok": true,
+      "problem": null,
+      "count": 6288,
+      "ms": 706
+    },
+    "nj_wetlands": {
+      "ok": true,
+      "problem": null,
+      "count": 143206,
+      "ms": 2161
+    }
+  }
+}

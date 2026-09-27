@@ -1,0 +1,128 @@
+{
+  "id": "nj_block_groups",
+  "rows": 6599,
+  "source_count": 6599,
+  "fetched_at": "2026-09-25T17:29:25Z",
+  "bounds": [
+    -75.563586,
+    38.788657,
+    -73.88506,
+    41.357607
+  ],
+  "files": {
+    "parquet": {
+      "path": "nj_block_groups/nj_block_groups.parquet",
+      "bytes": 17751615
+    },
+    "pmtiles": {
+      "path": "nj_block_groups/nj_block_groups.pmtiles",
+      "bytes": 17795109
+    },
+    "csv": {
+      "path": "nj_block_groups/nj_block_groups.csv",
+      "bytes": 914626
+    },
+    "geojson": {
+      "path": "nj_block_groups/nj_block_groups.geojson",
+      "bytes": 32133395
+    }
+  },
+  "repaired_shapes": 0,
+  "dropped_empty_shapes": 0,
+  "tagged_by_nearest": 0,
+  "place_tag_coverage": 1.0,
+  "values": {},
+  "ranges": {
+    "population_2020": {
+      "min": 0.0,
+      "max": 7080.0
+    },
+    "housing_units_2020": {
+      "min": 0.0,
+      "max": 3207.0
+    },
+    "land_sq_mi": {
+      "min": 0.0,
+      "max": 101.6614832899143
+    }
+  },
+  "selftest": [
+    {
+      "label": "Block groups with 3,000 people or more",
+      "state": {
+        "layer": "nj_block_groups",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "population_2020",
+            "op": "range",
+            "min": 3000,
+            "max": null
+          }
+        ]
+      },
+      "expected": 94
+    },
+    {
+      "label": "Block groups in Camden city",
+      "state": {
+        "layer": "nj_block_groups",
+        "place": {
+          "county_fips": "007",
+          "mun_code": "0408",
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 60
+    },
+    {
+      "label": "All block groups",
+      "expected": 6599,
+      "state": {
+        "layer": "nj_block_groups",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      }
+    },
+    {
+      "label": "Place check: Atlantic County",
+      "state": {
+        "layer": "nj_block_groups",
+        "place": {
+          "county_fips": "001",
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 194
+    },
+    {
+      "label": "Area check: Block Group 1, Census Tract 1",
+      "state": {
+        "layer": "nj_block_groups",
+        "place": {
+          "county_fips": "001",
+          "mun_code": "0102",
+          "tract_geoid": "34001000100",
+          "bg_geoid": "340010001001"
+        },
+        "conditions": []
+      },
+      "expected": 1
+    }
+  ]
+}

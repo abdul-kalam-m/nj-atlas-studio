@@ -1,0 +1,325 @@
+{
+  "id": "nj_preserved_open_space",
+  "rows": 95031,
+  "source_count": 95032,
+  "fetched_at": "2026-09-25T05:45:39Z",
+  "bounds": [
+    -75.557327,
+    38.924664,
+    -73.902451,
+    41.35046
+  ],
+  "files": {
+    "parquet": {
+      "path": "nj_preserved_open_space/nj_preserved_open_space.parquet",
+      "bytes": 53253683
+    },
+    "pmtiles": {
+      "path": "nj_preserved_open_space/nj_preserved_open_space.pmtiles",
+      "bytes": 48884739
+    },
+    "csv": {
+      "path": "nj_preserved_open_space/nj_preserved_open_space.csv",
+      "bytes": 21555592
+    },
+    "geojson": null
+  },
+  "repaired_shapes": 36,
+  "dropped_empty_shapes": 1,
+  "tagged_by_nearest": 1009,
+  "place_tag_coverage": 0.9999,
+  "values": {
+    "use": [
+      {
+        "value": "Aviation Facility",
+        "count": 4
+      },
+      {
+        "value": "Boat Access",
+        "count": 1
+      },
+      {
+        "value": "Boat Ramp",
+        "count": 2
+      },
+      {
+        "value": "Cemetery",
+        "count": 7
+      },
+      {
+        "value": "Field Office",
+        "count": 2
+      },
+      {
+        "value": "Fire Tower",
+        "count": 1
+      },
+      {
+        "value": "Fishing Access",
+        "count": 37
+      },
+      {
+        "value": "Golf Course",
+        "count": 8
+      },
+      {
+        "value": "Greenway",
+        "count": 1
+      },
+      {
+        "value": "Historic Site",
+        "count": 84
+      },
+      {
+        "value": "National Historic Park",
+        "count": 2
+      },
+      {
+        "value": "National Wildlife Refuge",
+        "count": 50
+      },
+      {
+        "value": "Natural Area",
+        "count": 34
+      },
+      {
+        "value": "Park",
+        "count": 5
+      },
+      {
+        "value": "Preserve",
+        "count": 6471
+      },
+      {
+        "value": "Recreation Area",
+        "count": 27
+      },
+      {
+        "value": "Reinhardt",
+        "count": 2
+      },
+      {
+        "value": "Reservoir",
+        "count": 42
+      },
+      {
+        "value": "Reservoir Site",
+        "count": 120
+      },
+      {
+        "value": "State Fish Hatchery",
+        "count": 8
+      },
+      {
+        "value": "State Forest",
+        "count": 5483
+      },
+      {
+        "value": "State Marina",
+        "count": 48
+      },
+      {
+        "value": "State Park",
+        "count": 3315
+      },
+      {
+        "value": "State Preserve",
+        "count": 2
+      },
+      {
+        "value": "Trail",
+        "count": 401
+      },
+      {
+        "value": "Wildlife Management Area",
+        "count": 15932
+      },
+      {
+        "value": null,
+        "count": 62942
+      }
+    ],
+    "access": [
+      {
+        "value": "No Access",
+        "count": 166
+      },
+      {
+        "value": "Public Access",
+        "count": 93429
+      },
+      {
+        "value": "Restricted Access",
+        "count": 93
+      },
+      {
+        "value": "Unknown",
+        "count": 52
+      },
+      {
+        "value": null,
+        "count": 1291
+      }
+    ],
+    "owner_type": [
+      {
+        "value": "County",
+        "count": 16861
+      },
+      {
+        "value": "Federal",
+        "count": 24
+      },
+      {
+        "value": "Municipal",
+        "count": 37844
+      },
+      {
+        "value": "Nonprofit",
+        "count": 7744
+      },
+      {
+        "value": "Private",
+        "count": 49
+      },
+      {
+        "value": "Regional",
+        "count": 405
+      },
+      {
+        "value": "State",
+        "count": 32104
+      }
+    ],
+    "green_acres": [
+      {
+        "value": "Encumbered",
+        "count": 84570
+      },
+      {
+        "value": "Not Encumbered",
+        "count": 10461
+      }
+    ]
+  },
+  "ranges": {
+    "acres": {
+      "min": 2.739e-05,
+      "max": 7829.70840784
+    },
+    "preserved_on": {
+      "min": "0225-02-18",
+      "max": "2026-06-30"
+    }
+  },
+  "selftest": [
+    {
+      "label": "Open space over 100 acres in Cape May County",
+      "state": {
+        "layer": "nj_preserved_open_space",
+        "place": {
+          "county_fips": "009",
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "acres",
+            "op": "range",
+            "min": 100,
+            "max": null
+          }
+        ]
+      },
+      "expected": 163
+    },
+    {
+      "label": "State parks and forests",
+      "state": {
+        "layer": "nj_preserved_open_space",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "use",
+            "op": "in",
+            "values": [
+              "State Park",
+              "State Forest"
+            ]
+          }
+        ]
+      },
+      "expected": 8798
+    },
+    {
+      "label": "Green Acres encumbered land",
+      "state": {
+        "layer": "nj_preserved_open_space",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "green_acres",
+            "op": "in",
+            "values": [
+              "Encumbered"
+            ]
+          }
+        ]
+      },
+      "expected": 84570
+    },
+    {
+      "label": "All open space areas",
+      "expected": 95031,
+      "state": {
+        "layer": "nj_preserved_open_space",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      }
+    },
+    {
+      "label": "Place check: Ocean County",
+      "state": {
+        "layer": "nj_preserved_open_space",
+        "place": {
+          "county_fips": "029",
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 24440
+    },
+    {
+      "label": "Area check: Block Group 3, Census Tract 7320.01",
+      "state": {
+        "layer": "nj_preserved_open_space",
+        "place": {
+          "county_fips": "029",
+          "mun_code": "1513",
+          "tract_geoid": "34029732001",
+          "bg_geoid": "340297320013"
+        },
+        "conditions": []
+      },
+      "expected": 6180
+    }
+  ]
+}

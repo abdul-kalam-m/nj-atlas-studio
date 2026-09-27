@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NJ Atlas Studio</title>
+<meta name="description" content="Maps of New Jersey open data for planners: layers, styles, buffers, print and share.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/studio.css">
+<link rel="stylesheet" href="css/print.css">
+</head>
+<body class="studio">
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">NJ</span>
+    <h1 id="app-title">NJ Atlas Studio</h1>
+  </div>
+  <div class="header-actions">
+    <label class="secondary file-button"><span id="open-file-label"></span><input id="open-file" type="file" accept=".json,application/json" class="visually-hidden"></label>
+    <button id="about-button" class="secondary" type="button"></button>
+  </div>
+</header>
+
+<main class="studio-layout">
+  <aside class="studio-panel" aria-label="Map controls">
+    <div id="notices" class="notices" role="status" hidden></div>
+    <details class="panel-block" open>
+      <summary><h2 id="area-heading"></h2></summary>
+      <div id="panel-area" class="panel-body"></div>
+    </details>
+    <details class="panel-block" open>
+      <summary><h2 id="layers-heading"></h2></summary>
+      <div id="panel-layers" class="panel-body"></div>
+    </details>
+    <details class="panel-block" open>
+      <summary><h2 id="buffer-heading"></h2></summary>
+      <div id="panel-buffer" class="panel-body"></div>
+    </details>
+    <details class="panel-block">
+      <summary><h2 id="export-heading"></h2></summary>
+      <div id="panel-export" class="panel-body"></div>
+    </details>
+  </aside>
+
+  <div class="studio-map-column">
+    <div class="studio-map-wrap">
+      <div id="map" role="region" aria-label="Map"></div>
+      <div id="legend" class="map-legend" hidden></div>
+      <p id="flash" class="map-flash" role="status" hidden></p>
+      <p id="offline" class="map-offline" role="alert" hidden></p>
+      <a id="embed-open" class="embed-open" target="_blank" rel="noopener"></a>
+    </div>
+    <section id="table-drawer" class="table-drawer" hidden></section>
+  </div>
+</main>
+
+<dialog id="about-dialog" aria-labelledby="about-dialog-title">
+  <div id="about-content" class="dialog-content"></div>
+  <form method="dialog" class="dialog-actions"><button id="about-close" type="submit"></button></form>
+</dialog>
+
+<script type="module" src="js/studio/studio.js"></script>
+</body>
+</html>

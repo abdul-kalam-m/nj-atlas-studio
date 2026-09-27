@@ -1,0 +1,27 @@
+/* Print layout (D-036). export.js adds #print-root and an @page rule with the paper size, then calls print(). */
+.print-root .print-title h1 { font-size: 20px; margin: 0; }
+.print-root .print-title p { font-size: 13px; color: #4f5d6e; margin: 2px 0 0; }
+.print-root .print-title { height: 56px; }
+.print-root .print-body { display: flex; gap: 14px; }
+.print-root.portrait .print-body { flex-direction: column; }
+.print-root .print-map { border: 1px solid #8a96a3; flex: 0 0 auto; }
+.print-root .print-map img { display: block; width: 100%; height: 100%; }
+.print-root .print-side { flex: 1 1 auto; display: flex; flex-direction: column; gap: 6px; font-size: 10px; color: #17212c; min-width: 0; }
+.print-root.portrait .print-side { flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
+.print-root.portrait .print-side > * { flex: 1 1 200px; }
+.print-root .legend-list { display: grid; gap: 5px; }
+.print-root .legend-title { font-weight: 600; }
+.print-root .legend-row { display: flex; align-items: center; gap: 6px; }
+.print-root .swatch { display: inline-block; flex: 0 0 auto; }
+.print-root .print-marks { display: flex; align-items: flex-end; gap: 14px; }
+.print-root .print-scale { display: grid; gap: 2px; }
+.print-root .print-scale-bar { display: block; height: 5px; background: #17212c; }
+.print-root .print-label { border: 1px solid #c97b63; padding: 3px 5px; font-size: 8.5px; line-height: 1.3; margin: 0; }
+.print-root .print-notes, .print-root .print-credits { margin: 0; font-size: 8.5px; line-height: 1.3; color: #3c4855; }
+
+@media print {
+  body.printing > *:not(#print-root) { display: none !important; }
+  body.printing { display: block; height: auto; background: #fff; }
+  body.printing #print-root { display: block; }
+  .print-root, .print-root * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
