@@ -13,7 +13,7 @@ import { layerSpecs, legendFor, presetStyle, resolve } from './style.js';
 import { toRow } from './transform.js';
 import { loadTurf } from './turf.js';
 import { notesOf, resultNotes, ringFor, resultsCsv, resultsGeojson, runBuffer, screeningFileName } from './buffer.js';
-import { dataCsv, dataGeojson, fetchLayerData, pngMap, printMap } from './export.js';
+import { dataCsv, dataGeojson, fetchLayerData, pngMap, printMap, printRoot, renderPrintRoot } from './export.js';
 import { loadHealth } from './health.js';
 import { countExport, rememberPilot } from './counter.js';
 import { bboxOf, roundGeometry } from './geo.js';
@@ -673,6 +673,20 @@ export const actions = {
     update((doc) => Object.assign(doc.layout, patch));
   },
   print: () => exportImage('pdf'),
+  // Preview the print layout, then print it without drawing the map again.
+  async previewPrint() {
+    panels.flash(app, TEXT.export.preparing);
+    try {
+      const { root, page, complete } = await renderPrintRoot(imageContext());
+      panels.flash(app, complete ? '' : TEXT.export.printTimeout);
+      panels.showPrintPreview(app, root, page, async () => {
+        await printRoot(root, page);
+        countExport(app.registry.catalog.counter_url, 'pdf', true, app.pilot);
+      });
+    } catch (error) {
+      panels.flash(app, String(error.message ?? error));
+    }
+  },
   png: () => exportImage('png'),
   async copyLink() {
     const hash = await encodeDoc(docForSave());
@@ -707,6 +721,7 @@ export const actions = {
 
 function setSite(source, label) {
   app.mode = null;
+  app.ui.changeSite = false;
   app.draw?.stop();
   app.map.map.getCanvas().style.cursor = '';
   const existing = app.doc.buffers[0];
@@ -812,6 +827,25 @@ function docForSave() {
 }
 
 // ---- Exports ----
+
+// "NJDEP" from "New Jersey Department of Environmental Protection (NJDEP), ..."; other publishers as they are.
+function shortPublisher(publisher) {
+  return /\(([A-Z][A-Za-z.]+)\)/.exec(publisher)?.[1] ?? publisher.split(',')[0];
+}
+
+// What an export will carry, in one line (the owner's review, 2026-09-27).
+function exportSummary() {
+  const { doc } = app;
+  const buffer = doc.buffers[0];
+  return TEXT.export.summary({
+    layers: doc.layers.length,
+    filters: doc.layers.reduce((n, layer) => n + layer.filters.length, 0),
+    buffer: buffer ? `${buffer.distance_ft} ft, ${buffer.source.label || TEXT.buffer.drawnSite}` : null,
+    sources: [...new Set(doc.layers.map((layer) => shortPublisher(app.registry.get(layer.id).source.publisher)))],
+    when: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+  });
+}
+app.exportSummary = exportSummary;
 
 function legendGroups() {
   const groups = [];

@@ -101,8 +101,8 @@ function sideParts(ctx, scale) {
   return parts;
 }
 
-// The print layout on the page, ready for the browser's print dialog: { root, complete, cleanup }.
-export async function buildPrintLayout(ctx) {
+// The print layout, not yet on the page: { root, page, complete }. The preview shows it; printRoot prints it.
+export async function renderPrintRoot(ctx) {
   const { doc, text } = ctx;
   const page = pageSize(doc.layout);
   const frame = frameSize(doc.layout);
@@ -115,25 +115,44 @@ export async function buildPrintLayout(ctx) {
       el('aside', { class: 'print-side' }, sideParts(ctx, rendered.scale)),
     ]),
   ]);
+  return { root, page, complete: rendered.complete };
+}
+
+// Put a layout on the page for the print dialog: { cleanup }.
+export async function attachForPrint(root, page) {
   const pageRule = el('style', { id: 'print-page', text: `@page { size: ${page.widthIn}in ${page.heightIn}in; margin: ${MARGIN_IN}in; }` });
   document.head.append(pageRule);
   document.body.append(root);
   document.body.classList.add('printing');
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  const cleanup = () => {
-    root.remove();
-    pageRule.remove();
-    document.body.classList.remove('printing');
+  return {
+    cleanup: () => {
+      root.remove();
+      pageRule.remove();
+      document.body.classList.remove('printing');
+    },
   };
-  return { root, complete: rendered.complete, cleanup };
 }
 
-// Print layout, then the browser's print dialog (Save as PDF).
-export async function printMap(ctx) {
-  const { complete, cleanup } = await buildPrintLayout(ctx);
+// The print layout on the page, ready for the browser's print dialog: { root, complete, cleanup }.
+export async function buildPrintLayout(ctx) {
+  const { root, page, complete } = await renderPrintRoot(ctx);
+  const { cleanup } = await attachForPrint(root, page);
+  return { root, complete, cleanup };
+}
+
+// A layout already built (for example, previewed), then the browser's print dialog (Save as PDF).
+export async function printRoot(root, page) {
+  const { cleanup } = await attachForPrint(root, page);
   window.addEventListener('afterprint', cleanup, { once: true });
   window.print();
   setTimeout(cleanup, 60000); // browsers that never fire afterprint
+}
+
+// Print layout, then the browser's print dialog.
+export async function printMap(ctx) {
+  const { root, page, complete } = await renderPrintRoot(ctx);
+  await printRoot(root, page);
   return complete;
 }
 

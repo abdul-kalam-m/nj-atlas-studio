@@ -111,6 +111,10 @@ export const TEXT = {
     targets: 'List inside the ring',
     noTargets: 'Add a layer that can be listed (parcels, wetlands, schools…).',
     run: 'Run',
+    changeSite: 'Change site',
+    all: 'All',
+    none: 'None',
+    stale: 'Changed since the last run.',
     clear: 'Clear',
     ringLabel: (distance) => `${distance} ft`,
     results: 'Inside the ring',
@@ -143,6 +147,12 @@ export const TEXT = {
     scaleBar: 'Scale bar',
     northArrow: 'North arrow',
     print: 'Print / PDF',
+    preview: 'Preview',
+    previewHeading: 'Print preview',
+    summary: ({ layers, filters, buffer, sources, when }) => [
+      layers === 1 ? '1 layer' : `${layers} layers`, buffer ? `a buffer (${buffer})` : null,
+      filters ? (filters === 1 ? '1 filter' : `${filters} filters`) : null].filter(Boolean).join(', ')
+      + (sources.length ? `. Data from ${sources.join(', ')}, live as of ${when}.` : '.'),
     png: 'PNG',
     link: 'Copy link',
     linkCopied: 'Link copied',

@@ -503,19 +503,14 @@ export function renderLayers(app) {
 
 // ---- Buffer ----
 
-export function renderBuffer(app) {
+function sitePicker(app, sources) {
   const T = app.text;
-  const buffer = app.doc.buffers[0];
-  const sources = app.doc.layers.map((l) => app.registry.get(l.id)).filter(isSource);
-  const targets = app.doc.layers.map((l) => app.registry.get(l.id)).filter(isTarget);
-  const nodes = [];
-  const siteButtons = el('div', { class: 'button-row' }, [
+  const nodes = [el('div', { class: 'button-row' }, [
     el('button', { type: 'button', class: `secondary${app.mode === 'select' ? ' on' : ''}`, text: T.buffer.select, disabled: !sources.length, onclick: () => app.actions.startSelect() }),
-    ...['point', 'line', 'area'].map((kind) => el('button', { type: 'button', class: 'secondary', text: T.buffer.draw[kind], onclick: () => app.actions.startDraw(kind) }))]);
-  nodes.push(el('h3', { text: T.buffer.site }), siteButtons);
+    ...['point', 'line', 'area'].map((kind) => el('button', { type: 'button', class: 'secondary', text: T.buffer.draw[kind], onclick: () => app.actions.startDraw(kind) }))])];
   if (app.mode === 'select' || app.draw?.active()) {
-    nodes.push(el('p', { class: 'hint', text: app.mode === 'select' ? T.buffer.selectHint : T.buffer.drawHint }),
-      el('button', { type: 'button', class: 'link-button', text: T.cancel, onclick: () => app.actions.cancelMode() }));
+    nodes.push(el('p', { class: 'hint' }, [el('span', { text: app.mode === 'select' ? T.buffer.selectHint : T.buffer.drawHint }), ' ',
+      el('button', { type: 'button', class: 'link-button', text: T.cancel, onclick: () => app.actions.cancelMode() })]));
   }
   nodes.push(...addressForm(app, true));
   const coordinates = el('input', { id: 'site-coordinates', type: 'text', placeholder: T.buffer.coordinatesHint, autocomplete: 'off' });
@@ -526,33 +521,63 @@ export function renderBuffer(app) {
     if (!app.actions.useCoordinates(coordinates.value)) flash(app, T.buffer.coordinatesBad);
   });
   nodes.push(coordinateForm);
+  return nodes;
+}
 
-  if (buffer) {
-    nodes.push(el('p', { class: 'site-line' }, [el('strong', { text: `${T.buffer.site}: ` }), el('span', { text: buffer.source.label || T.buffer.drawnSite }),
-      ' ', el('button', { type: 'button', class: 'link-button', text: T.buffer.clear, onclick: () => app.actions.clearBuffer() })]));
-    const distance = el('select', { id: 'buffer-distance' }, [...BUFFER_PRESETS_FT.map((ft) => el('option', { value: String(ft), text: `${ft} ${T.buffer.feet}` })),
-      el('option', { value: 'custom', text: T.buffer.custom })]);
-    const custom = el('input', { type: 'number', id: 'buffer-custom', min: '1', max: '5280', step: '1', value: String(buffer.distance_ft), 'aria-label': `${T.buffer.custom} (${T.buffer.feet})` });
-    const isPreset = BUFFER_PRESETS_FT.includes(buffer.distance_ft);
-    distance.value = isPreset ? String(buffer.distance_ft) : 'custom';
-    custom.hidden = isPreset;
-    distance.addEventListener('change', () => {
-      if (distance.value === 'custom') { custom.hidden = false; custom.focus(); } else app.actions.setDistance(Number(distance.value));
-    });
-    custom.addEventListener('change', () => app.actions.setDistance(Number(custom.value)));
-    nodes.push(el('div', { class: 'field inline' }, [el('label', { for: 'buffer-distance', text: T.buffer.distance }), distance, custom]));
-    if (targets.length) {
-      const boxes = targets.map((entry) => {
-        const box = el('input', { type: 'checkbox', id: `t-${entry.id}`, checked: buffer.targets.includes(entry.id) });
-        box.addEventListener('change', () => app.actions.setTargets(targets.filter((t) => $(`t-${t.id}`).checked).map((t) => t.id)));
-        return el('label', { class: 'check', for: box.id }, [box, el('span', { text: entry.title })]);
-      });
-      nodes.push(el('fieldset', { class: 'filter' }, [el('legend', { text: T.buffer.targets }), ...boxes]));
-    } else nodes.push(el('p', { class: 'hint', text: T.buffer.noTargets }));
-    nodes.push(el('button', { type: 'button', class: 'primary', text: app.ui.running ? T.loading : T.buffer.run,
-      disabled: app.ui.running || !buffer.targets.length, onclick: () => app.actions.runBuffer() }));
-    if (app.results && app.results.bufferId === buffer.id) nodes.push(resultsNode(app, buffer));
+// The Analysis tab (D-068), top to bottom: the site, the distance, what to list, Run, and the results.
+export function renderBuffer(app) {
+  const T = app.text;
+  const buffer = app.doc.buffers[0];
+  const layers = app.doc.layers.map((l) => app.registry.get(l.id));
+  const sources = layers.filter(isSource);
+  const targets = layers.filter(isTarget);
+  const nodes = [el('h3', { text: T.buffer.site })];
+  if (!buffer) {
+    nodes.push(...sitePicker(app, sources));
+    $('panel-buffer').replaceChildren(...nodes);
+    return;
   }
+  const siteLayer = buffer.source.kind === 'feature' ? app.registry.get(buffer.source.layer)?.title : null;
+  nodes.push(el('p', { class: 'site-line' }, [
+    siteLayer ? el('span', { class: 'badge', text: siteLayer }) : null, ' ', el('strong', { text: buffer.source.label || T.buffer.drawnSite }), ' ',
+    el('button', { type: 'button', class: 'link-button', 'aria-expanded': app.ui.changeSite ? 'true' : 'false', text: T.buffer.changeSite,
+      onclick: () => { app.ui.changeSite = !app.ui.changeSite; renderBuffer(app); } }), ' ',
+    el('button', { type: 'button', class: 'link-button', text: T.buffer.clear, onclick: () => app.actions.clearBuffer() })].filter(Boolean)));
+  if (app.ui.changeSite || app.mode === 'select' || app.draw?.active()) nodes.push(el('div', { class: 'site-picker' }, sitePicker(app, sources)));
+
+  const distance = el('select', { id: 'buffer-distance' }, [...BUFFER_PRESETS_FT.map((ft) => el('option', { value: String(ft), text: `${ft} ${T.buffer.feet}` })),
+    el('option', { value: 'custom', text: T.buffer.custom })]);
+  const custom = el('input', { type: 'number', id: 'buffer-custom', min: '1', max: '5280', step: '1', value: String(buffer.distance_ft), 'aria-label': `${T.buffer.custom} (${T.buffer.feet})` });
+  const isPreset = BUFFER_PRESETS_FT.includes(buffer.distance_ft);
+  distance.value = isPreset ? String(buffer.distance_ft) : 'custom';
+  custom.hidden = isPreset;
+  distance.addEventListener('change', () => {
+    if (distance.value === 'custom') { custom.hidden = false; custom.focus(); } else app.actions.setDistance(Number(distance.value));
+  });
+  custom.addEventListener('change', () => app.actions.setDistance(Number(custom.value)));
+  nodes.push(el('div', { class: 'field inline' }, [el('label', { for: 'buffer-distance', text: T.buffer.distance }), distance, custom]));
+
+  if (targets.length) {
+    const boxes = targets.map((entry) => {
+      const box = el('input', { type: 'checkbox', id: `t-${entry.id}`, checked: buffer.targets.includes(entry.id) });
+      box.addEventListener('change', () => app.actions.setTargets(targets.filter((t) => $(`t-${t.id}`).checked).map((t) => t.id)));
+      return el('label', { class: 'check', for: box.id }, [box, el('span', { text: entry.title })]);
+    });
+    nodes.push(el('fieldset', { class: 'filter' }, [el('legend', { text: T.buffer.targets }),
+      el('div', { class: 'button-row small' }, [
+        el('button', { type: 'button', class: 'link-button', text: T.buffer.all, onclick: () => app.actions.setTargets(targets.map((t) => t.id)) }),
+        el('button', { type: 'button', class: 'link-button', text: T.buffer.none, onclick: () => app.actions.setTargets([]) })]),
+      ...boxes]));
+  } else nodes.push(el('p', { class: 'hint', text: T.buffer.noTargets }));
+
+  const results = app.results && app.results.bufferId === buffer.id ? app.results : null;
+  const stale = results && (results.key !== JSON.stringify([buffer.source.geometry, buffer.distance_ft])
+    || results.targets.map((t) => t.id).join() !== buffer.targets.join());
+  nodes.push(el('div', { class: 'button-row' }, [
+    el('button', { type: 'button', class: 'primary', text: app.ui.running ? T.loading : T.buffer.run,
+      disabled: app.ui.running || !buffer.targets.length, onclick: () => app.actions.runBuffer() }),
+    stale ? el('span', { class: 'hint', text: T.buffer.stale }) : null].filter(Boolean)));
+  if (results) nodes.push(resultsNode(app, buffer));
   $('panel-buffer').replaceChildren(...nodes);
 }
 
@@ -614,11 +639,13 @@ export function renderExport(app) {
       el('button', { type: 'button', class: 'link-button', text: T.formats.geojson, onclick: () => app.actions.exportData(layer.id, 'geojson') })]);
   });
   $('panel-export').replaceChildren(...[
+    el('p', { class: 'export-summary', text: app.exportSummary?.() ?? '' }),
     text('subtitle', T.export.subtitle), text('notes', T.export.notes, true),
     select('paper', T.export.paper, T.export.papers), select('orientation', T.export.orientation, T.export.orientations),
     el('div', { class: 'checks' }, [check('legend', T.export.legend), check('scale_bar', T.export.scaleBar), check('north_arrow', T.export.northArrow)]),
     el('div', { class: 'button-row' }, [
-      el('button', { type: 'button', class: 'primary', text: T.export.print, onclick: () => app.actions.print() }),
+      el('button', { type: 'button', class: 'primary', text: T.export.preview, onclick: () => app.actions.previewPrint() }),
+      el('button', { type: 'button', class: 'secondary', text: T.export.print, onclick: () => app.actions.print() }),
       el('button', { type: 'button', class: 'secondary', text: T.export.png, onclick: () => app.actions.png() }),
       el('button', { type: 'button', class: 'secondary', text: T.export.link, onclick: () => app.actions.copyLink() }),
       el('button', { type: 'button', class: 'secondary', text: T.export.mapFile, onclick: () => app.actions.saveFile() }),
@@ -626,6 +653,28 @@ export function renderExport(app) {
     data.length ? el('h3', { text: T.export.data }) : null,
     data.length ? el('ul', { class: 'data-list' }, data) : null,
   ].filter(Boolean));
+}
+
+// The print layout at a readable size before printing (the owner's review, 2026-09-27).
+export function showPrintPreview(app, root, page, onPrint) {
+  const T = app.text;
+  let dialog = $('print-preview');
+  if (!dialog) {
+    dialog = el('dialog', { id: 'print-preview', class: 'print-preview', 'aria-labelledby': 'print-preview-title' });
+    document.body.append(dialog);
+  }
+  const available = Math.min(window.innerWidth - 80, 1100);
+  const scale = Math.min(1, available / page.width);
+  const sheet = el('div', { class: 'preview-sheet', style: `width:${Math.round(page.width * scale)}px;height:${Math.round(page.height * scale)}px` },
+    el('div', { class: 'preview-scale', style: `transform:scale(${scale})` }, root));
+  dialog.replaceChildren(
+    el('div', { class: 'dialog-head' }, [el('h2', { id: 'print-preview-title', text: T.export.previewHeading }),
+      el('div', { class: 'button-row' }, [
+        el('button', { type: 'button', class: 'primary', text: T.export.print, onclick: () => { dialog.close(); onPrint(); } }),
+        el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => dialog.close() })])]),
+    sheet,
+  );
+  if (!dialog.open) dialog.showModal();
 }
 
 // ---- Legend, popups, table ----
