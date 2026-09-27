@@ -575,3 +575,30 @@ Template (from OPERATING_GUIDE.md §4):
 - Live (2026-09-27, https://abdul-kalam-m.github.io/nj-atlas-studio/): Studio, the atlas at `/atlas/`, the catalogs, the area lists and outlines, and health.json answer 200; a map copy answers a range request with 206. In the browser, Pennsville counts are 6,559 parcels, 331 Category 1 waters, 1,052 wetland areas and 245 flood areas. The site screening buffer around block 301, lot 19 gives 2 wetland areas, 3 flood areas and 0 Category 1 waters (the §1.4 answer). No console errors.
 - Assumptions: the release draws the five hybrid layers live until the map copies are hosted (D-052); the export counter is off (`counter_url` is null).
 - Follow-ups (owner): review D-046 to D-066 and the Studio licenses; O-6 storage for the map copies; deploy the counter; S6 pilot.
+
+### Owner's review of D-046 to D-066 · 2026-09-27
+- In chat: the owner approved D-046 to D-066, some with conditions, and approved D-067 to D-072 (buffers from any layer, four tabs, templates in the Layers tab, layer list plus properties panel, basemap control, a header line on downloads). The order asked for: buffers first, then the tab shell, the Layers tab, templates, and polish. D-068 said "five tabs" but named four; four were built.
+
+### Review conditions · done · 2026-09-27
+- Changed: DECISIONS.md (outcomes on D-046 to D-066; D-067 to D-073), recipe schema (`export_notes`, `tiles.max_dropped_share`), nj_parcels and nj_flood_zones recipes, pipeline/check.py, tools/healthcheck.mjs, site/js/studio/{live,tiles,buffer,search,studio,panels,text}.js, catalog/search.json, LICENSE_REVIEW.md, LAYER_PLAYBOOK.md; tests: buffer.test.js, search.test.js, test_recipes.py
+- Checks:
+  - the parcel line comes from the recipe into lists, exports and prints (D-073);
+  - a tile still full after three splits is marked dense (1 + 4 + 16 + 64 requests, then stop);
+  - in the browser, flood zone counting in Pennsville shows "Counting values: 245 of 245" and adds up to 245 (AE 102, VE 29, X 114), and Cancel shows "Counts stopped. Count again";
+  - the nightly check now compares code and outline counts for Pennsville and Salem County, and every code-sliced layer passes (for example, parcels: 6,558 of 6,559 selected by code touch Pennsville);
+  - flood zones pass at the reviewed 8% sliver share, roads at the default 5%.
+- Assumptions: the code comparison tests that features selected by code lie in the area, since areas and lines touching the edge from outside make raw counts differ (wards: 1 by code, 5 touching Pennsville). Very large selections (over 20,000) skip it.
+- Follow-ups (owner): the NJOGIS email (O-3)
+
+### Buffers from any layer (D-067) · done · 2026-09-27
+- Checks (browser, Pennsville): a school, a contaminated site and a park each became the site and were buffered against every other layer on the map (for example, the school: 1 flood area within 300 ft; the contaminated site: 3). Nameless sites are called by their kind.
+
+### Tabs, header and basemaps (D-068, D-071) · done · 2026-09-27
+- Checks (browser): Right arrow twice moves from Area to Analysis and shows its panel; End and Home reach Export and Area. Light, Streets and None keep all 12 Studio layers in order, with the buffer ring's data. The header reads "Pennsville Township · 5 layers · 300 ft buffer".
+
+### Layers tab (D-070) and templates (D-069) · done · 2026-09-27
+- Checks (browser): choosing flood zones opens its properties beside the panel with Style, Filter and About open together; "Add layer" searches the catalog and a new layer opens its properties; the table follows the chosen layer (roads, then schools). "Start from template" lists Site screening; applying it sets four layers and opens Analysis in select mode.
+
+### Analysis and Export polish · done · 2026-09-27
+- Checks (browser): the site line reads "Property parcels · 12 CHURCHLANDING RD" with the picker folded; the §1.4 answer holds (0, 2, 3); changing the distance marks the results "Changed since the last run." Export opens with "4 layers, a buffer (500 ft, 12 CHURCHLANDING RD). Data from NJOGIS, NJDEP, live as of 4:13 PM." The print preview shows the letter layout at a readable size, with the screening label and parcel line.
+

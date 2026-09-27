@@ -1,6 +1,6 @@
 # NJ Atlas Studio
 
-Maps of New Jersey open data for planners, built on the NJ-Atlas engine. Pick an area, stack up to 8 of 35 curated layers, style them, draw a buffer, and export a print-ready PDF, a PNG, a link, a map file, an embed or the data cut to the area.
+Maps of New Jersey open data for planners, built on the NJ-Atlas engine. Four tabs: **Area** (state to block group), **Layers** (up to 8 of 35 curated layers, styled and filtered), **Analysis** (a buffer around any feature or a drawn site) and **Export** (a print-ready PDF, a PNG, a link, a map file, an embed or the data cut to the area).
 
 - **Layers:** boundaries (state to block group), parcels, land use, wetlands, flood zones, streams, Category 1 waters, roads, schools, hospitals, districts and more ([docs/studio/CATALOG.md](docs/studio/CATALOG.md)). Most are read live from the NJOGIS, NJDEP and Census services; the boundaries are our copies, and five large layers draw from our map copies.
 - **Site screening:** select a parcel, an address or a drawn footprint; the ring is measured from its edge; wetlands, flood zones and Category 1 waters inside it are listed and exported. Every output says *screening, not a regulatory determination*; parcel lists say they are *not a certified list of property owners*.
@@ -14,9 +14,9 @@ Studio is built (stages S0 to S5, and the S6 export counter), with every automat
 - storage for the five map copies (O-6); until then those layers are drawn live;
 - deploying the export counter ([workers/counter/README.md](workers/counter/README.md));
 - the pilot (S6): five municipalities and three non-GIS testers;
-- a review of the decisions taken while building (D-046 to D-066) and of the licenses applied at the owner's instruction ([docs/LICENSE_REVIEW.md](docs/LICENSE_REVIEW.md)).
+- written confirmation from NJOGIS that its terms cover the layers it hosts for other agencies (O-3, [docs/LICENSE_REVIEW.md](docs/LICENSE_REVIEW.md)).
 
-Checks: 188 Python tests, 174 JavaScript tests, the data checks, the plain-language lint, `node tools/healthcheck.mjs` (every live source, nightly in CI) and `node tools/trial.mjs` (live performance, [docs/studio/TRIAL.md](docs/studio/TRIAL.md)).
+Checks: 190 Python tests, 181 JavaScript tests, the data checks, the plain-language lint, `node tools/healthcheck.mjs` (every live source, nightly in CI) and `node tools/trial.mjs` (live performance, [docs/studio/TRIAL.md](docs/studio/TRIAL.md)).
 
 Run it locally:
 

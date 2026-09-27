@@ -28,6 +28,15 @@ Studio at the site root and the atlas at `/atlas/`, plus an explicit list of dat
    ```
 
    The force push is intended: it replaces the previous release, so old data files don't pile up in history. The first release has no previous `gh-pages` branch, so a plain push is enough.
+
+   **Agent route (no force push, CLAUDE.md):** stack the release on the current branch instead, then push normally. History grows by one commit per release, and the owner may squash it later with the force push above.
+
+   ```text
+   git -C build/pages fetch <repository URL> gh-pages
+   git -C build/pages reset --soft FETCH_HEAD
+   git -C build/pages commit -m "NJ-Atlas release <date>"
+   git -C build/pages push <repository URL> HEAD:gh-pages
+   ```
 5. **Agent, live check (M6-T4).** Run the G6 checks against the Pages URL and record them in PROGRESS.md.
 
 ## Large layers on Cloudflare R2 (M7)

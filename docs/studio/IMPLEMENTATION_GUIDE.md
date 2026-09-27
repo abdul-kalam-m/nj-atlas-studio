@@ -1,6 +1,6 @@
 # NJ Atlas Studio: implementation guide
 
-**Revision C, 2026-09-27. Status: approved by the owner in chat, 2026-09-27. Built 2026-09-27 (S0 to S5, and the S6 counter); see PROGRESS.md "Studio". Decisions taken while building are D-046 to D-066 in DECISIONS.md, for the owner's review.**
+**Revision C, 2026-09-27. Status: approved by the owner in chat, 2026-09-27. Built 2026-09-27 (S0 to S5, and the S6 counter); see PROGRESS.md "Studio". Decisions taken while building are D-046 to D-066, approved by the owner the same day with conditions; the interface then became four tabs with a layer properties panel and buffers from any layer (D-067 to D-073).**
 
 - **Project sheet (Rev C):** https://claude.ai/artifact/VmS2iJpL5vBgmNn5HgJVL4
 - **Layer catalog:** [CATALOG.md](CATALOG.md)
@@ -205,6 +205,8 @@ Keep today's modules: `places.js`, `filters.js`, `format.js`, `csv.js`, `data.js
 | `live.js` | ArcGIS client: layer info, count, grouped counts, pages, tile features, distance query. Retries, at most 6 concurrent requests, and the proxy switch (§4.12) |
 | `tiles.js` | Live feature tile cache: which tiles are visible, fetch the missing ones, merge them into a GeoJSON source |
 | `draw.js` | Minimal drawing: click points, double-click to finish; Escape cancels, Backspace removes the last point |
+| `search.js`* | The slower address search: typed address to house number, street and place (D-048) |
+| `panels.js` | The four tabs (D-068), the layer list and properties panel (D-070), dialogs, legend, table |
 | `buffer.js` | Draw the ring (turf), run distance queries per target, build the results list |
 | `clip.js` | Cut live-queried line and polygon features at the area's edge (turf) for exports |
 | `export.js` | PNG, the print layout, and CSV and GeoJSON downloads |
