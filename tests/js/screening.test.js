@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { combinedRows, notesOf, resultNotes, resultsCsv, resultsGeojson } from '../../site/js/studio/buffer.js';
+import { combinedRows, notesOf, resultNotes, resultsCsv, resultsGeojson } from '../../site/js/studio/screening.js';
 import { LiveLayer } from '../../site/js/studio/tiles.js';
 
 const recipe = (id) => JSON.parse(readFileSync(new URL(`../../catalog/layers/${id}.json`, import.meta.url), 'utf8'));

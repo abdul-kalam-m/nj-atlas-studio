@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "title": "Schools and site screening",
+  "subtitle": "Pennsville Township, Salem County",
+  "created_at": "2026-09-27T20:10:00Z",
+  "area": {"level": "municipality", "county_fips": "033", "mun_code": "1709", "tract_geoid": null, "bg_geoid": null},
+  "mask": true,
+  "basemap": "positron",
+  "view": {"center": [-75.51, 39.65], "zoom": 13.4, "bearing": 0},
+  "layers": [
+    {"id": "nj_schools", "visible": true, "opacity": 1, "filters": [], "style": {"preset": "points", "overrides": {}}},
+    {"id": "nj_parcels", "visible": true, "opacity": 1, "filters": [], "style": {"preset": "outline", "overrides": {}}},
+    {"id": "nj_wetlands", "visible": true, "opacity": 0.8, "filters": [], "style": {"preset": "fill", "overrides": {}}},
+    {"id": "nj_flood_zones", "visible": true, "opacity": 0.6, "filters": [], "style": {"preset": "by_zone", "overrides": {}}},
+    {"id": "nj_c1_waters", "visible": true, "opacity": 1, "filters": [], "style": {"preset": "line", "overrides": {}}}
+  ],
+  "screenings": [
+    {"id": "b1",
+     "source": {"kind": "feature", "layer": "nj_parcels", "atlas_id": "1709_301_19", "label": "Block 301, lot 19",
+                "geometry": {"type": "Polygon", "coordinates": [[[-75.5105, 39.6478], [-75.5098, 39.6478], [-75.5098, 39.6483], [-75.5105, 39.6483], [-75.5105, 39.6478]]]}},
+     "distance_ft": 300, "targets": ["nj_wetlands", "nj_flood_zones", "nj_c1_waters"], "label": "300 ft"}
+  ],
+  "buffers": [
+    {"id": "b1", "layer": "nj_schools", "name": "", "select": "filter",
+     "filters": [{"field": "school_type", "op": "in", "values": ["Elementary School"]}], "picked": [],
+     "unit": "ft", "dissolve": false, "visible": true,
+     "distances": [
+       {"value": 500, "style": {"fill": "#08519C", "fill_opacity": 0.3, "outline": "#08519C", "outline_width": 1.5, "outline_style": "solid"}},
+       {"value": 1000, "style": {"fill": "#3182BD", "fill_opacity": 0.3, "outline": "#08519C", "outline_width": 1.5, "outline_style": "dashed"}}
+     ]},
+    {"id": "b2", "layer": "nj_c1_waters", "name": "Category 1 waters, 100 m", "select": "all", "filters": [], "picked": [],
+     "unit": "m", "dissolve": true, "visible": true,
+     "distances": [
+       {"value": 100, "style": {"fill": "#A63603", "fill_opacity": 0.25, "outline": "#A63603", "outline_width": 1, "outline_style": "dotted"}}
+     ]}
+  ],
+  "layout": {"paper": "letter", "orientation": "landscape", "legend": true, "scale_bar": true, "north_arrow": true, "notes": ""},
+  "credits": ["New Jersey Office of GIS (NJOGIS)"],
+  "source_versions": {"nj_wetlands": {"mode": "hybrid", "tiles_built": "2026-09-27", "queried_at": "2026-09-27T20:09:40Z"}},
+  "extensions": {}
+}

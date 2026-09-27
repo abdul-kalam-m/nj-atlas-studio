@@ -176,3 +176,28 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
 /* Print layout and off-screen map renders */
 .print-offscreen { position: fixed; left: -10000px; top: 0; }
 .print-root { display: none; }
+
+/* Analysis: tool switch and buffer layers (D-076) */
+.segmented { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--paper); justify-self: start; }
+.segmented button { border: none; border-radius: 0; background: none; padding: 5px 12px; min-height: 32px; font-size: 0.86rem; color: var(--muted); }
+.segmented button + button { border-left: 1px solid var(--line); }
+.segmented button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.segmented.small button { padding: 3px 10px; min-height: 28px; font-size: 0.82rem; }
+.buffer-card { display: grid; gap: 8px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; }
+.buffer-card.editing { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.buffer-head { display: flex; align-items: center; gap: 6px; }
+.buffer-head strong { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.buffer-head input[type="text"] { flex: 1 1 auto; font-weight: 600; }
+.ring-chips { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 0.84rem; }
+.ring-chip { display: inline-flex; align-items: center; gap: 5px; }
+.distances { gap: 6px; }
+.ring { display: grid; gap: 6px; }
+.ring-row { display: grid; grid-template-columns: minmax(0, 110px) 22px 36px 30px; justify-content: start; align-items: center; gap: 6px; }
+.distances > .link-button, .buffer-card .segmented { justify-self: start; }
+.ring-row .unit { color: var(--muted); font-size: 0.86rem; }
+.ring-swatch { width: 32px; height: 24px; padding: 0; border-radius: 4px; cursor: pointer; }
+.ring-swatch.small { width: 16px; height: 12px; border-radius: 2px; cursor: default; }
+.ring-swatch[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--accent); }
+.ring-style { display: grid; gap: 6px; border-left: 3px solid var(--line); padding-left: 10px; margin-left: 4px; }
+.buffer-row { border-style: dashed; margin-left: 16px; }
+

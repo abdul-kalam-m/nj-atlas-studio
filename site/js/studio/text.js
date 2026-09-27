@@ -15,9 +15,14 @@ export const TEXT = {
   atLeast: (n) => `at least ${n}`,
   count: (n, plural) => `${n} ${plural}`,
 
-  panels: { area: 'Area', layers: 'Layers', buffer: 'Buffer', export: 'Export' },
+  panels: { area: 'Area', layers: 'Layers', screening: 'Site screening', export: 'Export' },
   tabs: { area: 'Area', layers: 'Layers', analysis: 'Analysis', export: 'Export' },
-  docBar: { layers: (n) => (n === 1 ? '1 layer' : `${n} layers`), buffer: (feet) => `${feet} ft buffer` },
+  docBar: {
+    layers: (n) => (n === 1 ? '1 layer' : `${n} layers`),
+    buffers: (n) => (n === 1 ? '1 buffer' : `${n} buffers`),
+    screening: (feet) => `${feet} ft screening`,
+  },
+  analysis: { tools: 'Tool', buffer: 'Buffer', screening: 'Site screening' },
   basemaps: { label: 'Basemap', positron: 'Light', liberty: 'Streets', none: 'None' },
   templates: { start: 'Start from template', heading: 'Templates' },
 
@@ -95,7 +100,63 @@ export const TEXT = {
     noData: 'No data',
   },
 
+  // Buffer layers (D-076)
   buffer: {
+    new: 'New buffer',
+    limit: 'Up to 4 buffers.',
+    input: 'Input layer',
+    noInput: 'Add a layer to buffer, such as schools, parcels or streams. Boundary layers are not buffered.',
+    selectLabel: 'Buffer',
+    select: { all: (plural) => `All ${plural} in the area`, filter: 'Filtered', picked: 'Selected on the map' },
+    count: (n, plural) => `${n} ${plural}`,
+    pick: 'Select on map',
+    pickHint: (plural) => `Click ${plural} to add or remove them.`,
+    done: 'Done',
+    picked: (n) => `${n} selected`,
+    clearPicked: 'Clear',
+    distances: 'Distances',
+    unit: 'Unit',
+    units: { ft: 'Feet', m: 'Meters' },
+    measured: 'Measured on New Jersey State Plane (NAD83).',
+    distance: (n) => `Distance ${n}`,
+    addDistance: 'Add distance',
+    removeDistance: (d) => `Remove ${d}`,
+    styleOf: (d) => `Style of ${d}`,
+    fill: 'Fill',
+    fillOpacity: 'Fill opacity',
+    outline: 'Outline',
+    outlineWidth: 'Outline width',
+    outlineStyle: 'Outline style',
+    outlineStyles: { solid: 'Solid', dashed: 'Dashed', dotted: 'Dotted' },
+    dissolve: 'Dissolve overlapping buffers',
+    name: 'Name',
+    run: 'Create layers',
+    rerun: 'Update layers',
+    reading: (n) => `Reading: ${n}`,
+    running: (done, total) => `Buffering: ${done} of ${total}`,
+    stale: 'Changed since the last run.',
+    notRun: 'Not created yet.',
+    made: (n, plural, rings) => `${n} ${plural}, ${rings === 1 ? '1 distance' : `${rings} distances`}.`,
+    tooMany: (cap, plural) => `Over ${cap} ${plural}. Filter them or choose a smaller area.`,
+    nothing: (plural) => `No ${plural} to buffer.`,
+    skipped: (n) => `${n} could not be buffered (damaged shapes).`,
+    failed: 'Buffering failed.',
+    download: 'Download',
+    zoom: 'Zoom to',
+    edit: 'Edit',
+    close: 'Done',
+    remove: 'Remove buffer',
+    badge: 'Buffer',
+    name: (title) => `${title} buffer`,
+    filteredName: (title, summary) => `${title} buffer (${summary})`,
+    pickedName: (title, n) => `${title} buffer (${n} selected)`,
+    values: (n) => `${n} values`,
+    blank: 'Blank',
+    dissolved: (n, plural) => `${n} ${plural}, merged`,
+  },
+
+  // Site screening (D-033; its text was under "buffer" before D-076)
+  screening: {
     site: 'Site',
     select: 'Select on map',
     selectHint: 'Click anything on the map: a parcel, a school, a park, a flood zone…',
@@ -149,8 +210,9 @@ export const TEXT = {
     print: 'Print / PDF',
     preview: 'Preview',
     previewHeading: 'Print preview',
-    summary: ({ layers, filters, buffer, sources, when }) => [
-      layers === 1 ? '1 layer' : `${layers} layers`, buffer ? `a buffer (${buffer})` : null,
+    summary: ({ layers, filters, buffers, screening, sources, when }) => [
+      layers === 1 ? '1 layer' : `${layers} layers`, buffers ? (buffers === 1 ? '1 buffer' : `${buffers} buffers`) : null,
+      screening ? `a screening (${screening})` : null,
       filters ? (filters === 1 ? '1 filter' : `${filters} filters`) : null].filter(Boolean).join(', ')
       + (sources.length ? `. Data from ${sources.join(', ')}, live as of ${when}.` : '.'),
     png: 'PNG',
@@ -180,8 +242,9 @@ export const TEXT = {
   aboutApp: [
     'Layers come from the publishers’ own services (live) or from our copies (the boundaries, and map copies of large layers). '
       + 'Each layer’s About lists its source, license and credit.',
-    'Buffers are straight-line distances measured from the site’s edge. Screening results are not regulatory '
-      + 'determinations. Parcel data is not a certified list of property owners.',
+    'Buffers and screenings use straight-line ground distances: buffers are measured on New Jersey State Plane '
+      + '(NAD83), screenings by each source’s own distance search from the site’s edge. Screening results are not '
+      + 'regulatory determinations. Parcel data is not a certified list of property owners.',
   ],
   atlasLink: 'NJ Atlas (one dataset at a time)',
   codeLicense: 'Code: MIT license',
@@ -198,7 +261,9 @@ export const TEXT = {
 
   notices: {
     unknownLayer: (id) => `Not available: ${id}`,
-    targetNotOnMap: (ids) => `Buffer list skips layers not on the map: ${ids}`,
+    targetNotOnMap: (ids) => `Screening list skips layers not on the map: ${ids}`,
+    bufferLayerMissing: (id) => `A buffer’s layer is not on the map: ${id}`,
+    notBufferable: (id) => `Boundary layers are not buffered: ${id}`,
     badLink: 'This link is damaged.',
     oldLink: 'Opened an atlas link.',
   },
@@ -211,8 +276,11 @@ export const TEXT = {
     badLayer: () => 'A layer in the map file is damaged.',
     tooManyBuffers: (n) => `The map has ${n} buffers; Studio keeps up to 4.`,
     badBuffer: () => 'A buffer in the map file is damaged.',
-    badDistance: (d) => `A buffer distance (${d}) is outside 1 to 5,280 ft.`,
-    badBufferSource: () => 'A buffer has no site shape.',
+    badBufferDistance: (d) => `A buffer distance (${d}) is outside the limit (5 miles, or 8,000 m).`,
+    tooManyScreenings: (n) => `The map has ${n} screenings; Studio keeps up to 4.`,
+    badScreening: () => 'A screening in the map file is damaged.',
+    badDistance: (d) => `A screening distance (${d}) is outside 1 to 5,280 ft.`,
+    badScreeningSource: () => 'A screening has no site shape.',
   },
 
   embed: { open: 'Open in NJ Atlas Studio' },

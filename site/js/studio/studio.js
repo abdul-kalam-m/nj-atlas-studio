@@ -6,13 +6,16 @@ import { createClient } from './live.js';
 import { LiveLayer } from './tiles.js';
 import { createStudioMap } from './mapview.js';
 import { DrawTool } from './draw.js';
-import { createDoc, layerDoc, LEVEL_KEY, MAX_LAYERS, nextBufferId, validate } from './mapdoc.js';
+import { createDoc, layerDoc, LEVEL_KEY, MAX_BUFFERS, MAX_LAYERS, nextBufferId, nextScreeningId, validate } from './mapdoc.js';
 import { decodeHash, embedSnippet, encodeDoc, isLong, linkFor } from './share.js';
 import { areaWhere, conditionsWhere, joinWhere, quote } from './sql.js';
 import { layerSpecs, legendFor, presetStyle, resolve } from './style.js';
 import { toRow } from './transform.js';
-import { loadTurf } from './turf.js';
-import { notesOf, resultNotes, ringFor, resultsCsv, resultsGeojson, runBuffer, screeningFileName } from './buffer.js';
+import { loadJsts, loadTurf } from './turf.js';
+import { bufferFeatures } from './geoprocess.js';
+import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_PICKED, MAX_RINGS, bufferDownload, bufferLegend, bufferName, bufferSpecs,
+  defaultStyle, newBuffer, nextDistance, outputKey, toMeters, validDistance } from './buffer.js';
+import { notesOf, resultNotes, ringFor, resultsCsv, resultsGeojson, runScreening, screeningFileName } from './screening.js';
 import { dataCsv, dataGeojson, fetchLayerData, pngMap, printMap, printRoot, renderPrintRoot } from './export.js';
 import { loadHealth } from './health.js';
 import { countExport, rememberPilot } from './counter.js';
@@ -43,11 +46,19 @@ const app = {
   health: {},
   client: null,
   draw: null,
-  mode: null, // null | 'select'
+  mode: null, // null | 'select' (a screening's site) | 'pick' (a buffer's features)
   results: null,
   ring: null,
   table: null,
-  ui: { tab: 'area', selected: null, sections: { style: true, filter: false, about: false }, addQuery: '', candidates: null, candidatesFor: null, status: '' },
+  // Buffer layers (D-076): outputs, running jobs, input counts and failures, by buffer ID.
+  outputs: new Map(),
+  bufferJobs: new Map(),
+  bufferErrors: new Map(),
+  inputCounts: new Map(),
+  bufferRequested: new Set(),
+  pickShapes: new Map(),
+  ui: { tab: 'area', tool: 'buffer', editing: null, pickFor: null, ringStyle: null, selected: null,
+    sections: { style: true, filter: false, about: false }, addQuery: '', candidates: null, candidatesFor: null, status: '' },
   embed: new URLSearchParams(location.search).get('embed') === '1',
   pilot: null,
 };
@@ -207,6 +218,7 @@ export async function loadStats(id) {
   if (entry.access === 'copy') {
     rt.stats = { values: entry.values ?? {}, ranges: entry.ranges ?? {}, loaded: true };
     panels.renderLayer(app, id);
+    if (app.ui.tab === 'analysis') panels.renderAnalysis(app);
     return;
   }
   const layer = app.doc.layers.find((l) => l.id === id);
@@ -243,6 +255,7 @@ export async function loadStats(id) {
   rt.stats = { values, ranges, loaded: true, cancelled: controller.signal.aborted };
   rt.statsAbort = null;
   panels.renderLayer(app, id);
+  if (app.ui.tab === 'analysis' && app.doc.buffers.some((buffer) => buffer.layer === id && buffer.select === 'filter')) panels.renderAnalysis(app);
 }
 
 // Category colors and class breaks for a style, stored in the document so a shared map looks the same.
@@ -285,9 +298,18 @@ function tileFilter(entry, layer) {
   return toMapFilter(cleanState({ place, conditions: layer.filters }, entry.fields));
 }
 
+function bufferItems(layerId) {
+  return app.doc.buffers.filter((buffer) => buffer.layer === layerId && buffer.visible && app.outputs.has(buffer.id)).reverse().map((buffer) => {
+    const output = app.outputs.get(buffer.id);
+    return { key: `buffer:${buffer.id}`, source: { type: 'geojson', data: { type: 'FeatureCollection', features: output.features } },
+      sourceSignature: `buffer:${output.version}`, specs: bufferSpecs(buffer) };
+  });
+}
+
 function stack() {
   const items = [];
   for (const layer of [...app.doc.layers].reverse()) {
+    items.push(...bufferItems(layer.id)); // a layer's buffers sit just beneath it (D-077)
     if (!layer.visible) continue;
     const rt = runtime(layer.id);
     const { entry } = rt;
@@ -346,23 +368,23 @@ async function syncArea() {
 
 async function syncOverlays() {
   if (!app.map) return;
-  const buffer = app.doc.buffers[0];
-  if (!buffer) {
+  const screening = app.doc.screenings[0];
+  if (!screening) {
     app.ring = null;
     app.map.setOverlay('rings', EMPTY);
     app.map.setOverlay('sites', EMPTY);
     app.map.setOverlay('hits', EMPTY);
     return;
   }
-  app.map.setOverlay('sites', { type: 'Feature', properties: {}, geometry: buffer.source.geometry });
-  const key = JSON.stringify([buffer.source.geometry, buffer.distance_ft]);
+  app.map.setOverlay('sites', { type: 'Feature', properties: {}, geometry: screening.source.geometry });
+  const key = JSON.stringify([screening.source.geometry, screening.distance_ft]);
   if (app.ringKey !== key) {
     app.ringKey = key;
     const turf = await loadTurf();
-    app.ring = await ringFor(turf, buffer.source.geometry, buffer.distance_ft);
+    app.ring = await ringFor(turf, screening.source.geometry, screening.distance_ft);
   }
   app.map.setOverlay('rings', app.ring);
-  const current = app.results?.bufferId === buffer.id && app.results.key === key;
+  const current = app.results?.bufferId === screening.id && app.results.key === key;
   app.map.setOverlay('hits', current && app.ui.showHits !== false
     ? { type: 'FeatureCollection', features: app.results.targets.flatMap((t) => t.features).filter((f) => f.geometry) } : EMPTY);
 }
@@ -389,6 +411,9 @@ export async function setDoc(next, { render = true, fit = false } = {}) {
   syncMapLayers();
   syncOverlays();
   for (const layer of next.layers) refreshLayer(layer.id);
+  forgetRemovedBuffers();
+  countInputs();
+  autoRunBuffers();
 }
 
 export function update(change, options) {
@@ -455,7 +480,8 @@ export const actions = {
     if (app.table?.id === id) app.table = null;
     update((doc) => {
       doc.layers = doc.layers.filter((l) => l.id !== id);
-      for (const buffer of doc.buffers) buffer.targets = buffer.targets.filter((t) => t !== id);
+      doc.buffers = doc.buffers.filter((buffer) => buffer.layer !== id); // a buffer goes with its layer
+      for (const screening of doc.screenings) screening.targets = screening.targets.filter((t) => t !== id);
     });
   },
   moveLayer(id, step) {
@@ -515,25 +541,166 @@ export const actions = {
     refreshLayer(id);
   },
 
-  // Buffers
+  // Analysis: the tool on show (D-076)
+  setTool(tool) {
+    app.ui.tool = tool;
+    actions.cancelMode();
+  },
+
+  // Buffer layers (D-076)
+  newBuffer() {
+    const layers = bufferableLayers();
+    if (!layers.length || app.doc.buffers.length >= MAX_BUFFERS) return;
+    const layer = layers.find((entry) => entry.id === app.ui.selected) ?? layers[0];
+    const id = nextBufferId(app.doc);
+    app.ui.editing = id;
+    app.ui.tool = 'buffer';
+    update((doc) => { doc.buffers.push(newBuffer(id, layer.id, doc.buffers.length)); });
+  },
+  openBuffer(id) {
+    app.ui.editing = id;
+    app.ui.tool = 'buffer';
+    actions.setTab('analysis');
+    panels.renderAnalysis(app);
+  },
+  editBuffer(id) {
+    app.ui.editing = app.ui.editing === id ? null : id;
+    app.ui.tool = 'buffer';
+    if (app.ui.pickFor && app.ui.pickFor !== id) actions.cancelMode();
+    actions.setTab('analysis');
+    panels.renderAnalysis(app);
+  },
+  setBuffer(id, patch) {
+    update((doc) => Object.assign(doc.buffers.find((buffer) => buffer.id === id), patch));
+  },
+  setBufferLayer(id, layer) {
+    if (app.ui.pickFor === id) actions.cancelMode();
+    app.pickShapes.clear();
+    actions.setBuffer(id, { layer, select: 'all', filters: [], picked: [] });
+  },
+  // All in the area, a filter (starting from the layer's own), or features picked on the map.
+  setBufferSelect(id, select) {
+    const buffer = bufferById(id);
+    const layerFilters = app.doc.layers.find((l) => l.id === buffer.layer)?.filters ?? [];
+    update((doc) => {
+      const target = doc.buffers.find((b) => b.id === id);
+      target.select = select;
+      if (select === 'filter' && !target.filters.length) target.filters = structuredClone(layerFilters);
+    });
+    if (select === 'filter' && !runtime(buffer.layer).stats.loaded) loadStats(buffer.layer);
+    if (select === 'picked') actions.startPick(id);
+    else if (app.ui.pickFor === id) actions.cancelMode();
+  },
+  setBufferFilters(id, filters) {
+    actions.setBuffer(id, { filters });
+  },
+  startPick(id) {
+    app.draw?.stop();
+    app.mode = 'pick';
+    app.ui.pickFor = id;
+    app.map.map.getCanvas().style.cursor = 'pointer';
+    showPicks();
+    panels.renderAnalysis(app);
+  },
+  clearPicked(id) {
+    app.pickShapes.clear();
+    showPicks();
+    actions.setBuffer(id, { picked: [] });
+  },
+  // Changing the unit keeps the numbers (500 ft becomes 500 m), within the unit's limit.
+  setBufferUnit(id, unit) {
+    update((doc) => {
+      const buffer = doc.buffers.find((b) => b.id === id);
+      buffer.unit = unit;
+      for (const ring of buffer.distances) ring.value = Math.min(ring.value, MAX_DISTANCE[unit]);
+    });
+  },
+  addRing(id) {
+    update((doc) => {
+      const index = doc.buffers.findIndex((b) => b.id === id);
+      const buffer = doc.buffers[index];
+      if (buffer.distances.length >= MAX_RINGS) return;
+      buffer.distances.push({ value: nextDistance(buffer), style: defaultStyle(index, buffer.distances.length) });
+    });
+  },
+  // Returns false for a distance outside the limit; the panel says so.
+  setRing(id, index, value) {
+    const buffer = bufferById(id);
+    if (!validDistance(value, buffer.unit)) return false;
+    update((doc) => { doc.buffers.find((b) => b.id === id).distances[index].value = value; });
+    return true;
+  },
+  setRingStyle(id, index, patch) {
+    update((doc) => Object.assign(doc.buffers.find((b) => b.id === id).distances[index].style, patch));
+  },
+  removeRing(id, index) {
+    if (app.ui.ringStyle === `${id}:${index}`) app.ui.ringStyle = null;
+    update((doc) => {
+      const buffer = doc.buffers.find((b) => b.id === id);
+      if (buffer.distances.length > 1) buffer.distances.splice(index, 1);
+    });
+  },
+  toggleRingStyle(id, index) {
+    const key = `${id}:${index}`;
+    app.ui.ringStyle = app.ui.ringStyle === key ? null : key;
+    panels.renderAnalysis(app);
+  },
+  runBuffer(id) {
+    app.bufferRequested.add(id); // from now on, changes run it again (D-076)
+    runBufferLayer(id);
+  },
+  cancelBuffer(id) {
+    app.bufferJobs.get(id)?.abort.abort();
+    app.bufferJobs.delete(id);
+    app.bufferRequested.delete(id);
+    panels.renderAnalysis(app);
+    panels.renderLayers(app);
+  },
+  removeBuffer(id) {
+    app.bufferJobs.get(id)?.abort.abort();
+    if (app.ui.pickFor === id) actions.cancelMode();
+    if (app.ui.editing === id) app.ui.editing = null;
+    update((doc) => { doc.buffers = doc.buffers.filter((b) => b.id !== id); });
+  },
+  zoomToBuffer(id) {
+    const output = app.outputs.get(id);
+    if (output?.features.length) app.map.fitBounds(bboxOf({ type: 'GeometryCollection', geometries: output.features.map((f) => f.geometry) }), 17);
+  },
+  downloadBuffer(id) {
+    const buffer = bufferById(id);
+    const output = app.outputs.get(id);
+    if (!buffer || !output) return;
+    const entry = app.registry.get(buffer.layer);
+    const name = bufferName(buffer, entry, TEXT.buffer);
+    const notes = [TEXT.buffer.measured, entry.license.attribution, `${TEXT.export.dataDates}: ${dataDates()}`];
+    download(`${slug(name)}_${new Date().toISOString().slice(0, 10)}.geojson`, JSON.stringify(bufferDownload(output, { name, notes })), 'application/geo+json');
+    countExport(app.registry.catalog.counter_url, 'geojson', true, app.pilot);
+  },
+
+  // Site screening
   startSelect() {
     app.draw?.stop();
     app.mode = 'select';
+    app.ui.tool = 'screening';
     actions.setTab('analysis');
     app.map.map.getCanvas().style.cursor = 'pointer';
-    panels.renderBuffer(app);
+    panels.renderAnalysis(app);
   },
   startDraw(kind) {
     app.mode = null;
+    app.ui.pickFor = null;
     app.draw.start(kind);
     actions.setTab('analysis');
-    panels.renderBuffer(app);
+    panels.renderAnalysis(app);
   },
   cancelMode() {
+    const picking = app.mode === 'pick';
     app.mode = null;
+    app.ui.pickFor = null;
     app.draw?.stop();
     app.map.map.getCanvas().style.cursor = '';
-    panels.renderBuffer(app);
+    if (picking) app.map.setOverlay('selected', null);
+    panels.renderAnalysis(app);
   },
   useCoordinates(text) {
     const match = /^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/.exec(text);
@@ -541,7 +708,7 @@ export const actions = {
     let [lat, lng] = [Number(match[1]), Number(match[2])];
     if (lat < 0 && lng > 0) [lat, lng] = [lng, lat];
     if (lat < 38.5 || lat > 41.5 || lng < -75.8 || lng > -73.7) return false;
-    setSite({ kind: 'drawn', geometry: { type: 'Point', coordinates: [lng, lat] } }, TEXT.buffer.drawnSite);
+    setSite({ kind: 'drawn', geometry: { type: 'Point', coordinates: [lng, lat] } }, TEXT.screening.drawnSite);
     return true;
   },
   async searchAddress(query, forSite) {
@@ -614,31 +781,31 @@ export const actions = {
   },
   setDistance(feet) {
     if (!Number.isFinite(feet) || feet < 1 || feet > 5280) return;
-    update((doc) => { if (doc.buffers[0]) doc.buffers[0].distance_ft = feet; else app.pendingDistance = feet; });
+    update((doc) => { if (doc.screenings[0]) doc.screenings[0].distance_ft = feet; else app.pendingDistance = feet; });
   },
   setTargets(ids) {
-    update((doc) => { if (doc.buffers[0]) doc.buffers[0].targets = ids; });
+    update((doc) => { if (doc.screenings[0]) doc.screenings[0].targets = ids; });
   },
-  clearBuffer() {
+  clearScreening() {
     app.results = null;
-    update((doc) => { doc.buffers = []; });
+    update((doc) => { doc.screenings = []; });
   },
-  runBuffer: () => runBufferNow(),
+  runScreening: () => runScreeningNow(),
   toggleHits() {
     app.ui.showHits = app.ui.showHits === false;
     syncOverlays();
-    panels.renderBuffer(app);
+    panels.renderAnalysis(app);
   },
   downloadResults(format) {
-    const buffer = app.doc.buffers[0];
-    if (!app.results || !buffer) return;
-    const context = resultsContext(buffer);
-    const name = buffer.source.label || TEXT.buffer.drawnSite;
-    if (format === 'csv') download(screeningFileName(name, 'csv'), resultsCsv(app.results, buffer, context), 'text/csv');
-    else download(screeningFileName(name, 'geojson'), JSON.stringify(resultsGeojson(app.results, buffer, context)), 'application/geo+json');
+    const screening = app.doc.screenings[0];
+    if (!app.results || !screening) return;
+    const context = resultsContext(screening);
+    const name = screening.source.label || TEXT.screening.drawnSite;
+    if (format === 'csv') download(screeningFileName(name, 'csv'), resultsCsv(app.results, screening, context), 'text/csv');
+    else download(screeningFileName(name, 'geojson'), JSON.stringify(resultsGeojson(app.results, screening, context)), 'application/geo+json');
     countExport(app.registry.catalog.counter_url, format === 'csv' ? 'csv' : 'geojson', true, app.pilot);
   },
-  // A template (D-069): its layers and presets, then, when it names targets, a buffer whose site comes next.
+  // A template (D-069): its layers and presets, then, when it names targets, a screening whose site comes next.
   async applyTemplate(key) {
     const template = app.registry.catalog.templates?.[key];
     if (!template) return;
@@ -658,6 +825,7 @@ export const actions = {
     app.pendingTargets = buffered ? template.targets : null;
     app.ui.screening = buffered;
     app.ui.templateTitle = template.title;
+    if (buffered) app.ui.tool = 'screening';
     await update((doc) => {
       doc.layers = [...layers, ...others].slice(0, MAX_LAYERS);
       doc.layout = { ...doc.layout, ...(template.layout ?? {}) };
@@ -724,7 +892,7 @@ function setSite(source, label) {
   app.ui.changeSite = false;
   app.draw?.stop();
   app.map.map.getCanvas().style.cursor = '';
-  const existing = app.doc.buffers[0];
+  const existing = app.doc.screenings[0];
   const targets = existing?.targets ?? app.pendingTargets
     ?? app.doc.layers.map((l) => app.registry.get(l.id)).filter((e) => isTarget(e) && !(source.kind === 'feature' && e.id === source.layer)).map((e) => e.id);
   const distance = existing?.distance_ft ?? app.pendingDistance ?? 300;
@@ -733,20 +901,22 @@ function setSite(source, label) {
   app.results = null;
   const screening = app.ui.screening;
   update((doc) => {
-    doc.buffers = [{ id: existing?.id ?? nextBufferId(doc), source: { ...source, ...(source.kind === 'feature' ? { label: label ?? '' } : {}),
+    doc.screenings = [{ id: existing?.id ?? nextScreeningId(doc), source: { ...source, ...(source.kind === 'feature' ? { label: label ?? '' } : {}),
       geometry: roundGeometry(source.geometry) }, distance_ft: distance, targets: targets.filter((t) => doc.layers.some((l) => l.id === t)),
-    label: TEXT.buffer.ringLabel(distance) }];
-    if (screening && !doc.title) doc.title = TEXT.buffer.templateTitle(app.ui.templateTitle ?? '', label || TEXT.buffer.drawnSite);
+    label: TEXT.screening.ringLabel(distance) }];
+    if (screening && !doc.title) doc.title = TEXT.screening.templateTitle(app.ui.templateTitle ?? '', label || TEXT.screening.drawnSite);
     if (screening && !doc.subtitle) doc.subtitle = areaName();
-  }).then(() => { if (screening) { app.ui.screening = false; runBufferNow(); } });
+  }).then(() => { if (screening) { app.ui.screening = false; runScreeningNow(); } });
 }
 
-// Select mode (D-067): any feature on the map can be a buffer's site. When a click finds several, ask which.
+// Select mode (D-067): any feature of a bufferable layer can be a screening's site (not boundaries, D-074).
+// When a click finds several, ask which.
 async function selectAt(point, lngLat) {
   const seen = new Set();
   const hits = app.map.featuresAt(point, 5).filter((hit) => {
     const key = `${hit.key}|${hit.properties.atlas_id}`;
-    if (!isSource(app.registry.get(hit.key)) || seen.has(key)) return false;
+    const entry = app.registry.get(hit.key);
+    if (!entry || !isSource(entry) || seen.has(key)) return false;
     seen.add(key);
     return true;
   });
@@ -771,30 +941,204 @@ async function chooseSite(hit) {
   setSite({ kind: 'feature', layer: entry.id, atlas_id: row.atlas_id, geometry: feature.geometry }, String(name));
 }
 
-async function runBufferNow() {
-  const buffer = app.doc.buffers[0];
+// ---- Buffer layers (D-076) ----
+
+// Layers on the map that can be buffered: not boundaries (D-074).
+function bufferableLayers() {
+  return app.doc.layers.map((l) => app.registry.get(l.id)).filter((entry) => entry && isSource(entry));
+}
+app.bufferableLayers = bufferableLayers;
+app.bufferKey = (buffer) => outputKey(buffer, areaKey());
+
+function bufferById(id) {
+  return app.doc.buffers.find((buffer) => buffer.id === id) ?? null;
+}
+
+function areaKey() {
+  const { level, code } = effectiveArea(app.doc.area);
+  return `${level}/${code}`;
+}
+
+// The where clause and area outline that select a buffer's input features.
+async function bufferQuery(buffer) {
+  const rt = runtime(buffer.layer);
+  const { entry } = rt;
+  const types = await typesFor(rt);
+  if (buffer.select === 'picked') {
+    const ids = buffer.picked.map((id) => (types[entry.source.id_field] === 'number' ? Number(id) : quote(id)));
+    return { where: joinWhere(entry.source.where, `${entry.source.id_field} IN (${ids.join(', ')})`), geometry: null };
+  }
+  const filters = buffer.select === 'filter' ? buffer.filters : [];
+  // Copy layers are sliced by place tags on screen; their sources are asked for the same area by its outline.
+  if (entry.access === 'copy') {
+    return { where: joinWhere(entry.source.where, conditionsWhere(entry, filters, types)),
+      geometry: effectiveArea(app.doc.area).level === 'state' ? null : app.areaGeometry };
+  }
+  const q = await queryFor(rt, { filters });
+  return { where: q.where, geometry: q.geometry };
+}
+
+const countKey = (buffer) => JSON.stringify([buffer.layer, buffer.select, buffer.select === 'filter' ? buffer.filters : [],
+  buffer.select === 'picked' ? buffer.picked : [], areaKey()]);
+
+// How many features each buffer would take, shown beside its choices.
+const countInputs = debounce(async () => {
+  for (const buffer of app.doc.buffers) {
+    const key = countKey(buffer);
+    if (app.inputCounts.get(buffer.id)?.key === key) continue;
+    app.inputCounts.set(buffer.id, { key, count: null });
+    let count = null;
+    try {
+      if (buffer.select === 'picked') count = buffer.picked.length;
+      else count = await app.client.count(runtime(buffer.layer).entry.source.url, await bufferQuery(buffer));
+    } catch {
+      count = null;
+    }
+    if (app.inputCounts.get(buffer.id)?.key === key) app.inputCounts.set(buffer.id, { key, count });
+    panels.renderBufferCount(app, buffer.id);
+  }
+}, 300);
+
+// Run the buffer step off the page (buffer-worker.js), or on the page where module workers are not available.
+function geoprocess(job, { signal, onProgress }) {
+  const onPage = () => loadJsts().then((jsts) => bufferFeatures(jsts, job.features, { ...job, onProgress }));
+  return new Promise((resolve, reject) => {
+    let worker;
+    try {
+      worker = new Worker(new URL('./buffer-worker.js', import.meta.url), { type: 'module' });
+    } catch {
+      onPage().then(resolve, reject);
+      return;
+    }
+    signal.addEventListener('abort', () => { worker.terminate(); reject(Object.assign(new Error('cancelled'), { kind: 'cancelled' })); }, { once: true });
+    worker.onmessage = ({ data }) => {
+      if (data.type === 'progress') { onProgress(data.done, data.total); return; }
+      worker.terminate();
+      if (data.type === 'done') resolve(data.result);
+      else reject(new Error(data.message));
+    };
+    worker.onerror = (event) => {
+      event.preventDefault();
+      worker.terminate();
+      if (!signal.aborted) onPage().then(resolve, reject);
+    };
+    worker.postMessage(job);
+  });
+}
+
+// Read the input features, buffer them, and draw the result as map layers.
+async function runBufferLayer(id) {
+  const buffer = bufferById(id);
   if (!buffer) return;
-  const entries = buffer.targets.map((id) => app.registry.get(id)).filter(Boolean);
+  app.bufferJobs.get(id)?.abort.abort();
+  const key = outputKey(buffer, areaKey());
+  const job = { key, abort: new AbortController(), phase: 'reading', read: 0, done: 0, total: 0 };
+  app.bufferJobs.set(id, job);
+  app.bufferErrors.delete(id);
+  panels.renderAnalysis(app);
+  panels.renderLayers(app);
+  const { entry } = runtime(buffer.layer);
+  const fail = (kind) => Object.assign(new Error(kind), { kind });
+  try {
+    if (buffer.select === 'picked' && !buffer.picked.length) throw fail('nothing');
+    const q = await bufferQuery(buffer);
+    // Too many to buffer: say so before reading them.
+    if (buffer.select !== 'picked' && await app.client.count(entry.source.url, q) > MAX_BUFFER_FEATURES) throw fail('tooMany');
+    const label = entry.fields.find((field) => field.name === entry.label_field);
+    const page = await app.client.allFeatures(entry.source.url, { where: q.where, geometry: q.geometry, precision: 6, signal: job.abort.signal,
+      outFields: [...new Set([entry.source.id_field, label?.source].filter(Boolean))] },
+    MAX_BUFFER_FEATURES + 1, (read) => { job.read = read; panels.renderBufferProgress(app, id); });
+    if (page.features.length > MAX_BUFFER_FEATURES) throw fail('tooMany');
+    const inputs = page.features.filter((feature) => feature.geometry).map((feature) => {
+      const row = toRow(feature.properties ?? {}, entry);
+      return { type: 'Feature', geometry: feature.geometry, properties: { atlas_id: row.atlas_id, name: row[entry.label_field] ?? '' } };
+    });
+    if (!inputs.length) throw fail('nothing');
+    job.phase = 'running';
+    const distances = buffer.distances.map((ring) => toMeters(ring.value, buffer.unit));
+    const result = await geoprocess({ features: inputs, distances, dissolve: buffer.dissolve }, { signal: job.abort.signal,
+      onProgress: (done, total) => { job.done = done; job.total = total; panels.renderBufferProgress(app, id); } });
+    if (app.bufferJobs.get(id) !== job) return;
+    app.outputs.set(id, { key, features: result.features, skipped: result.skipped, inputs: inputs.length, layer: buffer.layer,
+      unit: buffer.unit, distances: buffer.distances.map((ring) => ring.value), dissolve: buffer.dissolve,
+      version: (app.outputs.get(id)?.version ?? 0) + 1 });
+  } catch (error) {
+    if (app.bufferJobs.get(id) !== job) return;
+    if (error.kind !== 'cancelled') app.bufferErrors.set(id, { key, kind: ['tooMany', 'nothing'].includes(error.kind) ? error.kind : 'failed' });
+  }
+  if (app.bufferJobs.get(id) === job) app.bufferJobs.delete(id);
+  syncMapLayers();
+  panels.renderAnalysis(app);
+  panels.renderLayers(app);
+}
+
+// Once a buffer has run, a change to it (or to the area) runs it again (D-076).
+const autoRunBuffers = debounce(() => {
+  const area = areaKey();
+  for (const buffer of app.doc.buffers) {
+    if (!app.bufferRequested.has(buffer.id)) continue;
+    const key = outputKey(buffer, area);
+    if (app.outputs.get(buffer.id)?.key === key || app.bufferJobs.get(buffer.id)?.key === key || app.bufferErrors.get(buffer.id)?.key === key) continue;
+    runBufferLayer(buffer.id);
+  }
+}, 700);
+
+function forgetRemovedBuffers() {
+  for (const map of [app.outputs, app.bufferErrors, app.inputCounts]) {
+    for (const id of [...map.keys()]) if (!bufferById(id)) map.delete(id);
+  }
+  for (const [id, job] of [...app.bufferJobs]) if (!bufferById(id)) { job.abort.abort(); app.bufferJobs.delete(id); }
+  for (const id of [...app.bufferRequested]) if (!bufferById(id)) app.bufferRequested.delete(id);
+}
+
+function showPicks() {
+  app.map?.setOverlay('selected', { type: 'FeatureCollection',
+    features: [...app.pickShapes.values()].map((geometry) => ({ type: 'Feature', properties: {}, geometry })) });
+}
+
+// Pick mode: a click adds or removes a feature of the buffer's layer.
+function pickAt(point) {
+  const buffer = bufferById(app.ui.pickFor);
+  if (!buffer) return;
+  const hit = app.map.featuresAt(point, 5).find((h) => h.key === buffer.layer && h.properties.atlas_id !== undefined);
+  if (!hit) return;
+  const id = String(hit.properties.atlas_id);
+  const removing = buffer.picked.includes(id);
+  if (!removing && buffer.picked.length >= MAX_PICKED) return;
+  if (removing) app.pickShapes.delete(id);
+  else app.pickShapes.set(id, hit.geometry);
+  showPicks();
+  update((doc) => {
+    const target = doc.buffers.find((b) => b.id === buffer.id);
+    target.select = 'picked';
+    target.picked = removing ? target.picked.filter((p) => p !== id) : [...target.picked, id];
+  });
+}
+
+async function runScreeningNow() {
+  const screening = app.doc.screenings[0];
+  if (!screening) return;
+  const entries = screening.targets.map((id) => app.registry.get(id)).filter(Boolean);
   app.ui.running = true;
-  panels.renderBuffer(app);
+  panels.renderAnalysis(app);
   try {
     const turf = await loadTurf();
-    const results = await runBuffer({ client: app.client, turf, buffer, entries, layerDocs: app.doc.layers });
-    results.key = JSON.stringify([buffer.source.geometry, buffer.distance_ft]);
+    const results = await runScreening({ client: app.client, turf, buffer: screening, entries, layerDocs: app.doc.layers });
+    results.key = JSON.stringify([screening.source.geometry, screening.distance_ft]);
     app.results = results;
   } finally {
     app.ui.running = false;
   }
   syncOverlays();
-  panels.renderBuffer(app);
+  panels.renderAnalysis(app);
 }
 
-function resultsContext(buffer) {
+function resultsContext(screening) {
   return {
     label: TEXT.screeningLabel(dataDates()),
-    siteLine: `${TEXT.buffer.site}: ${buffer.source.label || TEXT.buffer.drawnSite}; ${buffer.distance_ft} ft; ${new Date().toISOString().slice(0, 10)}`,
-    credits: app.registry.credits(buffer.targets),
-    headers: { ...TEXT.buffer.columns, site: TEXT.buffer.siteMark, details: TEXT.buffer.results },
+    siteLine: `${TEXT.screening.site}: ${screening.source.label || TEXT.screening.drawnSite}; ${screening.distance_ft} ft; ${new Date().toISOString().slice(0, 10)}`,
+    credits: app.registry.credits(screening.targets),
+    headers: { ...TEXT.screening.columns, site: TEXT.screening.siteMark, details: TEXT.screening.results },
   };
 }
 
@@ -836,11 +1180,12 @@ function shortPublisher(publisher) {
 // What an export will carry, in one line (the owner's review, 2026-09-27).
 function exportSummary() {
   const { doc } = app;
-  const buffer = doc.buffers[0];
+  const screening = doc.screenings[0];
   return TEXT.export.summary({
     layers: doc.layers.length,
+    buffers: doc.buffers.filter((buffer) => app.outputs.has(buffer.id)).length,
     filters: doc.layers.reduce((n, layer) => n + layer.filters.length, 0),
-    buffer: buffer ? `${buffer.distance_ft} ft, ${buffer.source.label || TEXT.buffer.drawnSite}` : null,
+    screening: screening ? `${screening.distance_ft} ft, ${screening.source.label || TEXT.screening.drawnSite}` : null,
     sources: [...new Set(doc.layers.map((layer) => shortPublisher(app.registry.get(layer.id).source.publisher)))],
     when: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
   });
@@ -850,17 +1195,23 @@ app.exportSummary = exportSummary;
 function legendGroups() {
   const groups = [];
   for (const layer of app.doc.layers) {
-    if (!layer.visible) continue;
     const entry = app.registry.get(layer.id);
-    const { style } = presetStyle(entry, layer.style);
-    const values = runtime(layer.id).stats.values?.[style.field]?.map((v) => v.value) ?? null;
-    groups.push({ title: entry.legend.title, rows: legendFor(entry, style, { text: { other: TEXT.style.other }, values }) });
+    if (layer.visible) {
+      const { style } = presetStyle(entry, layer.style);
+      const values = runtime(layer.id).stats.values?.[style.field]?.map((v) => v.value) ?? null;
+      groups.push({ title: entry.legend.title, rows: legendFor(entry, style, { text: { other: TEXT.style.other }, values }) });
+    }
+    // Buffer layers follow the layer they were made from, as on the map (D-077).
+    for (const buffer of app.doc.buffers) {
+      if (buffer.layer !== layer.id || !buffer.visible || !app.outputs.has(buffer.id)) continue;
+      groups.push({ title: bufferName(buffer, entry, TEXT.buffer), rows: bufferLegend(buffer) });
+    }
   }
-  const buffer = app.doc.buffers[0];
-  if (buffer) {
-    groups.push({ title: TEXT.panels.buffer, rows: [
-      { swatch: { dashed: true, color: '#9A3B26' }, label: TEXT.buffer.ringLabel(buffer.distance_ft) },
-      { swatch: { geometry: buffer.source.geometry.type === 'Point' ? 'point' : 'polygon', color: '#0E5A66', fill: true }, label: TEXT.buffer.siteMark }] });
+  const screening = app.doc.screenings[0];
+  if (screening) {
+    groups.push({ title: TEXT.panels.screening, rows: [
+      { swatch: { dashed: true, color: '#9A3B26' }, label: TEXT.screening.ringLabel(screening.distance_ft) },
+      { swatch: { geometry: screening.source.geometry.type === 'Point' ? 'point' : 'polygon', color: '#0E5A66', fill: true }, label: TEXT.screening.siteMark }] });
   }
   return groups;
 }
@@ -872,22 +1223,22 @@ function failedLayers() {
 
 // Everything a print or PNG needs, drawn from the current map.
 function imageContext(failed = failedLayers()) {
-  const buffer = app.doc.buffers[0];
+  const screening = app.doc.screenings[0];
   const doc = docForSave();
   return {
     doc, text: TEXT, bounds: app.map.bounds(), legend: legendGroups(), credits: doc.credits, dates: dataDates(), leftOut: failed,
-    label: buffer ? TEXT.screeningLabel(dataDates()) : null,
-    notes: [...new Set([...(buffer && app.results ? resultNotes(app.results) : []),
+    label: screening ? TEXT.screeningLabel(dataDates()) : null,
+    notes: [...new Set([...(screening && app.results ? resultNotes(app.results) : []),
       ...doc.layers.filter((l) => l.visible).flatMap((l) => notesOf(app.registry.get(l.id), 'print'))])],
     fill: (printMap) => {
-      printMap.syncLayers(stack().filter((item) => !failed.includes(app.registry.get(item.key).title)));
+      printMap.syncLayers(stack().filter((item) => !failed.includes(app.registry.get(item.key)?.title)));
       for (const layer of app.doc.layers) {
         const rt = runtime(layer.id);
         if (rt.loader) printMap.setData(layer.id, rt.loader.lastData);
       }
       printMap.setArea(app.areaGeometry, app.doc.mask);
-      if (buffer) {
-        printMap.setOverlay('sites', { type: 'Feature', properties: {}, geometry: buffer.source.geometry });
+      if (screening) {
+        printMap.setOverlay('sites', { type: 'Feature', properties: {}, geometry: screening.source.geometry });
         if (app.ring) printMap.setOverlay('rings', app.ring);
       }
     },
@@ -944,7 +1295,7 @@ async function exportData(id, format) {
     const preface = [`${entry.title}: ${areaName()}`, entry.license.attribution, `${TEXT.export.dataDates}: ${dataDates()}`];
     // Copy and hybrid layers are drawn from our copies but exported from the source (D-055, D-072).
     if (entry.access !== 'live') preface.push(TEXT.export.liveNote(entry.source.publisher, new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')));
-    if (app.doc.buffers.length) preface.push(TEXT.screeningLabel(dataDates()));
+    if (app.doc.screenings.length) preface.push(TEXT.screeningLabel(dataDates()));
     preface.push(...notesOf(entry, 'export'));
     const base = `${entry.id}_${slug(areaName())}_${new Date().toISOString().slice(0, 10)}`;
     if (format === 'csv') download(`${base}.csv`, dataCsv(entry, features, preface), 'text/csv');
@@ -1022,7 +1373,8 @@ async function zoomToRow(id, row) {
 // ---- Opening documents and links ----
 
 async function openDoc(input, { fit = false } = {}) {
-  const { doc, problems, notices } = validate(input, app.registry.ids());
+  const bufferable = new Set(app.registry.layers.filter(isSource).map((entry) => entry.id));
+  const { doc, problems, notices } = validate(input, app.registry.ids(), bufferable);
   if (!doc) {
     panels.flash(app, problems.map((p) => TEXT.problems[p.code](p.detail)).join(' '));
     return false;
@@ -1032,7 +1384,8 @@ async function openDoc(input, { fit = false } = {}) {
   app.notices = notices.map((n) => TEXT.notices[n.code]?.(n.detail) ?? n.code);
   await setDoc(doc, { fit: fit && !doc.view });
   if (doc.view && app.map) app.map.setView(doc.view);
-  if (doc.buffers.length) runBufferNow();
+  if (doc.screenings.length) runScreeningNow();
+  for (const buffer of doc.buffers) actions.runBuffer(buffer.id); // a document keeps the recipe, not the shapes
   return true;
 }
 
@@ -1058,20 +1411,26 @@ async function boot() {
   app.areaName = areaName;
   app.map = await createStudioMap($('map'), { basemap: app.doc.basemap, onBasemap: (name) => actions.setBasemap(name), text: TEXT.basemaps });
   app.draw = new DrawTool(app.map, {
-    onDone: (shape) => setSite({ kind: 'drawn', geometry: shape }, TEXT.buffer.drawnSite),
-    onCancel: () => panels.renderBuffer(app),
+    onDone: (shape) => setSite({ kind: 'drawn', geometry: shape }, TEXT.screening.drawnSite),
+    onCancel: () => panels.renderAnalysis(app),
   });
   app.map.map.on('click', (event) => {
     if (app.draw.active()) return;
     if (app.mode === 'select') { selectAt(event.point, event.lngLat); return; }
+    if (app.mode === 'pick') { pickAt(event.point); return; }
     const hit = app.map.featuresAt(event.point)[0];
-    if (hit) app.map.showPopup(event.lngLat, panels.popup(app, app.registry.get(hit.key), hit.properties));
-    else app.map.closePopup();
+    if (!hit) { app.map.closePopup(); return; }
+    const buffer = String(hit.key).startsWith('buffer:') ? bufferById(hit.key.slice(7)) : null;
+    const content = buffer ? panels.bufferPopup(app, buffer, hit.properties) : panels.popup(app, app.registry.get(hit.key), hit.properties);
+    app.map.showPopup(event.lngLat, content);
   });
   app.map.map.on('mousemove', (event) => {
     if (app.draw.active()) return;
     const hit = app.map.featuresAt(event.point).length > 0;
-    app.map.map.getCanvas().style.cursor = app.mode === 'select' ? 'pointer' : hit ? 'pointer' : '';
+    app.map.map.getCanvas().style.cursor = app.mode === 'select' || app.mode === 'pick' || hit ? 'pointer' : '';
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && (app.mode === 'pick' || app.mode === 'select')) actions.cancelMode();
   });
   const moved = debounce(() => {
     for (const layer of app.doc.layers) {

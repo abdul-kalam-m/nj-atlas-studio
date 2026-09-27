@@ -1,5 +1,5 @@
 {
-  "description": "Studio templates (D-069), opened from \"Start from template\" in the Layers tab. A template sets the layer stack and presets and, when it names targets, a buffer whose site the person then picks. Layer IDs live here, not in site/. Nothing here is designed or named for official notices (D-041).",
+  "description": "Studio templates (D-069), opened from \"Start from template\" in the Layers tab. A template sets the layer stack and presets and, when it names targets, a site screening whose site the person then picks (D-076). Layer IDs live here, not in site/. Nothing here is designed or named for official notices (D-041).",
   "site_screening": {
     "title": "Site screening",
     "summary": "Wetlands, flood zones and Category 1 waters within 300 ft of a parcel, an address or a drawn site.",

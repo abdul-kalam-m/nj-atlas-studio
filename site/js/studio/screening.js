@@ -1,6 +1,7 @@
-// Buffers (D-033, IMPLEMENTATION_GUIDE.md §4.7). Studio draws the ring; each target layer's service finds what lies
-// within the distance of the site's edge (a distance query), or, for layers without one, inside the ring. Buffers
-// never carry the area filter: results may lie outside the town or county.
+// Site screening (D-033, IMPLEMENTATION_GUIDE.md §4.7; called "buffers" before D-076). Studio draws the ring;
+// each target layer's service finds what lies within the distance of the site's edge (a distance query, measured
+// on the ground), or, for layers without one, inside the ring. Screenings never carry the area filter: results may
+// lie outside the town or county.
 import { conditionsWhere, joinWhere } from './sql.js';
 import { toRow } from './transform.js';
 import { outFields } from './registry.js';
@@ -33,7 +34,7 @@ async function runTarget(client, entry, layerDoc, site, ring, distanceFt) {
 }
 
 // { site, ring, targets: [{ id, entry, features, count, capped, error }], ranAt }
-export async function runBuffer({ client, turf, buffer, entries, layerDocs }) {
+export async function runScreening({ client, turf, buffer, entries, layerDocs }) {
   const site = buffer.source.geometry;
   const ring = await ringFor(turf, site, buffer.distance_ft);
   const targets = await Promise.all(entries.map(async (entry) => {

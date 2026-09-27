@@ -3,7 +3,8 @@
 1. String literals in site/js/text.js (outside TEXT.downloads) and site/js/studio/text.js (outside TEXT.formats)
    must not contain GIS jargon.
 2. Scripts and stylesheets in site/index.html, site/atlas/index.html, site/js/*.js and site/js/studio/*.js load
-   only from cdn.jsdelivr.net with an exact @x.y.z version. The basemap style URL is data, not a library.
+   only from cdn.jsdelivr.net with an exact @x.y.z version, including jsDelivr URLs kept in a constant and imported
+   later (the buffer worker's JSTS). The basemap style URL is data, not a library.
 """
 import re
 import sys
@@ -18,6 +19,7 @@ BANNED = ["feature", "features", "attribute", "attributes", "geometry", "geometr
 BANNED_PATTERN = re.compile(r"\b(" + "|".join(re.escape(word) for word in BANNED) + r")\b", re.IGNORECASE)
 STRING_LITERAL = re.compile(r"'((?:[^'\\\n]|\\.)*)'|\"((?:[^\"\\\n]|\\.)*)\"|`((?:[^`\\]|\\.)*)`", re.S)
 JS_IMPORT = re.compile(r"""(?:\bfrom\s*|\bimport\s*\(\s*)['"](https?://[^'"]+)['"]""")
+JS_CDN_LITERAL = re.compile(r"""['"`](https://cdn\.jsdelivr\.net/[^'"`]+)['"`]""")
 HTML_ASSET = re.compile(r"""<(?:script[^>]*\bsrc|link[^>]*\bhref)\s*=\s*["'](https?://[^"']+)["']""", re.I)
 PINNED = re.compile(r"@\d+\.\d+\.\d+(/|$)")
 
@@ -59,8 +61,11 @@ def jargon_problems(text_js: str, name: str = "text.js", exempt: str = "download
 def library_problems(files: dict[str, str]) -> list[str]:
     problems = []
     for name, content in files.items():
-        pattern = HTML_ASSET if name.endswith(".html") else JS_IMPORT
-        for url in pattern.findall(content):
+        if name.endswith(".html"):
+            urls = HTML_ASSET.findall(content)
+        else:
+            urls = list(dict.fromkeys(JS_IMPORT.findall(content) + JS_CDN_LITERAL.findall(content)))
+        for url in urls:
             host = urlsplit(url).hostname
             if host != "cdn.jsdelivr.net":
                 problems.append(f"{name}: {url} is not served from cdn.jsdelivr.net")

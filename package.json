@@ -3,5 +3,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/js/*.test.js"
+  },
+  "devDependencies": {
+    "@turf/jsts": "2.7.2"
   }
 }

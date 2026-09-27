@@ -40,6 +40,13 @@ def test_latest_or_other_hosts_fail():
     assert len(problems) == 3
 
 
+def test_library_urls_kept_in_constants_are_checked():
+    files = {"site/js/studio/turf.js": "export const JSTS_URL = 'https://cdn.jsdelivr.net/npm/@turf/jsts/+esm';",
+             "site/js/studio/ok.js": "export const JSTS_URL = 'https://cdn.jsdelivr.net/npm/@turf/jsts@2.7.2/+esm';"}
+    problems = library_problems(files)
+    assert len(problems) == 1 and "turf.js" in problems[0]
+
+
 def test_basemap_style_url_is_allowed():
     files = {"site/js/map.js": "const BASEMAP = 'https://tiles.openfreemap.org/styles/positron';"}
     assert library_problems(files) == []
