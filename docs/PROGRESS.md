@@ -623,4 +623,10 @@ Template (from OPERATING_GUIDE.md §4):
     - Site screening still gives the §1.4 answer (2 wetland areas, 3 flood areas, 0 Category 1 waters).
     - At phone width there is no horizontal scroll.
 - Assumptions: screening stays as a second tool (D-076), and which layers count as boundaries (D-074). Both are for the owner's review.
+- Released 2026-09-27 as gh-pages f1d4d387, stacked on the previous release. Live check at https://abdul-kalam-m.github.io/nj-atlas-studio/:
+  - elementary schools at 500 and 1,000 ft gave 6 shapes, and Category 1 waters dissolved at 100 m gave 1 shape; the worker loaded JSTS from jsDelivr;
+  - site screening still gives 2 wetland areas, 3 flood areas and 0 Category 1 waters;
+  - boundary layers are `target` or `none`.
+  - A browser that opened the site in the last 10 minutes keeps the old files until Pages' 10-minute cache expires.
+- Note: commit 544c888 also carries the rename of buffer.js to screening.js (staged earlier) without the matching import change, so Studio does not load at that commit; it does from 446733f on.
 
