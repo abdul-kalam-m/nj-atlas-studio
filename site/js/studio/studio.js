@@ -12,11 +12,12 @@ import { areaWhere, conditionsWhere, joinWhere, quote } from './sql.js';
 import { layerSpecs, legendFor, presetStyle, resolve } from './style.js';
 import { toRow } from './transform.js';
 import { loadTurf } from './turf.js';
-import { hasParcels, ringFor, resultsCsv, resultsGeojson, runBuffer, screeningFileName } from './buffer.js';
+import { notesOf, resultNotes, ringFor, resultsCsv, resultsGeojson, runBuffer, screeningFileName } from './buffer.js';
 import { dataCsv, dataGeojson, fetchLayerData, pngMap, printMap } from './export.js';
 import { loadHealth } from './health.js';
 import { countExport, rememberPilot } from './counter.js';
 import { bboxOf, roundGeometry } from './geo.js';
+import { addressWhere, parseAddress } from './search.js';
 import { copyText, debounce, download } from './dom.js';
 import * as panels from './panels.js';
 import { cleanState, toMapFilter, toPredicate } from '../filters.js';
@@ -212,10 +213,18 @@ export async function loadStats(id) {
   const q = await queryFor(rt, { ...layer, filters: [] });
   const values = {};
   const ranges = {};
+  // Where the server cannot count by value inside an outline, the browser reads the values: show how far it
+  // has got, and let the person stop it (D-054).
+  rt.statsAbort?.abort();
+  const controller = new AbortController();
+  rt.statsAbort = controller;
+  rt.statsProgress = null;
+  const onProgress = (read) => { rt.statsProgress = read; panels.renderStatsProgress(app, id); };
+  const scope = { where: q.whereArea, geometry: q.geometry, signal: controller.signal, onProgress };
   await Promise.all(entry.fields.filter((field) => field.filter !== 'none').map(async (field) => {
     try {
       if (field.filter === 'checklist') {
-        const counts = await app.client.groupCounts(entry.source.url, field.source, { where: q.whereArea, geometry: q.geometry });
+        const counts = await app.client.groupCounts(entry.source.url, field.source, scope);
         const merged = new Map();
         for (const item of counts) {
           const value = toRow({ [field.source]: item.value }, { source: { id_field: '_' }, fields: [field] })[field.name];
@@ -224,13 +233,15 @@ export async function loadStats(id) {
         values[field.name] = [...merged].map(([value, count]) => ({ value, count }))
           .sort((a, b) => (a.value === null) - (b.value === null) || String(a.value).localeCompare(String(b.value), 'en', { numeric: true }));
       } else if (field.filter === 'range' && field.type === 'number' && !field.transform) {
-        ranges[field.name] = await app.client.minMax(entry.source.url, field.source, { where: q.whereArea, geometry: q.geometry });
+        ranges[field.name] = await app.client.minMax(entry.source.url, field.source, scope);
       }
     } catch {
       // a field the service cannot count leaves its control without counts
     }
   }));
-  rt.stats = { values, ranges, loaded: true };
+  if (rt.statsAbort !== controller) return; // a newer count started
+  rt.stats = { values, ranges, loaded: true, cancelled: controller.signal.aborted };
+  rt.statsAbort = null;
   panels.renderLayer(app, id);
 }
 
@@ -466,6 +477,14 @@ export const actions = {
     }
     panels.renderLayer(app, id);
   },
+  cancelStats(id) {
+    runtime(id).statsAbort?.abort();
+  },
+  recount(id) {
+    runtime(id).stats.loaded = false;
+    loadStats(id);
+    panels.renderLayer(app, id);
+  },
   toggleAdd() {
     app.ui.addOpen = !app.ui.addOpen;
     panels.renderLayers(app);
@@ -516,7 +535,36 @@ export const actions = {
     app.ui.candidates = (json.candidates ?? []).filter((c) => c.score >= search.min_score);
     app.ui.candidatesFor = forSite ? 'site' : 'area';
     app.ui.candidateMessage = app.ui.candidates.length ? '' : TEXT.area.addressNone;
+    app.ui.fallbackQuery = app.ui.candidates.length || !search.fallback || !parseAddress(query) ? null : query;
     panels.renderAll(app);
+  },
+  // The slower search of address points, offered when the geocoder finds nothing (D-048).
+  async searchAddressPoints() {
+    const { fallback } = app.registry.catalog.search;
+    const parsed = parseAddress(app.ui.fallbackQuery);
+    if (!parsed) return;
+    app.ui.fallbackAbort?.abort();
+    const controller = new AbortController();
+    app.ui.fallbackAbort = controller;
+    app.ui.candidateMessage = TEXT.area.addressSearching;
+    panels.renderAll(app);
+    try {
+      const slow = app.slowClient ?? (app.slowClient = createClient({ timeoutMs: (fallback.timeout_s ?? 60) * 1000 }));
+      const page = await slow.features(fallback.url, { where: addressWhere(parsed, fallback), outFields: [fallback.address_field, fallback.place_field],
+        num: fallback.max_results, precision: 6, signal: controller.signal });
+      app.ui.candidates = page.features.filter((f) => f.geometry).map((f) => ({ score: 100,
+        address: [f.properties[fallback.address_field], f.properties[fallback.place_field]].filter(Boolean).join(', '),
+        location: { x: f.geometry.coordinates[0], y: f.geometry.coordinates[1] } }));
+      app.ui.candidateMessage = app.ui.candidates.length ? '' : TEXT.area.addressNone;
+    } catch (error) {
+      app.ui.candidateMessage = error.kind === 'cancelled' ? '' : TEXT.layers.failed;
+    }
+    app.ui.fallbackQuery = null;
+    app.ui.fallbackAbort = null;
+    panels.renderAll(app);
+  },
+  cancelAddressPoints() {
+    app.ui.fallbackAbort?.abort();
   },
   async useCandidate(candidate) {
     const point = { type: 'Point', coordinates: [candidate.location.x, candidate.location.y] };
@@ -690,7 +738,6 @@ async function runBufferNow() {
 function resultsContext(buffer) {
   return {
     label: TEXT.screeningLabel(dataDates()),
-    parcelLine: TEXT.parcelLine,
     siteLine: `${TEXT.buffer.site}: ${buffer.source.label || TEXT.buffer.drawnSite}; ${buffer.distance_ft} ft; ${new Date().toISOString().slice(0, 10)}`,
     credits: app.registry.credits(buffer.targets),
     headers: { ...TEXT.buffer.columns, site: TEXT.buffer.siteMark, details: TEXT.buffer.results },
@@ -757,7 +804,8 @@ function imageContext(failed = failedLayers()) {
   return {
     doc, text: TEXT, bounds: app.map.bounds(), legend: legendGroups(), credits: doc.credits, dates: dataDates(), leftOut: failed,
     label: buffer ? TEXT.screeningLabel(dataDates()) : null,
-    parcelLine: (buffer && app.results && hasParcels(app.results)) || doc.layers.some((l) => app.registry.get(l.id).export_note === 'parcels') ? TEXT.parcelLine : null,
+    notes: [...new Set([...(buffer && app.results ? resultNotes(app.results) : []),
+      ...doc.layers.filter((l) => l.visible).flatMap((l) => notesOf(app.registry.get(l.id), 'print'))])],
     fill: (printMap) => {
       printMap.syncLayers(stack().filter((item) => !failed.includes(app.registry.get(item.key).title)));
       for (const layer of app.doc.layers) {
@@ -821,8 +869,10 @@ async function exportData(id, format) {
       return;
     }
     const preface = [`${entry.title}: ${areaName()}`, entry.license.attribution, `${TEXT.export.dataDates}: ${dataDates()}`];
+    // Copy and hybrid layers are drawn from our copies but exported from the source (D-055, D-072).
+    if (entry.access !== 'live') preface.push(TEXT.export.liveNote(entry.source.publisher, new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')));
     if (app.doc.buffers.length) preface.push(TEXT.screeningLabel(dataDates()));
-    if (entry.export_note === 'parcels') preface.push(TEXT.parcelLine);
+    preface.push(...notesOf(entry, 'export'));
     const base = `${entry.id}_${slug(areaName())}_${new Date().toISOString().slice(0, 10)}`;
     if (format === 'csv') download(`${base}.csv`, dataCsv(entry, features, preface), 'text/csv');
     else download(`${base}.geojson`, JSON.stringify(dataGeojson(entry, features, preface)), 'application/geo+json');

@@ -34,7 +34,7 @@ def test_live_entries_never_carry_leave_out_fields(studio_atlas):
         assert personal not in text
     assert parcels["access"] == "live" and parcels["min_zoom"] == 15
     assert all("source" in field for field in parcels["fields"])
-    assert parcels["export_note"] == "parcels"
+    assert parcels["export_notes"] == [{"text": "Parcel data can lag the municipal tax list. This is not a certified list of property owners.", "on": ["list", "export", "print"]}]  # D-041 wording
 
 
 def test_copy_entries_point_at_their_files(studio_atlas):

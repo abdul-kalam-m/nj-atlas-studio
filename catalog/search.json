@@ -1,9 +1,18 @@
 {
-  "description": "Go to an address (IMPLEMENTATION_GUIDE.md §1.3): the NJOGIS statewide geocoding service, asked for candidates with findAddressCandidates. Address points are too slow to search by text (a full-address match took over 40 s in the trial), so they are not used.",
+  "description": "Go to an address (IMPLEMENTATION_GUIDE.md §1.3, D-048): the NJOGIS statewide geocoding service, asked for candidates with findAddressCandidates. When it finds nothing, the slower fallback searches NJOGIS address points by house number and street name, the indexed fields (a text search of the full address took over 40 s).",
   "url": "https://geo.nj.gov/arcgis/rest/services/Tasks/NJ_Geocode/GeocodeServer",
   "publisher": "New Jersey Office of GIS (NJOGIS)",
   "attribution": "Address search: New Jersey Office of GIS (NJOGIS)",
   "min_characters": 4,
   "max_results": 6,
-  "min_score": 80
+  "min_score": 80,
+  "fallback": {
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/AddressPoints/FeatureServer/0",
+    "number_field": "ADD_NUMBER",
+    "street_field": "ST_NAME",
+    "place_field": "POST_COMM",
+    "address_field": "FULLADDR",
+    "max_results": 6,
+    "timeout_s": 60
+  }
 }

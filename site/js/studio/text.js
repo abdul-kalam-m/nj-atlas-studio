@@ -25,8 +25,10 @@ export const TEXT = {
     address: 'Address',
     addressGo: 'Go',
     addressNone: 'No match',
+    addressSlower: 'Search address points (slower)',
+    addressSearching: 'Searching address points…',
     addressTooShort: 'Type at least 4 characters',
-    touching: 'Includes items touching the area.',
+    touching: 'Area slicing uses a simplified outline (about 10 m). Counts may differ by up to 1% from an exact outline. Items touching the area are included.',
   },
 
   levels: { state: 'State', county: 'County', municipality: 'Municipality', tract: 'Census tract', block_group: 'Block group' },
@@ -52,6 +54,7 @@ export const TEXT = {
     table: 'Table',
     about: 'About',
     zoomIn: (plural) => `Zoom in to see ${plural}`,
+    dense: (plural) => `Too many ${plural} to draw here. Zoom in or add a filter.`,
     paused: 'Paused: the source changed.',
     failed: 'Source not responding',
     healthWarning: 'Last night’s check failed for this source.',
@@ -70,6 +73,9 @@ export const TEXT = {
     clear: 'Clear',
     examples: 'Examples',
     more: (n) => `+${n} more`,
+    counting: (read, total) => `Counting values: ${read} of ${total}`,
+    cancelled: 'Counts stopped.',
+    recount: 'Count again',
   },
 
   style: {
@@ -120,7 +126,6 @@ export const TEXT = {
     + 'Interpretation and flood hazard areas with a verification. Riparian zones under N.J.A.C. 7:13 are measured from the '
     + 'top of bank and vary by water type (300, 150 or 50 ft), so a ring around a stream line only approximates them. '
     + `Data as of ${dates}.`,
-  parcelLine: 'Parcel data can lag the municipal tax list. This is not a certified list of property owners.',
 
   export: {
     title: 'Title',
@@ -151,6 +156,7 @@ export const TEXT = {
     credit: 'Made with NJ Atlas Studio',
     dataDates: 'Data',
     queried: (when) => `queried ${when}`,
+    liveNote: (publisher, when) => `Counts and shapes queried live from ${publisher} at ${when}; the on-screen map may come from a slightly older copy.`,
     built: (when) => `map copy ${when}`,
     scale: 'Scale',
     north: 'N',

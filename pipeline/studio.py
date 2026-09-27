@@ -23,7 +23,7 @@ STUDIO_FIELD_KEYS = ("source", "name", "label", "type", "filter", "popup", "unit
                      "value_labels")
 SHARED_KEYS = ("id", "title", "category", "status", "geometry", "noun", "summary", "label_field", "access",
                "area_mode", "area_codes", "min_zoom", "styles", "default_style", "legend", "buffer_role",
-               "distance_query", "list_fields", "clip_mode", "refresh_cadence", "export_note", "examples")
+               "distance_query", "list_fields", "clip_mode", "refresh_cadence", "export_notes", "examples")
 # About 10 m in degrees. The trial (docs/studio/TRIAL.md) found query time follows outline detail: a 961-point
 # outline took 3.8 s against NJDEP flood zones, a 318-point one 1.3 s, with counts within 1%.
 OUTLINE_TOLERANCE = 0.0001

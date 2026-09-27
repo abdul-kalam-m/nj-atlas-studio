@@ -30,7 +30,7 @@
   "label_field": "flood_zone",
   "access": "hybrid",
   "area_mode": "intersects",
-  "tiles": {"min_zoom": 9, "max_zoom": 14},
+  "tiles": {"min_zoom": 9, "max_zoom": 14, "max_dropped_share": 0.08},
   "styles": {
     "by_zone": {"label": "By flood zone", "kind": "categories", "field": "flood_zone", "palette": "flood", "opacity": 0.55},
     "by_subtype": {"label": "By zone subtype", "kind": "categories", "field": "zone_subtype", "palette": "okabe_ito", "opacity": 0.55}

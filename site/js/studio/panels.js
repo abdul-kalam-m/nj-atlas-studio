@@ -3,7 +3,7 @@
 import { el } from './dom.js';
 import { isTarget, isSource } from './registry.js';
 import { presetStyle } from './style.js';
-import { combinedRows, hasParcels } from './buffer.js';
+import { combinedRows, resultNotes } from './buffer.js';
 import { BUFFER_PRESETS_FT, MAX_LAYERS } from './mapdoc.js';
 import { legendNode } from './export.js';
 import { formatCount, formatValue } from '../format.js';
@@ -90,7 +90,13 @@ function addressForm(app, forSite) {
   });
   const nodes = [form];
   if (app.ui.candidates && app.ui.candidatesFor === (forSite ? 'site' : 'area')) {
-    if (app.ui.candidateMessage) nodes.push(el('p', { class: 'hint', text: app.ui.candidateMessage }));
+    if (app.ui.candidateMessage) {
+      const searching = Boolean(app.ui.fallbackAbort);
+      nodes.push(el('p', { class: 'hint' }, [el('span', { text: app.ui.candidateMessage }),
+        app.ui.fallbackQuery && !searching ? el('button', { type: 'button', class: 'link-button', text: T.area.addressSlower, onclick: () => app.actions.searchAddressPoints() }) : null,
+        searching ? el('button', { type: 'button', class: 'link-button', text: T.cancel, onclick: () => app.actions.cancelAddressPoints() }) : null]
+        .filter(Boolean).flatMap((node, i) => (i ? [' ', node] : [node]))));
+    }
     nodes.push(el('ul', { class: 'candidates' }, app.ui.candidates.map((candidate) => el('li', {}, [
       el('button', { type: 'button', class: 'link-button', text: candidate.address, onclick: () => app.actions.useCandidate(candidate) })]))));
   }
@@ -142,8 +148,17 @@ function statusText(app, rt, layer) {
   if (rt.status === 'loading' || rt.total === null) return T.loading;
   const belowTiles = rt.entry.tiles && !rt.loader && app.map && app.map.zoom() < rt.entry.tiles.min_zoom;
   if (rt.drawStatus === 'zoom' || belowTiles) return T.layers.zoomIn(rt.entry.noun.plural);
+  if (rt.drawStatus === 'dense') return T.layers.dense(rt.entry.noun.plural);
   const total = formatCount(rt.total);
   return layer.filters.length ? T.layers.matching(formatCount(rt.matched), total) : T.layers.inArea(total);
+}
+
+// The browser is reading a field's values to count them (D-054): how far it has got.
+export function renderStatsProgress(app, id) {
+  const node = document.querySelector(`[data-progress="${CSS.escape(id)}"] span`);
+  const rt = app.runtimes.get(id);
+  if (!node || !rt || rt.statsProgress === null) return;
+  node.textContent = app.text.filters.counting(formatCount(rt.statsProgress), formatCount(rt.total ?? 0));
 }
 
 export function renderLayerStatus(app, id) {
@@ -212,9 +227,16 @@ function filterSection(app, layer, rt) {
     clearTimeout(timer);
     timer = setTimeout(() => app.actions.setFilters(layer.id, readFilters(container, entry)), delay);
   };
+  if (!rt.stats.loaded) {
+    container.append(el('p', { class: 'hint progress-line', 'data-progress': layer.id }, [el('span', { text: T.loading }),
+      ' ', el('button', { type: 'button', class: 'link-button', text: T.cancel, onclick: () => app.actions.cancelStats(layer.id) })]));
+  } else if (rt.stats.cancelled) {
+    container.append(el('p', { class: 'hint' }, [el('span', { text: T.filters.cancelled }), ' ',
+      el('button', { type: 'button', class: 'link-button', text: T.filters.recount, onclick: () => app.actions.recount(layer.id) })]));
+  }
   for (const field of entry.fields) {
     if (field.filter === 'checklist') {
-      if (!rt.stats.loaded) { container.append(el('p', { class: 'hint', text: `${field.label}: ${T.loading}` })); continue; }
+      if (!rt.stats.loaded || rt.stats.cancelled) continue;
       container.append(checklist(app, layer.id, field, rt.stats.values[field.name] ?? [], current.get(field.name), () => emit(0)));
     } else if (field.filter === 'search') {
       const id = `f-${layer.id}-${field.name}`;
@@ -446,7 +468,7 @@ function resultsNode(app, buffer) {
   return el('div', { class: 'results' }, [
     el('h3', { text: `${T.buffer.results}: ${T.buffer.total(formatCount(total))}` }),
     el('p', { class: 'label-box', text: T.screeningLabel(new Date().toISOString().slice(0, 10)) }),
-    hasParcels(results) ? el('p', { class: 'label-box', text: T.parcelLine }) : null,
+    ...resultNotes(results).map((note) => el('p', { class: 'label-box', text: note })),
     counts,
     el('div', { class: 'button-row' }, [
       el('button', { type: 'button', class: 'secondary', text: T.buffer.downloadList, onclick: () => app.actions.downloadResults('csv') }),

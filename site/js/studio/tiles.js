@@ -10,7 +10,7 @@ import { toRow } from './transform.js';
 
 export const WHOLE_LIMIT = 2000;
 const CACHE_LIMIT = 50000;
-const MAX_SPLIT_ZOOM = 17;
+const MAX_SPLIT_DEPTH = 3; // D-053: a full tile splits into four, at most three times
 const EMPTY = { type: 'FeatureCollection', features: [] };
 
 export class LiveLayer {
@@ -19,6 +19,7 @@ export class LiveLayer {
     Object.assign(this, { client, entry, outFields, onData, onStatus });
     this.query = null; // { where, geometry, total }
     this.cache = new Map(); // tile key -> features
+    this.dense = new Set(); // tiles still full after MAX_SPLIT_DEPTH splits
     this.wholeZoom = null;
     this.generation = 0;
     this.lastData = EMPTY;
@@ -30,6 +31,7 @@ export class LiveLayer {
     this.query = query;
     if (changed) {
       this.cache.clear();
+      this.dense.clear();
       this.wholeZoom = null;
     }
   }
@@ -100,26 +102,31 @@ export class LiveLayer {
       const collected = tiles.filter(([x, y]) => this.cache.has(`${z}/${x}/${y}`)).flatMap(([x, y]) => this.cache.get(`${z}/${x}/${y}`));
       if (collected.length) this.publish(collected);
       await Promise.all(missing.map(async ([x, y]) => {
-        const features = await this.loadTile(x, y, z);
-        this.cache.set(`${z}/${x}/${y}`, features);
+        const tile = await this.loadTile(x, y, z);
+        this.cache.set(`${z}/${x}/${y}`, tile.features);
+        if (tile.dense) this.dense.add(`${z}/${x}/${y}`);
       }));
       if (!current()) return;
       this.trim();
       this.publish(tiles.flatMap(([x, y]) => this.cache.get(`${z}/${x}/${y}`) ?? []));
-      this.onStatus({ state: 'ready' });
+      const dense = tiles.some(([x, y]) => this.dense.has(`${z}/${x}/${y}`));
+      this.onStatus({ state: dense ? 'dense' : 'ready' });
     } catch (error) {
       if (current()) this.onStatus({ state: 'error', error });
     }
   }
 
-  async loadTile(x, y, z) {
+  // A tile that reaches the service's page limit splits into four, up to MAX_SPLIT_DEPTH times; past that its
+  // features are drawn as they came and the layer reports 'dense'.
+  async loadTile(x, y, z, depth = 0) {
     const page = await this.client.features(this.entry.source.url, {
       where: this.query.where, geometry: tileBounds(x, y, z), outFields: this.outFields,
       maxAllowableOffset: this.entry.geometry === 'point' ? undefined : pixelDegrees(z + 1), precision: 6,
     });
-    if (!page.exceeded || z >= MAX_SPLIT_ZOOM) return this.convert(page.features);
-    const children = await Promise.all([[0, 0], [1, 0], [0, 1], [1, 1]].map(([dx, dy]) => this.loadTile(x * 2 + dx, y * 2 + dy, z + 1)));
-    return children.flat();
+    if (!page.exceeded) return { features: this.convert(page.features), dense: false };
+    if (depth >= MAX_SPLIT_DEPTH) return { features: this.convert(page.features), dense: true };
+    const children = await Promise.all([[0, 0], [1, 0], [0, 1], [1, 1]].map(([dx, dy]) => this.loadTile(x * 2 + dx, y * 2 + dy, z + 1, depth + 1)));
+    return { features: children.flatMap((child) => child.features), dense: children.some((child) => child.dense) };
   }
 
   trim() {

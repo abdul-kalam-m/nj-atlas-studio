@@ -23,6 +23,7 @@ SELFTEST_REQUIRED = True  # turned on in M3-T9: every build writes self-tests
 PLACE_CODE_PATTERNS = {"county_fips": r"\d{3}", "mun_code": r"\d{4}( \d{4})*", "tract_geoid": r"34\d{9}",
                        "bg_geoid": r"34\d{10}"}
 DATA_MODES = ("all", "all_by_district")
+DEFAULT_DROPPED_SHARE = 0.05  # D-065, as reviewed by the owner on 2026-09-27
 
 
 def inside_box(xmin, ymin, xmax, ymax) -> bool:
@@ -211,8 +212,9 @@ def check_hybrid(root: Path, recipe: dict, rule) -> None:
     dropped = meta.get("dropped_empty_shapes", 0)
     rule("H2 rows plus dropped slivers within expected_count", low <= meta["rows"] + dropped <= high,
          f"{meta['rows']} rows + {dropped} dropped, expected {low}-{high}")
-    rule("H2b at most 10% dropped as zero-area slivers", dropped <= 0.10 * max(1, meta["source_count"]),
-         f"{dropped} of {meta['source_count']} dropped")
+    allowed = recipe["tiles"].get("max_dropped_share", DEFAULT_DROPPED_SHARE)
+    rule(f"H2b at most {allowed:.0%} dropped as zero-area slivers", dropped <= allowed * max(1, meta["source_count"]),
+         f"{dropped} of {meta['source_count']} dropped; above {DEFAULT_DROPPED_SHARE:.0%} needs a reviewed tiles.max_dropped_share (D-065)")
     rule("H3 extent inside New Jersey", inside_box(*meta["bounds"]), f"bounds {meta['bounds']}")
     fields = {f["name"] for f in recipe["fields"]}
     rule("H4 map copy carries only recipe fields", set(meta["tile_fields"]) <= fields | {"atlas_id"}, f"{meta['tile_fields']}")

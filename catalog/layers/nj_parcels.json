@@ -77,7 +77,7 @@
   "list_fields": ["property_class", "block", "lot", "qualifier"],
   "clip_mode": "mask",
   "refresh_cadence": "live",
-  "export_note": "parcels",
+  "export_notes": [{"text": "Parcel data can lag the municipal tax list. This is not a certified list of property owners.", "on": ["list", "export", "print"]}],
   "leave_out": ["OWNER_NAME", "ST_ADDRESS", "CITY_STATE", "ZIP_CODE", "ZIP5", "ZIP_PLUS4"],
   "known_answers": [
     {"label": "Parcels in Pennsville Township", "where": "PCL_MUN = '1709'", "expected": {"min": 6400, "max": 6720}}

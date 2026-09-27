@@ -93,7 +93,7 @@ function sideParts(ctx, scale) {
   if (marks.length) parts.push(el('div', { class: 'print-marks' }, marks));
   if (doc.layout.notes) parts.push(el('p', { class: 'print-notes', text: doc.layout.notes }));
   if (ctx.label) parts.push(el('p', { class: 'print-label', text: ctx.label }));
-  if (ctx.parcelLine) parts.push(el('p', { class: 'print-label', text: ctx.parcelLine }));
+  for (const note of ctx.notes ?? []) parts.push(el('p', { class: 'print-label', text: note }));
   parts.push(el('p', { class: 'print-credits', text: ctx.credits.join(' · ') }));
   parts.push(el('p', { class: 'print-credits', text: `${text.export.dataDates}: ${ctx.dates}` }));
   if (ctx.leftOut?.length) parts.push(el('p', { class: 'print-credits', text: text.export.leftOut(ctx.leftOut.join(', ')) }));
@@ -219,7 +219,7 @@ export async function pngMap(ctx) {
     c.font = '11px system-ui, sans-serif';
     y += 42;
   }
-  const paragraphs = [doc.layout.notes, ctx.label, ctx.parcelLine, ctx.credits.join(' · '), `${text.export.dataDates}: ${ctx.dates}`, text.export.credit].filter(Boolean);
+  const paragraphs = [doc.layout.notes, ctx.label, ...(ctx.notes ?? []), ctx.credits.join(' · '), `${text.export.dataDates}: ${ctx.dates}`, text.export.credit].filter(Boolean);
   for (const paragraph of paragraphs) {
     for (const line of wrap(c, paragraph, width - 4)) {
       y += 14;

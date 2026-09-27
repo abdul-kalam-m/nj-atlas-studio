@@ -166,9 +166,16 @@
       "description": "Source fields that must never be requested, shown or exported, usually personal data (CATALOG.md 'Leave out'). Required, even when empty.",
       "type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}
     },
-    "export_note": {
-      "description": "parcels: every list and export containing this layer carries the line 'not a certified list of property owners' (D-041).",
-      "enum": ["parcels"]
+    "export_notes": {
+      "description": "Lines that travel with this layer's data (D-041, D-073). on: list (buffer result lists), export (data downloads), print (PDF and PNG). Mandatory wording, such as the parcel line, changes only with the owner's approval.",
+      "type": "array", "minItems": 1, "maxItems": 3,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["text", "on"],
+        "properties": {
+          "text": {"type": "string", "minLength": 10, "maxLength": 300},
+          "on": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["list", "export", "print"]}}
+        }
+      }
     },
     "known_answers": {
       "description": "Live and hybrid layers only: counts the nightly health check runs against the source. where uses source field names.",
@@ -192,7 +199,11 @@
     "tiles": {
       "description": "Copy and hybrid layers only: the zoom range written into the PMTiles file, which is also where the layer draws. Dense layers use a higher min_zoom.",
       "type": "object", "additionalProperties": false, "required": ["min_zoom", "max_zoom"],
-      "properties": {"min_zoom": {"type": "integer", "minimum": 0, "maximum": 14}, "max_zoom": {"type": "integer", "minimum": 4, "maximum": 16}}
+      "properties": {
+        "min_zoom": {"type": "integer", "minimum": 0, "maximum": 14},
+        "max_zoom": {"type": "integer", "minimum": 4, "maximum": 16},
+        "max_dropped_share": {"description": "Hybrid layers: the reviewed share of shapes the map copy may drop as zero-area slivers (D-065). Without it, 5%.", "type": "number", "minimum": 0, "maximum": 0.1}
+      }
     },
     "partition": {
       "description": "Parked (D-031); copy layers only. Large layers (M7, D-025): the build writes one set of files per municipality, and the viewer loads only the chosen municipality's files. `field` is the source field holding the 4-digit municipal code and must also be the source of the layer's district_code field. `host` r2 keeps the files off GitHub Pages (catalog/hosting.json). `selftest` names the municipality whose files the self-test cases use.",

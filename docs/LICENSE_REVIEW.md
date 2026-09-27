@@ -44,7 +44,9 @@ At the owner's instruction on 2026-09-27 ("License proceed with the best recomme
 
 Every service answered on 2026-09-27 (`node tools/healthcheck.mjs`), and each layer's ArcGIS item or NJDEP open-data page is its recipe's `landing_page`.
 
-**For the owner to confirm:** that the NJOGIS terms cover the NJOGIS-hosted layers from other agencies (schools, hospitals, bridges, election districts), and that the NJDEP agreement covers the NJDEP services Studio reads live.
+**For the owner to confirm:** that the NJOGIS terms cover the NJOGIS-hosted layers from other agencies (schools, hospitals, bridges, election districts), and that the NJDEP agreement covers the NJDEP services Studio reads live. The owner's review (2026-09-27) asks for this in writing: email NJOGIS, and file the answer here to close O-3.
+
+**Parcels: fields out of scope (privacy, not licensing).** The parcels source carries owners' names and mailing addresses. The NJOGIS terms may allow their use, but Studio does not publish every field it is allowed to. The recipe lists `OWNER_NAME`, `ST_ADDRESS`, `CITY_STATE`, `ZIP_CODE`, `ZIP5` and `ZIP_PLUS4` in `leave_out`: they are never requested from the source, shown, listed or exported, and `validate` refuses any recipe that asks for them (and any recipe anywhere that asks for `OWNER_NAME`). Every list or export containing parcels carries: "Parcel data can lag the municipal tax list. This is not a certified list of property owners."
 
 | Layer | Access | Publisher | License | Credit |
 | --- | --- | --- | --- | --- |

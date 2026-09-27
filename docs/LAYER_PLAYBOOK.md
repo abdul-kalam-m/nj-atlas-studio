@@ -136,3 +136,12 @@ Then stop. The human reviews the license and decides when to set `status: publis
 | Place tag coverage under 99% | Items offshore or outside NJ. Report the count; the human decides whether to accept or filter with `where` |
 | Dates show as 1970-01-01 | The source stores 0 for "no date". Treat 0 as null in normalize and add a test |
 | Items vanish at statewide zoom | Expected for dense layers. Raise `min_zoom` so the "Zoom in" hint appears instead of a half-drawn layer |
+
+## Map copies of large layers (hybrid, Studio)
+
+A hybrid layer (`access: hybrid`) ships a map copy only: `python -m pipeline build <id>` streams the download to `build/raw/<id>/source.geojsonl`, then writes `site/data/<id>/<id>.pmtiles` and `meta.json`.
+
+- **Generalization.** The download is simplified to about 1 m by the server. Shapes narrower than that can collapse to nothing; they are dropped from the map copy only, because counts, lists and exports read the source (D-065). `pipeline check <id>` requires rows plus dropped shapes to be inside `expected_count`, and at most 5% dropped unless the recipe records a reviewed `tiles.max_dropped_share` (flood zones: 0.08).
+- **Shape repairs (D-063).** Invalid shapes go through `make_valid`. When GEOS refuses a shape that mixes dimensions ("Overlay input is mixed-dimension"), the build tries the structure repair without collapsed parts, then `buffer(0)`, whole and then part by part. Shapes nothing can repair are dropped and counted in `dropped_empty_shapes`. NJDEP flood zones needed all of this; other layers may too.
+- **Tile limits.** The tile writer truncates a tile above 200,000 shapes. If the build warns about it, raise `tiles.min_zoom` until it stops (land use starts at 9, D-066); Studio draws a map copy only from its minimum zoom.
+

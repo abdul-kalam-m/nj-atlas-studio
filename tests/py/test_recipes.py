@@ -204,3 +204,17 @@ def test_live_layers_are_never_fetched_or_built():
         require_buildable(load("nj_parcels"))
     require_buildable(load("nj_land_use"))  # hybrid: map tiles only
     require_buildable(load("nj_trails"))
+
+
+def test_export_notes_name_their_outputs():
+    parcels = load("nj_parcels")
+    assert parcels["export_notes"][0]["on"] == ["list", "export", "print"]
+    parcels["export_notes"][0]["on"] = ["mail"]
+    assert problems_for(parcels)
+
+
+def test_map_copies_may_drop_at_most_ten_percent_as_slivers():
+    flood = load("nj_flood_zones")
+    assert flood["tiles"]["max_dropped_share"] == 0.08
+    flood["tiles"]["max_dropped_share"] = 0.2
+    assert problems_for(flood)
