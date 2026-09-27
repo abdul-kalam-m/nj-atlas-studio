@@ -469,6 +469,25 @@ export function openCatalog(app) {
   search.focus();
 }
 
+// "Start from template" (D-069): each template's name and what it sets up.
+export function openTemplates(app) {
+  const T = app.text;
+  let dialog = $('template-dialog');
+  if (!dialog) {
+    dialog = el('dialog', { id: 'template-dialog', class: 'catalog-dialog', 'aria-labelledby': 'template-title' });
+    document.body.append(dialog);
+  }
+  const templates = Object.entries(app.registry.catalog.templates ?? {});
+  dialog.replaceChildren(
+    el('div', { class: 'dialog-head' }, [el('h2', { id: 'template-title', text: T.templates.heading }),
+      el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => dialog.close() })]),
+    el('div', { class: 'catalog' }, templates.map(([key, template]) => el('button', { type: 'button', class: 'template-item',
+      onclick: () => { dialog.close(); app.actions.applyTemplate(key); } }, [
+      el('strong', { text: template.title }), el('span', { class: 'hint', text: template.summary })]))),
+  );
+  if (!dialog.open) dialog.showModal();
+}
+
 export function renderLayers(app) {
   const T = app.text;
   const buttons = el('div', { class: 'button-row' }, [
@@ -490,9 +509,6 @@ export function renderBuffer(app) {
   const sources = app.doc.layers.map((l) => app.registry.get(l.id)).filter(isSource);
   const targets = app.doc.layers.map((l) => app.registry.get(l.id)).filter(isTarget);
   const nodes = [];
-  if (app.registry.catalog.templates?.site_screening) {
-    nodes.push(el('button', { type: 'button', class: 'secondary', text: T.buffer.templateStart, onclick: () => app.actions.startScreening() }));
-  }
   const siteButtons = el('div', { class: 'button-row' }, [
     el('button', { type: 'button', class: `secondary${app.mode === 'select' ? ' on' : ''}`, text: T.buffer.select, disabled: !sources.length, onclick: () => app.actions.startSelect() }),
     ...['point', 'line', 'area'].map((kind) => el('button', { type: 'button', class: 'secondary', text: T.buffer.draw[kind], onclick: () => app.actions.startDraw(kind) }))]);

@@ -1,15 +1,36 @@
 {
-  "description": "Studio templates (IMPLEMENTATION_GUIDE.md S4-T3). Layer IDs live here, not in site/. Nothing here is designed or named for official notices (D-041).",
+  "description": "Studio templates (D-069), opened from \"Start from template\" in the Layers tab. A template sets the layer stack and presets and, when it names targets, a buffer whose site the person then picks. Layer IDs live here, not in site/. Nothing here is designed or named for official notices (D-041).",
   "site_screening": {
+    "title": "Site screening",
+    "summary": "Wetlands, flood zones and Category 1 waters within 300 ft of a parcel, an address or a drawn site.",
     "site_layer": "nj_parcels",
     "layers": [
-      {"id": "nj_parcels", "preset": "outline"},
-      {"id": "nj_c1_waters", "preset": "line"},
-      {"id": "nj_wetlands", "preset": "fill"},
-      {"id": "nj_flood_zones", "preset": "by_zone"}
+      {
+        "id": "nj_parcels",
+        "preset": "outline"
+      },
+      {
+        "id": "nj_c1_waters",
+        "preset": "line"
+      },
+      {
+        "id": "nj_wetlands",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_flood_zones",
+        "preset": "by_zone"
+      }
     ],
-    "targets": ["nj_wetlands", "nj_flood_zones", "nj_c1_waters"],
+    "targets": [
+      "nj_wetlands",
+      "nj_flood_zones",
+      "nj_c1_waters"
+    ],
     "distance_ft": 300,
-    "layout": {"paper": "letter", "orientation": "landscape"}
+    "layout": {
+      "paper": "letter",
+      "orientation": "landscape"
+    }
   }
 }

@@ -95,6 +95,8 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
 .catalog-dialog { width: min(520px, calc(100vw - 32px)); max-height: min(80vh, 720px); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
 .catalog-dialog[open] { display: grid; gap: 10px; grid-template-rows: auto auto minmax(0, 1fr); }
 .catalog-dialog .catalog { max-height: none; overflow-y: auto; }
+.template-item { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: var(--radius); padding: 8px 10px; }
+.template-item:hover { border-color: var(--accent); }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .dialog-head h2 { font-size: 1.05rem; }
 

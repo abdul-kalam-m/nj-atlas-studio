@@ -489,7 +489,7 @@ export const actions = {
     panels.renderLayers(app);
   },
   openTemplates() {
-    actions.startScreening();
+    panels.openTemplates(app);
   },
   sectionToggled(section, open) {
     app.ui.sections[section] = open;
@@ -638,8 +638,9 @@ export const actions = {
     else download(screeningFileName(name, 'geojson'), JSON.stringify(resultsGeojson(app.results, buffer, context)), 'application/geo+json');
     countExport(app.registry.catalog.counter_url, format === 'csv' ? 'csv' : 'geojson', true, app.pilot);
   },
-  async startScreening() {
-    const template = app.registry.catalog.templates?.site_screening;
+  // A template (D-069): its layers and presets, then, when it names targets, a buffer whose site comes next.
+  async applyTemplate(key) {
+    const template = app.registry.catalog.templates?.[key];
     if (!template) return;
     const layers = [];
     for (const item of template.layers) {
@@ -652,14 +653,16 @@ export const actions = {
       layers.push(layer);
     }
     const others = app.doc.layers.filter((l) => !layers.some((t) => t.id === l.id));
-    app.pendingDistance = template.distance_ft;
-    app.pendingTargets = template.targets;
-    app.ui.screening = true;
+    const buffered = Boolean(template.targets?.length);
+    app.pendingDistance = buffered ? template.distance_ft : null;
+    app.pendingTargets = buffered ? template.targets : null;
+    app.ui.screening = buffered;
+    app.ui.templateTitle = template.title;
     await update((doc) => {
       doc.layers = [...layers, ...others].slice(0, MAX_LAYERS);
-      doc.layout = { ...doc.layout, ...template.layout };
+      doc.layout = { ...doc.layout, ...(template.layout ?? {}) };
     });
-    actions.startSelect();
+    if (buffered) actions.startSelect();
   },
 
   // Export
@@ -718,7 +721,7 @@ function setSite(source, label) {
     doc.buffers = [{ id: existing?.id ?? nextBufferId(doc), source: { ...source, ...(source.kind === 'feature' ? { label: label ?? '' } : {}),
       geometry: roundGeometry(source.geometry) }, distance_ft: distance, targets: targets.filter((t) => doc.layers.some((l) => l.id === t)),
     label: TEXT.buffer.ringLabel(distance) }];
-    if (screening && !doc.title) doc.title = TEXT.buffer.templateTitle(label || TEXT.buffer.drawnSite);
+    if (screening && !doc.title) doc.title = TEXT.buffer.templateTitle(app.ui.templateTitle ?? '', label || TEXT.buffer.drawnSite);
     if (screening && !doc.subtitle) doc.subtitle = areaName();
   }).then(() => { if (screening) { app.ui.screening = false; runBufferNow(); } });
 }
