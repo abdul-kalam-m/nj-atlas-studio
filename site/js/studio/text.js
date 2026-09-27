@@ -94,7 +94,8 @@ export const TEXT = {
   buffer: {
     site: 'Site',
     select: 'Select on map',
-    selectHint: 'Click a parcel or another selectable item.',
+    selectHint: 'Click anything on the map: a parcel, a school, a park, a flood zone…',
+    chooseSite: 'Which one?',
     draw: { point: 'Point', line: 'Line', area: 'Area' },
     drawHint: 'Click to add points. Double-click or Enter to finish. Backspace undoes a point; Escape cancels.',
     coordinates: 'Coordinates',

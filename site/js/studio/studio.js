@@ -700,10 +700,21 @@ function setSite(source, label) {
   }).then(() => { if (screening) { app.ui.screening = false; runBufferNow(); } });
 }
 
-async function selectAt(point) {
-  const hits = app.map.featuresAt(point);
-  const hit = hits.find((h) => isSource(app.registry.get(h.key)));
-  if (!hit) return;
+// Select mode (D-067): any feature on the map can be a buffer's site. When a click finds several, ask which.
+async function selectAt(point, lngLat) {
+  const seen = new Set();
+  const hits = app.map.featuresAt(point, 5).filter((hit) => {
+    const key = `${hit.key}|${hit.properties.atlas_id}`;
+    if (!isSource(app.registry.get(hit.key)) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  if (!hits.length) return;
+  if (hits.length === 1) { chooseSite(hits[0]); return; }
+  app.map.showPopup(lngLat, panels.siteChooser(app, hits.slice(0, 8), (hit) => { app.map.closePopup(); chooseSite(hit); }));
+}
+
+async function chooseSite(hit) {
   const entry = app.registry.get(hit.key);
   const rt = runtime(entry.id);
   const types = await typesFor(rt);
@@ -714,7 +725,9 @@ async function selectAt(point) {
   const feature = page.features[0];
   if (!feature) return;
   const row = toRow(feature.properties, entry);
-  setSite({ kind: 'feature', layer: entry.id, atlas_id: row.atlas_id, geometry: feature.geometry }, String(row[entry.label_field] ?? row.atlas_id));
+  // An unnamed site is called by its kind ("Open space area"), not by its ID, which may be a long code.
+  const name = row[entry.label_field] || `${entry.noun.singular[0].toUpperCase()}${entry.noun.singular.slice(1)}`;
+  setSite({ kind: 'feature', layer: entry.id, atlas_id: row.atlas_id, geometry: feature.geometry }, String(name));
 }
 
 async function runBufferNow() {
@@ -974,7 +987,7 @@ async function boot() {
     return;
   }
   if (app.embed) document.body.classList.add('embed');
-  if (new URLSearchParams(location.search).has('debug')) window.studio = { app, actions, setDoc, update, imageContext, layerData };
+  if (new URLSearchParams(location.search).has('debug')) window.studio = { app, actions, setDoc, update, imageContext, layerData, selectAt, chooseSite };
   app.pilot = rememberPilot();
   app.client = createClient();
   panels.renderShell(app, actions);
@@ -990,7 +1003,7 @@ async function boot() {
   });
   app.map.map.on('click', (event) => {
     if (app.draw.active()) return;
-    if (app.mode === 'select') { selectAt(event.point); return; }
+    if (app.mode === 'select') { selectAt(event.point, event.lngLat); return; }
     const hit = app.map.featuresAt(event.point)[0];
     if (hit) app.map.showPopup(event.lngLat, panels.popup(app, app.registry.get(hit.key), hit.properties));
     else app.map.closePopup();

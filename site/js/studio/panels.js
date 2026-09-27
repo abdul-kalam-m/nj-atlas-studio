@@ -537,6 +537,16 @@ export function renderLegend(app) {
   node.replaceChildren(el('details', { open }, [el('summary', { text: app.text.export.legend }), legendNode(groups), label].filter(Boolean)));
 }
 
+// Several features under one click in select mode: one button each (D-067).
+export function siteChooser(app, hits, onChoose) {
+  return el('div', { class: 'popup' }, [el('p', { class: 'popup-layer', text: app.text.buffer.chooseSite }),
+    el('ul', { class: 'site-choices' }, hits.map((hit) => {
+      const entry = app.registry.get(hit.key);
+      const name = hit.properties[entry.label_field] ?? hit.properties.atlas_id ?? app.text.notRecorded;
+      return el('li', {}, el('button', { type: 'button', class: 'link-button', text: `${entry.title}: ${name}`, onclick: () => onChoose(hit) }));
+    }))]);
+}
+
 export function popup(app, entry, props) {
   const rows = [];
   for (const field of entry.fields) {

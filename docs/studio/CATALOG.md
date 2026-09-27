@@ -14,7 +14,7 @@ Every layer was probed on 2026-09-26 or 2026-09-27. Every non-boundary service s
   - NJOGIS: "NJOGIS terms of use (credit requested)".
   - NJDEP: "NJDEP Data Distribution Agreement", with the NJDEP standard credit sentence.
   - Census and other federal data: public domain.
-- **Buffer:** S means it can be a buffer source (click to select); T means it can be a buffer target (listed inside rings).
+- **Buffer:** S means it can be a buffer source (click to select); T means it can be a buffer target (listed inside rings). Since D-067 (2026-09-27) every layer except the state outline is both; the column keeps the original v1 plan.
 - **Min zoom:** for live layers, the zoom at which features start loading.
 
 ## Boundaries (copy, built)

@@ -42,7 +42,7 @@
   },
   "default_style": "by_fuel",
   "legend": {"title": "Alternative fuel stations"},
-  "buffer_role": "target",
+  "buffer_role": "both",
   "distance_query": true,
   "list_fields": ["fuel", "address"],
   "clip_mode": "mask",

@@ -130,11 +130,13 @@ export class StudioMap {
     return this.dataLayers.flatMap((layer) => layer.layerIds).filter((id) => !id.endsWith(':labels') && this.map.getLayer(id));
   }
 
-  // Features under a point: [{ key, properties, geometry }], top layer first.
-  featuresAt(point) {
+  // Features under a point, within `pad` pixels (points are small targets): [{ key, properties, geometry }],
+  // top layer first.
+  featuresAt(point, pad = 0) {
     const ids = this.dataLayerIds();
     if (!ids.length) return [];
-    return this.map.queryRenderedFeatures(point, { layers: ids })
+    const where = pad ? [[point.x - pad, point.y - pad], [point.x + pad, point.y + pad]] : point;
+    return this.map.queryRenderedFeatures(where, { layers: ids })
       .map((feature) => ({ key: feature.layer.metadata?.key, properties: feature.properties, geometry: feature.geometry }));
   }
 

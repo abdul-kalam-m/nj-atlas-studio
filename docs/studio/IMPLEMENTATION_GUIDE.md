@@ -410,7 +410,7 @@ Each preset has a `label` (its name in the Style panel) and a `kind`. The schema
 
 ### 4.7 Buffers
 
-- **Sources:** a clicked feature (its full geometry, fetched with `returnGeometry=true` for live layers or taken from tiles for hybrid ones), or a drawn point, line or area.
+- **Sources (D-067):** a clicked feature of any layer (its full shape is fetched from the source by its ID; when a click finds several features, Studio asks which), or a drawn point, line or area.
 - **Ring:** Studio draws it in the browser with `@turf/buffer` (units: feet), styled as a dashed outline **above the mask**.
 - **Finding targets:** for each target layer, run one query:
   - with `distance_query: true`, POST `query` with `geometry=<source>`, `distance=<ft>`, `units=esriSRUnit_Foot`, `spatialRel=esriSpatialRelIntersects`, `outFields=<list_fields sources>`;

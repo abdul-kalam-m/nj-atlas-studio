@@ -37,7 +37,7 @@
   "styles": {"points": {"label": "Purple points", "kind": "single", "color": "#6B4C9A", "radius": 4}},
   "default_style": "points",
   "legend": {"title": "Bridges"},
-  "buffer_role": "target",
+  "buffer_role": "both",
   "distance_query": true,
   "list_fields": ["crosses", "owner", "year_built"],
   "clip_mode": "mask",

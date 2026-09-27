@@ -35,7 +35,7 @@
   "styles": {"by_zone": {"label": "By zone", "kind": "categories", "field": "zone", "palette": "okabe_ito", "opacity": 0.45}},
   "default_style": "by_zone",
   "legend": {"title": "Tidal flood elevation"},
-  "buffer_role": "target",
+  "buffer_role": "both",
   "distance_query": true,
   "list_fields": ["county_name"],
   "clip_mode": "cut",

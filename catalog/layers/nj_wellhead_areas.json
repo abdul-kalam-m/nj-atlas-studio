@@ -34,7 +34,7 @@
   "styles": {"by_tier": {"label": "By tier", "kind": "categories", "field": "tier", "colors": {"Tier 1 (2 years)": "#08519C", "Tier 2 (5 years)": "#4292C6", "Tier 3 (12 years)": "#9ECAE1"}, "opacity": 0.45}},
   "default_style": "by_tier",
   "legend": {"title": "Wellhead protection areas"},
-  "buffer_role": "target",
+  "buffer_role": "both",
   "distance_query": true,
   "list_fields": ["tier"],
   "clip_mode": "cut",

@@ -37,7 +37,7 @@
   },
   "default_style": "fill",
   "legend": {"title": "Wetlands, 2012"},
-  "buffer_role": "target",
+  "buffer_role": "both",
   "distance_query": true,
   "list_fields": ["acres"],
   "clip_mode": "cut",

@@ -39,7 +39,7 @@
   },
   "default_style": "by_type",
   "legend": {"title": "Land use, 2015"},
-  "buffer_role": "target",
+  "buffer_role": "both",
   "distance_query": true,
   "list_fields": ["land_use_type", "acres"],
   "clip_mode": "cut",
