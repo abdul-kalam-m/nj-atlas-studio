@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_bridges",
+  "title": "Bridges",
+  "category": "transportation",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "bridge", "plural": "bridges"},
+  "summary": "Bridges in the New Jersey Department of Transportation inventory, with what they carry and cross.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Bridges/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with NJ Department of Transportation",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=1dd6410b0baa4be5a810b0b64f799d0c",
+    "expected_count": {"min": 7484, "max": 8272}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Department of Transportation",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "FACILITY", "name": "carries", "label": "Carries", "type": "text", "filter": "search", "popup": true},
+    {"source": "FEATINT", "name": "crosses", "label": "Crosses", "type": "text", "filter": "search", "popup": true},
+    {"source": "BRKEY", "name": "structure_number", "label": "Structure number", "type": "text", "filter": "search", "popup": true},
+    {"source": "OWNER", "name": "owner", "label": "Owner", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"1": "State highway agency", "2": "County highway agency", "3": "Town or township", "4": "City or municipality", "11": "State park or forest", "12": "Local park or forest", "21": "Other state agency", "25": "Other local agency", "26": "Private", "27": "Railroad", "31": "State toll authority", "32": "Local toll authority", "60": "Other federal agency", "66": "National Park Service", "70": "Corps of Engineers", "80": "Unknown", "-1": null}},
+    {"source": "YEARBUILT", "name": "year_built", "label": "Year built", "type": "number", "filter": "range", "popup": true, "decimals": 0, "transform": "zero_is_blank"}
+  ],
+  "label_field": "carries",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 11,
+  "styles": {"points": {"label": "Purple points", "kind": "single", "color": "#6B4C9A", "radius": 4}},
+  "default_style": "points",
+  "legend": {"title": "Bridges"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["crosses", "owner", "year_built"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Built before 1950", "conditions": [{"field": "year_built", "op": "range", "min": null, "max": 1949}]}
+  ]
+}

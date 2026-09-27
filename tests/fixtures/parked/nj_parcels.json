@@ -1,0 +1,276 @@
+{
+  "$schema": "../../../catalog/layer.schema.json",
+  "id": "nj_parcels",
+  "title": "Property parcels",
+  "category": "property",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {
+    "singular": "parcel",
+    "plural": "parcels"
+  },
+  "summary": "Every tax lot on New Jersey's property tax list, with its block and lot, property class, size, assessed value and last sale. Owner names and mailing addresses are left out.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Parcels_Composite_NJ_WM/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with the Division of Taxation's MOD-IV tax list",
+    "landing_page": "https://www.nj.gov/njgin/edata/parcels/",
+    "expected_count": {
+      "min": 3400000,
+      "max": 3560000
+    }
+  },
+  "license": {
+    "name": null,
+    "url": null,
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Division of Taxation (MOD-IV)",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {
+      "source": "PROP_LOC",
+      "name": "address",
+      "label": "Property address",
+      "type": "text",
+      "filter": "search",
+      "popup": true
+    },
+    {
+      "source": "PCL_MUN",
+      "name": "district_code",
+      "label": "Tax district code",
+      "type": "text",
+      "filter": "none",
+      "popup": false
+    },
+    {
+      "source": "PCLBLOCK",
+      "name": "block",
+      "label": "Block",
+      "type": "text",
+      "filter": "search",
+      "popup": true
+    },
+    {
+      "source": "PCLLOT",
+      "name": "lot",
+      "label": "Lot",
+      "type": "text",
+      "filter": "search",
+      "popup": true
+    },
+    {
+      "source": "PCLQCODE",
+      "name": "qualifier",
+      "label": "Qualifier",
+      "type": "text",
+      "filter": "none",
+      "popup": true
+    },
+    {
+      "source": "PAMS_PIN",
+      "name": "parcel_id",
+      "label": "Parcel ID",
+      "type": "text",
+      "filter": "search",
+      "popup": true
+    },
+    {
+      "source": "PROP_CLASS",
+      "name": "property_class",
+      "label": "Property class",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true,
+      "value_labels": {
+        "1": "Vacant land",
+        "2": "Residential (up to 4 families)",
+        "3A": "Farm (regular)",
+        "3B": "Farm (qualified)",
+        "4A": "Commercial",
+        "4B": "Industrial",
+        "4C": "Apartments (5 or more families)",
+        "5A": "Railroad (class I)",
+        "5B": "Railroad (class II)",
+        "6A": "Telephone company property",
+        "15A": "Public school",
+        "15B": "Other school",
+        "15C": "Public property",
+        "15D": "Church and charitable",
+        "15E": "Cemetery",
+        "15F": "Other exempt"
+      }
+    },
+    {
+      "source": "CALC_ACRE",
+      "name": "acres",
+      "label": "Area",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "unit": "acres",
+      "decimals": 2
+    },
+    {
+      "source": "LAND_VAL",
+      "name": "land_value",
+      "label": "Land value ($)",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "decimals": 0
+    },
+    {
+      "source": "IMPRVT_VAL",
+      "name": "building_value",
+      "label": "Building value ($)",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "decimals": 0
+    },
+    {
+      "source": "NET_VALUE",
+      "name": "assessed_value",
+      "label": "Assessed value ($)",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "decimals": 0
+    },
+    {
+      "source": "YR_CONSTR",
+      "name": "year_built",
+      "label": "Year built",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "decimals": 0,
+      "transform": "zero_is_blank"
+    },
+    {
+      "source": "DWELL",
+      "name": "dwellings",
+      "label": "Homes on the lot",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "decimals": 0
+    },
+    {
+      "source": "SALE_PRICE",
+      "name": "sale_price",
+      "label": "Last sale price ($)",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "decimals": 0,
+      "transform": "zero_is_blank"
+    },
+    {
+      "source": "DEED_DATE",
+      "name": "sale_date",
+      "label": "Last sale date",
+      "type": "date",
+      "filter": "range",
+      "popup": true,
+      "transform": "yymmdd"
+    }
+  ],
+  "label_field": "address",
+  "access": "copy",
+  "area_mode": "tags",
+  "place_tags": "all_by_district",
+  "partition": {
+    "by": "municipality",
+    "field": "PCL_MUN",
+    "host": "r2",
+    "selftest": "1709"
+  },
+  "tiles": {
+    "min_zoom": 9,
+    "max_zoom": 15
+  },
+  "styles": {
+    "outline": {
+      "label": "Outline",
+      "kind": "single",
+      "color": "#8A5A44",
+      "fill": false,
+      "width": 1
+    },
+    "by_class": {
+      "label": "By property class",
+      "kind": "categories",
+      "field": "property_class",
+      "palette": "okabe_ito",
+      "opacity": 0.7
+    }
+  },
+  "default_style": "outline",
+  "legend": {
+    "title": "Parcels"
+  },
+  "buffer_role": "both",
+  "list_fields": [
+    "property_class",
+    "block",
+    "lot",
+    "qualifier"
+  ],
+  "clip_mode": "mask",
+  "refresh_cadence": "quarterly",
+  "leave_out": [
+    "OWNER_NAME",
+    "ST_ADDRESS",
+    "CITY_STATE",
+    "ZIP_CODE",
+    "ZIP5",
+    "ZIP_PLUS4"
+  ],
+  "examples": [
+    {
+      "label": "Vacant land",
+      "conditions": [
+        {
+          "field": "property_class",
+          "op": "in",
+          "values": [
+            "Vacant land"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Lots of 10 acres or more",
+      "conditions": [
+        {
+          "field": "acres",
+          "op": "range",
+          "min": 10,
+          "max": null
+        }
+      ]
+    },
+    {
+      "label": "Sold for $500,000 or more since 2020",
+      "conditions": [
+        {
+          "field": "sale_price",
+          "op": "range",
+          "min": 500000,
+          "max": null
+        },
+        {
+          "field": "sale_date",
+          "op": "range",
+          "min": "2020-01-01",
+          "max": null
+        }
+      ]
+    }
+  ]
+}

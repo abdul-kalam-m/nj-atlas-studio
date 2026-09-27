@@ -1,0 +1,164 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_preserved_open_space",
+  "title": "Preserved open space",
+  "category": "environment",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {
+    "singular": "open space area",
+    "plural": "open space areas"
+  },
+  "summary": "Parks, forests, preserves and other land kept as open space by the state, counties, towns and nonprofits, from NJDEP's Green Acres inventory.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Open_Space/FeatureServer/66",
+    "where": "1=1",
+    "id_field": "GLOBALID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Green Acres Program",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "expected_count": {
+      "min": 93100,
+      "max": 96950
+    }
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-26"
+  },
+  "fields": [
+    {
+      "source": "NAME_LABEL",
+      "name": "place_name",
+      "label": "Name",
+      "type": "text",
+      "filter": "search",
+      "popup": true,
+      "value_labels": {
+        "<Null>": null
+      }
+    },
+    {
+      "source": "USE_LABEL",
+      "name": "use",
+      "label": "Kind of place",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true,
+      "value_labels": {
+        "<Null>": null
+      }
+    },
+    {
+      "source": "ACCESS_TYPE",
+      "name": "access",
+      "label": "Public access",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "OWNERTYPE",
+      "name": "owner_type",
+      "label": "Owned by",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "MANAGED_BY",
+      "name": "managed_by",
+      "label": "Managed by",
+      "type": "text",
+      "filter": "search",
+      "popup": true
+    },
+    {
+      "source": "ENCUMBRANCE_STATUS",
+      "name": "green_acres",
+      "label": "Green Acres status",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "GISACRES",
+      "name": "acres",
+      "label": "Area",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "unit": "acres",
+      "decimals": 1
+    },
+    {
+      "source": "PRESERVATION_DATE",
+      "name": "preserved_on",
+      "label": "Date preserved",
+      "type": "date",
+      "filter": "range",
+      "popup": true
+    }
+  ],
+  "label_field": "place_name",
+  "access": "copy",
+  "area_mode": "tags",
+  "place_tags": "all",
+  "tiles": {"min_zoom": 8, "max_zoom": 14},
+  "styles": {
+    "fill": {"label": "Green fill", "kind": "single", "color": "#2E7D4F", "opacity": 0.6},
+    "by_use": {"label": "By use", "kind": "categories", "field": "use", "palette": "okabe_ito"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Preserved open space"},
+  "buffer_role": "both",
+  "list_fields": ["use", "owner_type", "acres"],
+  "clip_mode": "cut",
+  "refresh_cadence": "quarterly",
+  "leave_out": [],
+  "examples": [
+    {
+      "label": "Open space over 100 acres in Cape May County",
+      "place": {
+        "county_fips": "009",
+        "mun_code": null
+      },
+      "conditions": [
+        {
+          "field": "acres",
+          "op": "range",
+          "min": 100,
+          "max": null
+        }
+      ]
+    },
+    {
+      "label": "State parks and forests",
+      "conditions": [
+        {
+          "field": "use",
+          "op": "in",
+          "values": [
+            "State Park",
+            "State Forest"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Green Acres encumbered land",
+      "conditions": [
+        {
+          "field": "green_acres",
+          "op": "in",
+          "values": [
+            "Encumbered"
+          ]
+        }
+      ]
+    }
+  ]
+}

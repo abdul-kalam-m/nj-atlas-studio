@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_roads",
+  "title": "Roads",
+  "category": "transportation",
+  "status": "published",
+  "geometry": "line",
+  "noun": {"singular": "road segment", "plural": "road segments"},
+  "summary": "The statewide road centerline network, by road class.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Tran_road/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=fc3d0a95921b4026b386643eef5ff088",
+    "expected_count": {"min": 464813, "max": 513741}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS)",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "ST_NAME", "name": "street", "label": "Street", "type": "text", "filter": "search", "popup": true},
+    {"source": "SUBTYPE", "name": "road_class", "label": "Road class", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"100": "Toll highway", "200": "Interstate", "300": "US highway", "400": "State highway", "500": "County 500 route", "600": "Other county route", "700": "Local road", "800": "Other road", "900": "Alley", "108": "Ramp", "208": "Ramp", "308": "Ramp", "408": "Ramp", "508": "Ramp", "608": "Ramp", "708": "Ramp"}},
+    {"source": "JURISDICTN", "name": "jurisdiction", "label": "Jurisdiction", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"C": "County", "F": "Federal", "HA": "Highway authority", "M": "Municipal", "O": "Other", "P": "Private", "S": "State"}},
+    {"source": "SPEEDLIMIT", "name": "speed_limit", "label": "Speed limit", "type": "number", "filter": "range", "popup": true, "unit": "mph", "decimals": 0, "transform": "zero_is_blank"}
+  ],
+  "label_field": "street",
+  "access": "hybrid",
+  "area_mode": "intersects",
+  "tiles": {"min_zoom": 8, "max_zoom": 14},
+  "styles": {
+    "by_class": {"label": "By road class", "kind": "categories", "field": "road_class", "colors": {"Interstate": "#B2182B", "Toll highway": "#D6604D", "US highway": "#E08214", "State highway": "#F1A340", "County 500 route": "#5E3C99", "Other county route": "#8073AC", "Local road": "#8C8C8C", "Other road": "#B0B0B0", "Alley": "#C8C8C8", "Ramp": "#B0B0B0"}, "widths": {"Interstate": 3.5, "Toll highway": 3.5, "US highway": 3, "State highway": 2.5, "County 500 route": 2, "Other county route": 1.5, "Local road": 0.8, "Other road": 0.6, "Alley": 0.5, "Ramp": 0.8}, "other": "#B0B0B0"},
+    "gray": {"label": "Gray lines", "kind": "single", "color": "#8C8C8C", "width": 1}
+  },
+  "default_style": "by_class",
+  "legend": {"title": "Roads"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["road_class", "jurisdiction"],
+  "clip_mode": "cut",
+  "refresh_cadence": "quarterly",
+  "leave_out": [],
+  "examples": [
+    {"label": "State and US highways", "conditions": [{"field": "road_class", "op": "in", "values": ["US highway", "State highway"]}]}
+  ]
+}

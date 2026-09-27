@@ -1,0 +1,32 @@
+{
+  "description": "Field transforms that pipeline/normalize.py (copy and hybrid builds) and site/js/studio/transform.js (live layers, at display time) must agree on. Read by tests/py/test_transforms.py and tests/js/transform.test.js.",
+  "cases": [
+    {"label": "text is stripped", "field": {"type": "text"}, "value": "  Main Street ", "expected": "Main Street"},
+    {"label": "empty text is blank", "field": {"type": "text"}, "value": "   ", "expected": null},
+    {"label": "missing text is blank", "field": {"type": "text"}, "value": null, "expected": null},
+    {"label": "an integer category", "field": {"type": "category"}, "value": 3, "expected": "3"},
+    {"label": "a whole float loses .0", "field": {"type": "category"}, "value": 3.0, "expected": "3"},
+    {"label": "value label", "field": {"type": "category", "value_labels": {"1": "Tier 1"}}, "value": 1, "expected": "Tier 1"},
+    {"label": "unlisted values are kept", "field": {"type": "category", "value_labels": {"1": "Tier 1"}}, "value": 2, "expected": "2"},
+    {"label": "a null label blanks the value", "field": {"type": "category", "value_labels": {"-1": null}}, "value": -1, "expected": null},
+    {"label": "titlecase", "field": {"type": "text", "transform": "titlecase"}, "value": "CAPE MAY", "expected": "Cape May"},
+    {"label": "titlecase keeps apostrophes", "field": {"type": "text", "transform": "titlecase"}, "value": "ST. MARY'S SCHOOL", "expected": "St. Mary's School"},
+    {"label": "titlecase after hyphens and parentheses", "field": {"type": "text", "transform": "titlecase"}, "value": "WILKES-BARRE (EAST)", "expected": "Wilkes-Barre (East)"},
+    {"label": "titlecase then a label", "field": {"type": "category", "transform": "titlecase", "value_labels": {"Urban": "Built-up"}}, "value": "URBAN", "expected": "Built-up"},
+    {"label": "upper", "field": {"type": "text", "transform": "upper"}, "value": "abc", "expected": "ABC"},
+    {"label": "zfill4", "field": {"type": "text", "transform": "zfill4"}, "value": "709", "expected": "0709"},
+    {"label": "last3", "field": {"type": "text", "transform": "last3"}, "value": "34033", "expected": "033"},
+    {"label": "a number from text", "field": {"type": "number"}, "value": "12.5", "expected": 12.5},
+    {"label": "a missing number", "field": {"type": "number"}, "value": null, "expected": null},
+    {"label": "zero_is_blank blanks zero", "field": {"type": "number", "transform": "zero_is_blank"}, "value": 0, "expected": null},
+    {"label": "zero_is_blank keeps other numbers", "field": {"type": "number", "transform": "zero_is_blank"}, "value": 1935, "expected": 1935},
+    {"label": "square meters to square miles", "field": {"type": "number", "transform": "sq_m_to_sq_mi"}, "value": 2589988.110336, "expected": 1.0},
+    {"label": "ArcGIS epoch milliseconds", "field": {"type": "date"}, "value": 1262304000000, "expected": "2010-01-01"},
+    {"label": "a text date", "field": {"type": "date"}, "value": "2020-05-17", "expected": "2020-05-17"},
+    {"label": "yymmdd, 1900s", "field": {"type": "date", "transform": "yymmdd"}, "value": "941008", "expected": "1994-10-08"},
+    {"label": "yymmdd, 2000s", "field": {"type": "date", "transform": "yymmdd"}, "value": "290101", "expected": "2029-01-01"},
+    {"label": "yymmdd, pivot year", "field": {"type": "date", "transform": "yymmdd"}, "value": "300101", "expected": "1930-01-01"},
+    {"label": "yymmdd, not a day", "field": {"type": "date", "transform": "yymmdd"}, "value": "991301", "expected": null},
+    {"label": "yymmdd, zeros", "field": {"type": "date", "transform": "yymmdd"}, "value": "000000", "expected": null}
+  ]
+}

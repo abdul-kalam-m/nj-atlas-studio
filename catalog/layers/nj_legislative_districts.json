@@ -1,0 +1,48 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_legislative_districts",
+  "title": "Legislative districts",
+  "category": "government",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "legislative district", "plural": "legislative districts"},
+  "summary": "New Jersey's 40 legislative districts, each electing one senator and two members of the Assembly.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Legislative_Districts_of_NJ_Hosted_3857/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with NJ Office of Legislative Services",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=e8ca894e9a1c4ce3aa6779d489ae71a3",
+    "expected_count": {"min": 40, "max": 40}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Office of Legislative Services",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "DIST_LABEL", "name": "district", "label": "District", "type": "text", "filter": "search", "popup": true},
+    {"source": "SENATOR", "name": "senator", "label": "Senator", "type": "text", "filter": "search", "popup": true},
+    {"source": "A1_REP", "name": "assembly_1", "label": "Assembly member", "type": "text", "filter": "search", "popup": true},
+    {"source": "A2_REP", "name": "assembly_2", "label": "Assembly member", "type": "text", "filter": "search", "popup": true}
+  ],
+  "label_field": "district",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 6,
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#34495E", "fill": false, "width": 2, "labels": {"field": "district", "size": 12, "halo": true}}},
+  "default_style": "outline",
+  "legend": {"title": "Legislative districts"},
+  "buffer_role": "source",
+  "distance_query": true,
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": ["S_CONTACT", "A1_CONTACT", "A2_CONTACT"],
+  "known_answers": [
+    {"label": "All legislative districts", "where": "1=1", "expected": {"min": 40, "max": 40}}
+  ],
+  "examples": []
+}

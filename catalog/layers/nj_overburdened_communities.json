@@ -1,0 +1,64 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_overburdened_communities",
+  "title": "Overburdened communities",
+  "category": "community",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "community", "plural": "communities"},
+  "summary": "Neighborhoods (Census block groups) that New Jersey's Environmental Justice Law protects because many residents are low-income, minority or have limited English.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Government/MapServer/42",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Office of Environmental Justice",
+    "landing_page": "https://dep.nj.gov/ej/communities/",
+    "expected_count": {"min": 3100, "max": 3260}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-26"
+  },
+  "fields": [
+    {"source": "GEOID", "name": "geoid", "label": "Community code", "type": "text", "filter": "search", "popup": true},
+    {"source": "OVERBURDENED_COMMUNITY_CRITERI", "name": "criteria", "label": "Why it qualifies", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "LOW_INCOME_PCT", "name": "low_income_pct", "label": "Low-income residents", "type": "number", "filter": "range", "popup": true, "unit": "%", "decimals": 1},
+    {"source": "MINORITY_PCT", "name": "minority_pct", "label": "Minority residents", "type": "number", "filter": "range", "popup": true, "unit": "%", "decimals": 1},
+    {"source": "PCTLINGUAGEISO", "name": "limited_english_pct", "label": "Limited-English households", "type": "number", "filter": "range", "popup": true, "unit": "%", "decimals": 1},
+    {"source": "TOTALPOP", "name": "population", "label": "Population", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "TOTHH", "name": "households", "label": "Households", "type": "number", "filter": "none", "popup": true, "decimals": 0},
+    {"source": "BG_TRIBAL", "name": "area_type", "label": "Area type", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "geoid",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {
+    "municipality": {"field": "MUN_CODE", "match": "mun_code"},
+    "county": {"field": "MUN_CODE", "match": "mun_prefix"}
+  },
+  "min_zoom": 8,
+  "styles": {
+    "by_criteria": {"label": "By criteria", "kind": "categories", "field": "criteria", "palette": "okabe_ito", "opacity": 0.6},
+    "fill": {"label": "Amber fill", "kind": "single", "color": "#B7791F", "opacity": 0.5}
+  },
+  "default_style": "by_criteria",
+  "legend": {"title": "Overburdened communities"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["criteria", "population"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "known_answers": [
+    {"label": "Overburdened block groups in Salem County", "where": "MUN_CODE LIKE '17%'", "expected": {"min": 11, "max": 15}}
+  ],
+  "examples": [
+    {"label": "Areas where at least half of residents are low-income", "conditions": [{"field": "low_income_pct", "op": "range", "min": 50, "max": null}]},
+    {"label": "Overburdened communities in Camden County", "place": {"county_fips": "007", "mun_code": null}, "conditions": []},
+    {"label": "Low income, minority and limited English", "conditions": [{"field": "criteria", "op": "in", "values": ["Low Income, Minority, and Limited English"]}]}
+  ]
+}

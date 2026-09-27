@@ -1,0 +1,15 @@
+{
+  "objectIdFieldName": "OBJECTID",
+  "geometryType": "esriGeometryPolygon",
+  "spatialReference": {"wkid": 4326},
+  "fields": [
+    {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+    {"name": "NAME", "type": "esriFieldTypeString"}
+  ],
+  "features": [
+    {"attributes": {"OBJECTID": 1, "NAME": "Square"},
+     "geometry": {"rings": [[[-74.5, 40.0], [-74.5, 40.1], [-74.4, 40.1], [-74.4, 40.0], [-74.5, 40.0]]]}},
+    {"attributes": {"OBJECTID": 2, "NAME": "Other"},
+     "geometry": {"rings": [[[-74.3, 40.0], [-74.3, 40.1], [-74.2, 40.1], [-74.2, 40.0], [-74.3, 40.0]]]}}
+  ]
+}

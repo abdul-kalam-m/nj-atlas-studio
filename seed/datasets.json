@@ -1,0 +1,1066 @@
+{
+  "schema_version": "0.1.0",
+  "status": "planning",
+  "datasets": [
+    {
+      "id": "nj_municipalities",
+      "title": "NJ Municipal Boundaries",
+      "category": "boundaries",
+      "publisher": "New Jersey Office of GIS (NJOGIS)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://nj.gov/njgin/edata/boundaries/",
+        "access_url": "https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/2",
+        "access_type": "arcgis",
+        "verified_on": "2026-09-24",
+        "notes": "Reviewed endpoint used by the bounded Pennsville local workflow. Statewide coverage is not admitted."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "local_research",
+        "blockers": [
+          "Production rights review remains open.",
+          "Statewide completeness and cross-release identity remain unverified."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {
+        "CENSUS2020": "esriFieldTypeString",
+        "COUNTY": "esriFieldTypeString",
+        "MUN": "esriFieldTypeString",
+        "MUN_CODE": "esriFieldTypeString",
+        "OBJECTID": "esriFieldTypeOID"
+      },
+      "relationships": [
+        "versioned spatial relationships in analysis evidence"
+      ],
+      "local_scope": "Pennsville workflow and its bounded analysis envelopes"
+    },
+    {
+      "id": "nj_counties",
+      "title": "NJ County Boundaries",
+      "category": "boundaries",
+      "publisher": "New Jersey Office of GIS (NJOGIS)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://nj.gov/njgin/edata/boundaries/",
+        "access_url": null,
+        "access_type": "catalog",
+        "verified_on": "2026-09-19",
+        "notes": "NJGIN describes county administrative boundaries. Published map boundaries are not legal boundary determinations."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Confirm county FIPS identifiers and edge matching with municipalities."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_parcels_modiv",
+      "title": "NJ Parcels and MOD-IV Composite",
+      "category": "property",
+      "publisher": "New Jersey Office of GIS (NJOGIS)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://www.nj.gov/njgin/edata/parcels/",
+        "access_url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Parcels_Composite_NJ_WM/FeatureServer/0",
+        "access_type": "arcgis",
+        "verified_on": "2026-09-24",
+        "notes": "Reviewed endpoint used by the bounded Pennsville local workflow. Statewide coverage is not admitted."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "local_research",
+        "blockers": [
+          "Production rights review remains open.",
+          "Statewide completeness and cross-release identity remain unverified."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {
+        "CALC_ACRE": "esriFieldTypeDouble",
+        "GIS_PIN": "esriFieldTypeString",
+        "OBJECTID": "esriFieldTypeOID",
+        "PAMS_PIN": "esriFieldTypeString",
+        "PCLBLOCK": "esriFieldTypeString",
+        "PCLLASTUPD": "esriFieldTypeDate",
+        "PCLLOT": "esriFieldTypeString",
+        "PCLQCODE": "esriFieldTypeString",
+        "PCL_GUID": "esriFieldTypeString",
+        "PCL_MUN": "esriFieldTypeString",
+        "PCL_PBDATE": "esriFieldTypeDate",
+        "PROP_CLASS": "esriFieldTypeString",
+        "LAND_VAL": "esriFieldTypeInteger",
+        "IMPRVT_VAL": "esriFieldTypeInteger",
+        "NET_VALUE": "esriFieldTypeInteger"
+      },
+      "relationships": [
+        "versioned spatial relationships in analysis evidence",
+        "publisher municipal code assignment"
+      ],
+      "local_scope": "Pennsville workflow and its bounded analysis envelopes"
+    },
+    {
+      "id": "nj_addresses",
+      "title": "NJ Address Points and Place Names",
+      "category": "property",
+      "publisher": "New Jersey Office of GIS (NJOGIS)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "point",
+      "source": {
+        "landing_page": "https://www.nj.gov/njgin/edata/addresses/",
+        "access_url": null,
+        "access_type": "catalog",
+        "verified_on": "2026-09-19",
+        "notes": "NJGIN describes statewide address points, related place names and ongoing work on subaddress completeness. A project refresh schedule remains unassigned."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Choose primary address, subaddress and access-point scope.",
+          "Preserve source identifiers and assess geocoding precision."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_buildings",
+      "title": "NJ Building Footprints Candidate",
+      "category": "property",
+      "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Structures/MapServer/8",
+        "access_url": null,
+        "access_type": "arcgis",
+        "verified_on": "2026-09-19",
+        "notes": "The official NJDEP service lists a polygon Building Footprints layer. Its description and copyright fields are empty; statewide completeness, provider lineage and collection dates are unconfirmed."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Confirm statewide coverage and whether additional county or provider sources are required.",
+          "Obtain descriptive metadata and distinguish primary buildings from accessory structures."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_land_use_land_cover",
+      "title": "NJ Land Use/Land Cover",
+      "category": "planning",
+      "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://www.arcgis.com/sharing/rest/content/items/2deaaa3cadd94166bdbff92a44ade284/info/metadata/metadata.xml?format=default&output=html",
+        "access_url": null,
+        "access_type": "arcgis",
+        "verified_on": "2026-09-19",
+        "notes": "Official publisher metadata identifies the 2020 LULC update and classification documentation. It is source evidence, not a selected ingested release."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": "https://www.arcgis.com/sharing/rest/content/items/2deaaa3cadd94166bdbff92a44ade284/info/metadata/metadata.xml?format=default&output=html",
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Select a release and validate the applicable Anderson classification codebook.",
+          "Define any development-status derivation explicitly."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_preserved_open_space",
+      "title": "NJ Preserved Open Space Candidate",
+      "category": "environment",
+      "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+        "access_url": "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Open_Space/FeatureServer/66",
+        "access_type": "arcgis",
+        "verified_on": "2026-09-24",
+        "notes": "Reviewed endpoint used by the bounded Pennsville local workflow. Statewide coverage is not admitted."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": "https://www.arcgis.com/sharing/rest/content/items/d4df5d8bb5e042debd4b5194bfa408a7/info/metadata/metadata.xml",
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "local_research",
+        "blockers": [
+          "Production rights review remains open.",
+          "Statewide completeness and cross-release identity remain unverified."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {
+        "ACCESS_TYPE": "esriFieldTypeString",
+        "ENCUMBRANCE_STATUS": "esriFieldTypeString",
+        "GLOBALID": "esriFieldTypeGlobalID",
+        "NAME_LABEL": "esriFieldTypeString",
+        "OBJECTID": "esriFieldTypeOID",
+        "PAMS_PIN": "esriFieldTypeString",
+        "PRESERVATION_DATE": "esriFieldTypeDate",
+        "STATCODE": "esriFieldTypeString"
+      },
+      "relationships": [
+        "versioned spatial relationships in analysis evidence"
+      ],
+      "local_scope": "Pennsville workflow and its bounded analysis envelopes"
+    },
+    {
+      "id": "nj_wetlands",
+      "title": "NJ Wetlands Candidate",
+      "category": "environment",
+      "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://www.arcgis.com/sharing/rest/content/items/2deaaa3cadd94166bdbff92a44ade284/info/metadata/metadata.xml?format=default&output=html",
+        "access_url": null,
+        "access_type": "arcgis",
+        "verified_on": "2026-09-19",
+        "notes": "NJDEP LULC metadata provides an initial source for mapped wetland classes. A wetlands subset is proposed only; it has not been extracted, and a regulatory wetlands product has not been selected."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": "https://www.arcgis.com/sharing/rest/content/items/2deaaa3cadd94166bdbff92a44ade284/info/metadata/metadata.xml?format=default&output=html",
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Choose mapped land-cover wetlands versus an appropriate dedicated wetlands inventory.",
+          "Document selected wetland class codes and lineage; do not represent this candidate as a site delineation."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_fema_flood_zones",
+      "title": "FEMA Flood Hazard Zones for NJ",
+      "category": "hazards",
+      "publisher": "Federal Emergency Management Agency (FEMA)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://msc.fema.gov/portal/advanceSearch",
+        "access_url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28",
+        "access_type": "arcgis",
+        "verified_on": "2026-09-24",
+        "notes": "Reviewed endpoint used by the bounded Pennsville local workflow. Statewide coverage is not admitted."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "local_research",
+        "blockers": [
+          "Production rights review remains open.",
+          "Statewide completeness and cross-release identity remain unverified."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {
+        "OBJECTID": "esriFieldTypeOID",
+        "DFIRM_ID": "esriFieldTypeString",
+        "FLD_AR_ID": "esriFieldTypeString",
+        "FLD_ZONE": "esriFieldTypeString",
+        "ZONE_SUBTY": "esriFieldTypeString",
+        "SFHA_TF": "esriFieldTypeString",
+        "SOURCE_CIT": "esriFieldTypeString"
+      },
+      "relationships": [
+        "versioned spatial relationships in analysis evidence"
+      ],
+      "local_scope": "Pennsville workflow and its bounded analysis envelopes"
+    },
+    {
+      "id": "nj_hydrography",
+      "title": "NJ Hydrography Candidate Bundle",
+      "category": "hydrology",
+      "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "mixed",
+      "source": {
+        "landing_page": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Hydrography/MapServer",
+        "access_url": null,
+        "access_type": "arcgis",
+        "verified_on": "2026-09-19",
+        "notes": "The official service lists stream networks, waterbodies and watershed layers of multiple vintages. No mixed-layer analytical table is implied."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Create component manifests for streams, waterbodies and chosen watershed levels.",
+          "Select compatible vintages, geometry-specific schemas and hydrologic identifiers."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_roads",
+      "title": "NJ Road Centerlines",
+      "category": "transportation",
+      "publisher": "New Jersey Office of GIS (NJOGIS)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "line",
+      "source": {
+        "landing_page": "https://nj.gov/njgin/edata/roads/",
+        "access_url": null,
+        "access_type": "catalog",
+        "verified_on": "2026-09-19",
+        "notes": "NJGIN describes road centerlines and related street-name data. The intended canonical representation is a centerline network; routability requires separate assessment."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Select centerlines and related-name tables with documented joins.",
+          "Assess topology before any routing use."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_transit",
+      "title": "NJ Transit Stops and Routes Candidate Bundle",
+      "category": "transportation",
+      "publisher": "NJ TRANSIT",
+      "coverage": "NJ TRANSIT service area intersecting New Jersey; all-provider statewide coverage unconfirmed",
+      "geometry": "mixed",
+      "source": {
+        "landing_page": "https://developer.njtransit.com/",
+        "access_url": null,
+        "access_type": "api",
+        "verified_on": null,
+        "notes": "The official developer portal advertises bus and rail GTFS feeds. The landing page opened but exposed no readable body in the research tool; separate official terms were readable. Feeds and credentials have not been acquired."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": "https://developer.njtransit.com/terms/",
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Confirm agency/mode coverage, including any providers outside NJ TRANSIT.",
+          "Resolve account access and terms before acquisition.",
+          "Create feed manifests with service periods, stops, routes and shapes."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_census_geographies",
+      "title": "NJ Census Geographies Candidate Bundle",
+      "category": "boundaries",
+      "publisher": "U.S. Census Bureau",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html",
+        "access_url": null,
+        "access_type": "download",
+        "verified_on": "2026-09-19",
+        "notes": "TIGER/Line is the publisher's geography distribution landing page. Tracts, block groups and blocks are separate candidate components; no release or geography level is selected."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Create release and geography manifests for each supported Census geography.",
+          "Preserve GEOIDs as strings and document boundary vintages and crosswalks.",
+          "Resolve compatibility with every statistical release before joins."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_acs_demographics",
+      "title": "NJ ACS Demographics Candidate Bundle",
+      "category": "demographics",
+      "publisher": "U.S. Census Bureau",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "table",
+      "source": {
+        "landing_page": "https://www.census.gov/programs-surveys/acs/data/data-via-api.html",
+        "access_url": null,
+        "access_type": "api",
+        "verified_on": "2026-09-19",
+        "notes": "The ACS API landing page documents available ACS products. This entry is a tabular bundle requiring explicit release, geography and variable manifests."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "parquet",
+        "hot_store": null,
+        "display_format": null
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Choose survey product, release, period and supported geography levels.",
+          "Create variable manifests containing estimates, margins of error, universes and annotation codes.",
+          "Validate Census geography joins and prohibit silent mixing of incompatible periods."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_environmental_justice",
+      "title": "NJ Environmental Justice Overburdened Communities",
+      "category": "environment",
+      "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "polygon",
+      "source": {
+        "landing_page": "https://dep.nj.gov/ej/ejmap-data-documentation/",
+        "access_url": null,
+        "access_type": "catalog",
+        "verified_on": null,
+        "notes": "Official search evidence identifies current and historical EJMAP release documentation, but direct page retrieval failed. Current effective release and block-group geometry must be verified before acquisition."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Reopen official documentation and select the applicable effective release.",
+          "Preserve designation, adjacent-area status, methodology and underlying ACS/boundary vintages."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_contaminated_sites",
+      "title": "NJ Known Contaminated Sites",
+      "category": "environment",
+      "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "point",
+      "source": {
+        "landing_page": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental_NJEMS/MapServer/0",
+        "access_url": null,
+        "access_type": "arcgis",
+        "verified_on": "2026-09-19",
+        "notes": "The official NJDEP layer identifies Known Contaminated Sites and exposes site identifiers and status fields. Candidate point features must not be treated as contamination extents."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Confirm status definitions and comparison with source tabular inventory.",
+          "Assess missing or approximate coordinates and record extraction timestamp."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_schools",
+      "title": "NJ Schools Candidate",
+      "category": "infrastructure",
+      "publisher": "New Jersey Department of Education (NJDOE)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "point",
+      "source": {
+        "landing_page": "https://www.nj.gov/nj/education/",
+        "access_url": null,
+        "access_type": "catalog",
+        "verified_on": "2026-09-19",
+        "notes": "The official education landing page links to the NJ School Directory. The directory itself could not be retrieved. A verified spatial release or documented geocoding step is still needed."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Confirm public/nonpublic, active-school and campus scope.",
+          "Select a bulk directory source and coordinate provider; validate campus geocoding.",
+          "Separate schools, districts and shared physical campuses."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_hospitals",
+      "title": "NJ Hospitals Candidate",
+      "category": "infrastructure",
+      "publisher": "New Jersey Department of Health (NJDOH)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "point",
+      "source": {
+        "landing_page": "https://www.nj.gov/health/healthfacilities/",
+        "access_url": null,
+        "access_type": "catalog",
+        "verified_on": "2026-09-19",
+        "notes": "The official Health Facilities landing page links to licensed facility searches. It establishes a candidate inventory source; no hospital point dataset has been selected."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "geoparquet",
+        "hot_store": "postgis",
+        "display_format": "pmtiles"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Confirm hospital facility types and active-license criteria.",
+          "Select an export and coordinate provider; validate geocoding and multi-campus entities.",
+          "Keep other health facility types outside the selected scope unless explicitly included."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_elevation",
+      "title": "NJ Elevation and DEM References",
+      "category": "terrain",
+      "publisher": "New Jersey Office of GIS (NJOGIS)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "raster",
+      "source": {
+        "landing_page": "https://nj.gov/njgin/edata/elevation/",
+        "access_url": null,
+        "access_type": "catalog",
+        "verified_on": "2026-09-19",
+        "notes": "NJGIN lists elevation collections and delivery resources. Store references to selected products; this entry does not imply bulk raster or LiDAR ingestion."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "external_reference",
+        "hot_store": null,
+        "display_format": "external_service"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Choose DEM product, resolution, vertical datum and collection-year coverage.",
+          "Create collection/asset manifests with verified cloud or service references."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    },
+    {
+      "id": "nj_imagery",
+      "title": "NJ Orthoimagery References",
+      "category": "imagery",
+      "publisher": "New Jersey Office of GIS (NJOGIS)",
+      "coverage": "New Jersey statewide target; completeness not assessed",
+      "geometry": "raster",
+      "source": {
+        "landing_page": "https://nj.gov/njgin/edata/imagery/",
+        "access_url": null,
+        "access_type": "catalog",
+        "verified_on": "2026-09-19",
+        "notes": "NJGIN lists imagery collections and access resources. Index selected external imagery assets and services instead of duplicating statewide imagery."
+      },
+      "license": {
+        "status": "review_required",
+        "reference_url": null,
+        "redistribution_allowed": null
+      },
+      "refresh": {
+        "expected_cadence": null
+      },
+      "storage": {
+        "canonical_format": "external_reference",
+        "hot_store": null,
+        "display_format": "external_service"
+      },
+      "lifecycle": {
+        "stage": "identified",
+        "blockers": [
+          "Pin a source release and verified access endpoint.",
+          "Review source terms and redistribution requirements.",
+          "Complete schema, provenance, geometry and completeness validation.",
+          "Choose acquisition years, spatial resolution and intended mosaic coverage.",
+          "Verify external services/assets and their access and display terms."
+        ]
+      },
+      "provenance": {
+        "source_date": null,
+        "retrieved_at": null,
+        "version": null
+      },
+      "quality": {
+        "status": "not_assessed",
+        "authority_level": "candidate_authoritative",
+        "score": null
+      },
+      "fields": {},
+      "relationships": [],
+      "local_scope": null
+    }
+  ]
+}

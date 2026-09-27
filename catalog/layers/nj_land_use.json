@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_land_use",
+  "title": "Land use (2015)",
+  "category": "property",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "land use area", "plural": "land use areas"},
+  "summary": "NJDEP's 2015 land use and land cover, mapped from aerial photography.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land_lu/MapServer/13",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 561010, "max": 620064}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "TYPE15", "name": "land_use_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"URBAN": "Urban", "AGRICULTURE": "Agriculture", "FOREST": "Forest", "WATER": "Water", "WETLANDS": "Wetlands", "BARREN LAND": "Barren land"}},
+    {"source": "LABEL15", "name": "land_use", "label": "Land use", "type": "category", "filter": "checklist", "popup": true, "transform": "titlecase"},
+    {"source": "IS15", "name": "impervious_pct", "label": "Impervious surface", "type": "number", "filter": "range", "popup": true, "unit": "%", "decimals": 0},
+    {"source": "ACRES", "name": "acres", "label": "Area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 2}
+  ],
+  "label_field": "land_use",
+  "access": "hybrid",
+  "area_mode": "intersects",
+  "tiles": {"min_zoom": 8, "max_zoom": 14},
+  "styles": {
+    "by_type": {"label": "By type (Anderson Level I)", "kind": "categories", "field": "land_use_type", "palette": "anderson_level1", "opacity": 0.7},
+    "fill": {"label": "One color", "kind": "single", "color": "#B7A99A", "opacity": 0.5}
+  },
+  "default_style": "by_type",
+  "legend": {"title": "Land use, 2015"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["land_use_type", "acres"],
+  "clip_mode": "cut",
+  "refresh_cadence": "yearly_check",
+  "leave_out": [],
+  "examples": [
+    {"label": "Farmland", "conditions": [{"field": "land_use_type", "op": "in", "values": ["Agriculture"]}]}
+  ]
+}

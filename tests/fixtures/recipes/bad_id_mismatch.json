@@ -1,0 +1,137 @@
+{
+  "id": "nj_other",
+  "title": "Counties",
+  "category": "boundaries",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {
+    "singular": "county",
+    "plural": "counties"
+  },
+  "summary": "The 21 counties of New Jersey, with their 2020 population, population density and land area.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1",
+    "where": "1=1",
+    "id_field": "FIPSSTCO",
+    "publisher": "New Jersey Office of GIS (NJOGIS)",
+    "landing_page": "https://nj.gov/njgin/edata/boundaries/",
+    "expected_count": {
+      "min": 21,
+      "max": 21
+    }
+  },
+  "license": {
+    "name": null,
+    "url": null,
+    "attribution": "New Jersey Office of GIS (NJOGIS)",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {
+      "source": "COUNTY_LABEL",
+      "name": "county",
+      "label": "County",
+      "type": "text",
+      "filter": "search",
+      "popup": true
+    },
+    {
+      "source": "FIPSSTCO",
+      "name": "county_fips",
+      "label": "County code",
+      "type": "text",
+      "filter": "none",
+      "popup": false,
+      "transform": "last3"
+    },
+    {
+      "source": "REGION",
+      "name": "region",
+      "label": "Region",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true,
+      "transform": "titlecase"
+    },
+    {
+      "source": "POP2020",
+      "name": "population_2020",
+      "label": "Population (2020)",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "decimals": 0
+    },
+    {
+      "source": "POPDEN2020",
+      "name": "density_2020",
+      "label": "People per square mile (2020)",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "decimals": 0
+    },
+    {
+      "source": "SQ_MILES",
+      "name": "area_sq_mi",
+      "label": "Area",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "unit": "sq mi",
+      "decimals": 1
+    }
+  ],
+  "label_field": "county",
+  "access": "copy",
+  "area_mode": "tags",
+  "place_tags": "none",
+  "tiles": {
+    "min_zoom": 5,
+    "max_zoom": 11
+  },
+  "styles": {
+    "outline": {
+      "label": "Outline",
+      "kind": "single",
+      "color": "#1D4E89",
+      "fill": false,
+      "width": 1.5
+    }
+  },
+  "default_style": "outline",
+  "legend": {
+    "title": "Counties"
+  },
+  "buffer_role": "source",
+  "clip_mode": "mask",
+  "refresh_cadence": "static",
+  "leave_out": [],
+  "examples": [
+    {
+      "label": "Counties with 500,000 people or more",
+      "conditions": [
+        {
+          "field": "population_2020",
+          "op": "range",
+          "min": 500000,
+          "max": null
+        }
+      ]
+    },
+    {
+      "label": "Coastal counties",
+      "conditions": [
+        {
+          "field": "region",
+          "op": "in",
+          "values": [
+            "Coastal"
+          ]
+        }
+      ]
+    }
+  ]
+}

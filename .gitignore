@@ -1,0 +1,24 @@
+# Environments and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+
+# Generated data: never commit (see docs/OPERATING_GUIDE.md §10)
+build/
+site/data/
+
+# Local settings and secrets
+workers/counter/wrangler.toml
+.wrangler/
+.env
+.env.*
+*.key
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store

@@ -1,0 +1,232 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_trails",
+  "title": "Trails",
+  "category": "environment",
+  "status": "published",
+  "geometry": "line",
+  "noun": {
+    "singular": "trail section",
+    "plural": "trail sections"
+  },
+  "summary": "Hiking, biking and multi-use trails in parks and forests across New Jersey, with difficulty, surface and who can use them.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land_lu/MapServer/121",
+    "where": "1=1",
+    "id_field": "GLOBALID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://dep.nj.gov/parksandforests/",
+    "expected_count": {
+      "min": 12500,
+      "max": 13020
+    }
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-26"
+  },
+  "fields": [
+    {
+      "source": "TRAIL_NAME_SEGMENT",
+      "name": "trail",
+      "label": "Trail",
+      "type": "text",
+      "filter": "search",
+      "popup": true,
+      "value_labels": {
+        "Unknown": null,
+        "(none)": null,
+        "<Null>": null,
+        "Unnamed": null
+      }
+    },
+    {
+      "source": "PARK_NAME",
+      "name": "park",
+      "label": "Park",
+      "type": "text",
+      "filter": "search",
+      "popup": true,
+      "value_labels": {
+        "Unknown": null,
+        "<Null>": null,
+        "N/A": null
+      }
+    },
+    {
+      "source": "TRAIL_DIFFICULTY",
+      "name": "difficulty",
+      "label": "Difficulty",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "SURFACE",
+      "name": "surface",
+      "label": "Surface",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "HIKING",
+      "name": "hiking",
+      "label": "Hiking",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true,
+      "value_labels": {
+        "Y": "Yes",
+        "N": "No",
+        "U": "Unknown"
+      }
+    },
+    {
+      "source": "BIKING",
+      "name": "biking",
+      "label": "Biking",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true,
+      "value_labels": {
+        "Y": "Yes",
+        "N": "No",
+        "U": "Unknown"
+      }
+    },
+    {
+      "source": "ADA_COMPLIANT",
+      "name": "accessible",
+      "label": "Wheelchair accessible",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true,
+      "value_labels": {
+        "Y": "Yes",
+        "N": "No",
+        "U": "Unknown"
+      }
+    },
+    {
+      "source": "GIS_SEGMENT_LENGTH_MI",
+      "name": "length_mi",
+      "label": "Length",
+      "type": "number",
+      "filter": "range",
+      "popup": true,
+      "unit": "mi",
+      "decimals": 2
+    },
+    {
+      "source": "MOUNTAIN_BIKING",
+      "name": "mountain_biking",
+      "label": "Mountain biking",
+      "type": "category",
+      "filter": "none",
+      "popup": true,
+      "value_labels": {
+        "Y": "Yes",
+        "N": "No",
+        "U": "Unknown"
+      }
+    },
+    {
+      "source": "EQUESTRIAN",
+      "name": "horses",
+      "label": "Horseback riding",
+      "type": "category",
+      "filter": "none",
+      "popup": true,
+      "value_labels": {
+        "Y": "Yes",
+        "N": "No",
+        "U": "Unknown"
+      }
+    },
+    {
+      "source": "BLAZE_COLOR",
+      "name": "blaze",
+      "label": "Blaze color",
+      "type": "text",
+      "filter": "none",
+      "popup": true,
+      "value_labels": {
+        "N/A": null
+      }
+    },
+    {
+      "source": "MANAGING_AGENCY",
+      "name": "agency",
+      "label": "Managed by",
+      "type": "text",
+      "filter": "none",
+      "popup": true,
+      "value_labels": {
+        "Unknown": null
+      }
+    }
+  ],
+  "label_field": "trail",
+  "access": "copy",
+  "area_mode": "tags",
+  "place_tags": "all",
+  "tiles": {"min_zoom": 7, "max_zoom": 14},
+  "styles": {
+    "line": {"label": "Green line", "kind": "single", "color": "#2E7D4F", "width": 2},
+    "by_difficulty": {"label": "By difficulty", "kind": "categories", "field": "difficulty", "palette": "okabe_ito"}
+  },
+  "default_style": "line",
+  "legend": {"title": "Trails"},
+  "buffer_role": "both",
+  "list_fields": ["difficulty", "park", "length_mi"],
+  "clip_mode": "cut",
+  "refresh_cadence": "quarterly",
+  "leave_out": [],
+  "examples": [
+    {
+      "label": "Easy trails",
+      "conditions": [
+        {
+          "field": "difficulty",
+          "op": "in",
+          "values": [
+            "Easy"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Bike trails in Morris County",
+      "place": {
+        "county_fips": "027",
+        "mun_code": null
+      },
+      "conditions": [
+        {
+          "field": "biking",
+          "op": "in",
+          "values": [
+            "Yes"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Wheelchair-accessible trails",
+      "conditions": [
+        {
+          "field": "accessible",
+          "op": "in",
+          "values": [
+            "Yes"
+          ]
+        }
+      ]
+    }
+  ]
+}

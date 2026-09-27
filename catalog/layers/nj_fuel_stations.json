@@ -1,0 +1,54 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_fuel_stations",
+  "title": "Alternative fuel stations",
+  "category": "transportation",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "fuel station", "plural": "fuel stations"},
+  "summary": "Public and private alternative fuel stations, including electric vehicle chargers, from the U.S. Department of Energy.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Structures/MapServer/1",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), with data from the U.S. Department of Energy",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 1684, "max": 1862}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed. Station data: U.S. Department of Energy.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "STATION_NAME", "name": "station", "label": "Station", "type": "text", "filter": "search", "popup": true},
+    {"source": "FUEL_TYPE", "name": "fuel", "label": "Fuel", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"ELEC": "Electric", "CNG": "Compressed natural gas", "LPG": "Propane", "E85": "Ethanol (E85)", "BD": "Biodiesel", "HY": "Hydrogen", "LNG": "Liquefied natural gas", "RD": "Renewable diesel"}},
+    {"source": "STREET_ADDRESS", "name": "address", "label": "Address", "type": "text", "filter": "search", "popup": true},
+    {"source": "CITY", "name": "city", "label": "City", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "EV_LEVEL_2", "name": "level2_ports", "label": "Level 2 chargers", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "EV_DC_FAST", "name": "fast_ports", "label": "DC fast chargers", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "EV_NETWORK", "name": "network", "label": "Charging network", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "station",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 9,
+  "styles": {
+    "by_fuel": {"label": "By fuel", "kind": "categories", "field": "fuel", "palette": "okabe_ito", "radius": 4},
+    "points": {"label": "Green points", "kind": "single", "color": "#2E7D4F", "radius": 4}
+  },
+  "default_style": "by_fuel",
+  "legend": {"title": "Alternative fuel stations"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["fuel", "address"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": ["STATION_PHONE"],
+  "examples": [
+    {"label": "DC fast chargers", "conditions": [{"field": "fast_ports", "op": "range", "min": 1, "max": null}]}
+  ]
+}

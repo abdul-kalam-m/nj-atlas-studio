@@ -1,0 +1,291 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NJ Spatial discovery and local research registry",
+  "description": "Local research admission is distinct from production hosting rights.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "datasets"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "status": {
+      "const": "planning"
+    },
+    "datasets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "category",
+          "publisher",
+          "coverage",
+          "geometry",
+          "source",
+          "license",
+          "refresh",
+          "storage",
+          "lifecycle",
+          "provenance",
+          "quality",
+          "fields",
+          "relationships",
+          "local_scope"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^nj_[a-z][a-z0-9_]*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "publisher": {
+            "type": "string",
+            "minLength": 1
+          },
+          "coverage": {
+            "type": "string",
+            "minLength": 1
+          },
+          "geometry": {
+            "enum": [
+              "polygon",
+              "point",
+              "line",
+              "mixed",
+              "raster",
+              "table"
+            ]
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "landing_page",
+              "access_url",
+              "access_type",
+              "verified_on",
+              "notes"
+            ],
+            "properties": {
+              "landing_page": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://"
+              },
+              "access_url": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "access_type": {
+                "enum": [
+                  "arcgis",
+                  "download",
+                  "api",
+                  "raster_service",
+                  "catalog"
+                ]
+              },
+              "verified_on": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "notes": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "license": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "reference_url",
+              "redistribution_allowed"
+            ],
+            "properties": {
+              "status": {
+                "const": "review_required"
+              },
+              "reference_url": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "redistribution_allowed": {
+                "type": "null"
+              }
+            }
+          },
+          "refresh": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "expected_cadence"
+            ],
+            "properties": {
+              "expected_cadence": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "storage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "canonical_format",
+              "hot_store",
+              "display_format"
+            ],
+            "properties": {
+              "canonical_format": {
+                "enum": [
+                  "geoparquet",
+                  "parquet",
+                  "external_reference"
+                ]
+              },
+              "hot_store": {
+                "enum": [
+                  "postgis",
+                  null
+                ]
+              },
+              "display_format": {
+                "enum": [
+                  "pmtiles",
+                  "external_service",
+                  null
+                ]
+              }
+            }
+          },
+          "lifecycle": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "stage",
+              "blockers"
+            ],
+            "properties": {
+              "stage": {
+                "enum": [
+                  "identified",
+                  "local_research"
+                ]
+              },
+              "blockers": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              }
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_date",
+              "retrieved_at",
+              "version"
+            ],
+            "properties": {
+              "source_date": {
+                "type": "null"
+              },
+              "retrieved_at": {
+                "type": "null"
+              },
+              "version": {
+                "type": "null"
+              }
+            }
+          },
+          "quality": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "authority_level",
+              "score"
+            ],
+            "properties": {
+              "status": {
+                "const": "not_assessed"
+              },
+              "authority_level": {
+                "const": "candidate_authoritative"
+              },
+              "score": {
+                "type": "null"
+              }
+            }
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "relationships": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "local_scope": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Test layer",
+  "geometryType": "esriGeometryPoint",
+  "objectIdField": "OBJECTID",
+  "maxRecordCount": 2,
+  "supportedQueryFormats": "JSON, geoJSON, PBF",
+  "extent": {"spatialReference": {"wkid": 102711, "latestWkid": 3424}},
+  "fields": [
+    {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+    {"name": "NAME", "type": "esriFieldTypeString"},
+    {"name": "ACRES", "type": "esriFieldTypeDouble"}
+  ]
+}

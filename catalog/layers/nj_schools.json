@@ -1,0 +1,52 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_schools",
+  "title": "Schools",
+  "category": "community",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "school", "plural": "schools"},
+  "summary": "Public, private and charter schools.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/School_Point_Locations_of_NJ/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with NJ Department of Education",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=6f5ebca854234638953a9342f5b3d620",
+    "expected_count": {"min": 3549, "max": 3923}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Department of Education",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "SCHOOL", "name": "school", "label": "School", "type": "text", "filter": "search", "popup": true},
+    {"source": "SCHOOLTYPE", "name": "school_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true, "transform": "titlecase"},
+    {"source": "DIST_NAME", "name": "district", "label": "District", "type": "text", "filter": "search", "popup": true},
+    {"source": "ADDRESS1", "name": "address", "label": "Address", "type": "text", "filter": "search", "popup": true},
+    {"source": "CITY", "name": "city", "label": "City", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "school",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 9,
+  "styles": {
+    "points": {"label": "Amber points", "kind": "single", "color": "#B7791F", "radius": 4},
+    "by_type": {"label": "By type", "kind": "categories", "field": "school_type", "palette": "okabe_ito", "radius": 4}
+  },
+  "default_style": "points",
+  "legend": {"title": "Schools"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["school_type", "district"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": ["PHONE"],
+  "examples": [
+    {"label": "Elementary schools", "conditions": [{"field": "school_type", "op": "in", "values": ["Elementary School"]}]}
+  ]
+}

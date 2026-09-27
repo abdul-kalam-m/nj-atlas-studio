@@ -1,0 +1,48 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_tax_blocks",
+  "title": "Tax blocks",
+  "category": "property",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "tax block", "plural": "tax blocks"},
+  "summary": "Tax map blocks from the statewide parcel framework, labeled with their block numbers.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://maps.nj.gov/arcgis/rest/services/Framework/Cadastral/MapServer/2",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS)",
+    "landing_page": "https://nj.gov/njgin/edata/parcels/",
+    "expected_count": {"min": 157662, "max": 174260}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS)",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "BLOCK", "name": "block", "label": "Block", "type": "text", "filter": "search", "popup": true},
+    {"source": "MUN", "name": "municipal_code", "label": "Municipal code", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "block",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {
+    "municipality": {"field": "MUN", "match": "mun_code"},
+    "county": {"field": "MUN", "match": "mun_prefix"}
+  },
+  "min_zoom": 14,
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#8A5A44", "fill": false, "width": 1, "labels": {"field": "block", "size": 12, "halo": true}}},
+  "default_style": "outline",
+  "legend": {"title": "Tax blocks"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["municipal_code"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

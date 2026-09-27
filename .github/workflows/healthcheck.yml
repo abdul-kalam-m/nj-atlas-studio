@@ -1,0 +1,39 @@
+name: Nightly source check
+
+# IMPLEMENTATION_GUIDE.md §4.11: every live and hybrid source is checked nightly. A failure fails the job, and
+# GitHub emails the repository owner. health.json is published next to the site so Studio can warn about a layer.
+on:
+  schedule:
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check every source
+        id: health
+        run: node tools/healthcheck.mjs
+        continue-on-error: true
+      - name: Publish health.json with the site
+        run: |
+          git fetch origin gh-pages --depth 1 || exit 0
+          git worktree add ../pages origin/gh-pages
+          mkdir -p ../pages/data
+          cp site/data/health.json ../pages/data/health.json
+          cd ../pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/health.json
+          git diff --cached --quiet || (git commit -m "Nightly source check" && git push origin HEAD:gh-pages)
+      - name: Fail when a source failed
+        if: steps.health.outcome == 'failure'
+        run: exit 1

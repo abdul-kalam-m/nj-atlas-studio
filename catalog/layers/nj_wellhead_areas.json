@@ -1,0 +1,46 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_wellhead_areas",
+  "title": "Wellhead protection areas",
+  "category": "water",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "wellhead protection area", "plural": "wellhead protection areas"},
+  "summary": "Areas around community water supply wells, by tier of groundwater travel time to the well.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Hydrography/MapServer/25",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 5973, "max": 6603}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "NJWHPA_ID", "name": "area_id", "label": "Area ID", "type": "text", "filter": "search", "popup": true},
+    {"source": "TIER", "name": "tier", "label": "Tier", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"1": "Tier 1 (2 years)", "2": "Tier 2 (5 years)", "3": "Tier 3 (12 years)"}}
+  ],
+  "label_field": "area_id",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 11,
+  "styles": {"by_tier": {"label": "By tier", "kind": "categories", "field": "tier", "colors": {"Tier 1 (2 years)": "#08519C", "Tier 2 (5 years)": "#4292C6", "Tier 3 (12 years)": "#9ECAE1"}, "opacity": 0.45}},
+  "default_style": "by_tier",
+  "legend": {"title": "Wellhead protection areas"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["tier"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Tier 1 only", "conditions": [{"field": "tier", "op": "in", "values": ["Tier 1 (2 years)"]}]}
+  ]
+}

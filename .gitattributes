@@ -1,0 +1,24 @@
+# Normalize text in source control.
+* text=auto
+
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.ps1 text eol=lf
+*.py text eol=lf
+*.toml text eol=lf
+
+*.parquet binary
+*.pmtiles binary
+*.png binary
+*.jpg binary
+*.pdf binary
+
+# NJ-Atlas web files
+*.js text eol=lf
+*.mjs text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.geojson text eol=lf
+*.csv text eol=lf

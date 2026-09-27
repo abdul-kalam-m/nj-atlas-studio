@@ -1,0 +1,50 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_census_tracts",
+  "title": "Census tracts",
+  "category": "boundaries",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "census tract", "plural": "census tracts"},
+  "summary": "The neighborhoods the U.S. Census Bureau uses to count people, usually home to 1,200 to 8,000 residents each, with their 2020 population and housing.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2020/MapServer/6",
+    "where": "STATE='34'",
+    "id_field": "GEOID",
+    "publisher": "U.S. Census Bureau",
+    "landing_page": "https://www.census.gov/programs-surveys/geography/about/glossary.html",
+    "expected_count": {"min": 2181, "max": 2181}
+  },
+  "license": {
+    "name": "Public domain (U.S. Government work, 17 U.S.C. § 105)",
+    "url": "https://www.copyright.gov/title17/92chap1.html#105",
+    "attribution": "U.S. Census Bureau, 2020 Census (TIGERweb)",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-26"
+  },
+  "fields": [
+    {"source": "NAME", "name": "tract", "label": "Census tract", "type": "text", "filter": "search", "popup": true},
+    {"source": "GEOID", "name": "tract_geoid", "label": "Census tract code", "type": "text", "filter": "search", "popup": true},
+    {"source": "POP100", "name": "population_2020", "label": "Population (2020)", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "HU100", "name": "housing_units_2020", "label": "Housing units (2020)", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "AREALAND", "name": "land_sq_mi", "label": "Land area", "type": "number", "filter": "range", "popup": true, "unit": "sq mi", "decimals": 2, "transform": "sq_m_to_sq_mi"}
+  ],
+  "label_field": "tract",
+  "access": "copy",
+  "area_mode": "tags",
+  "place_tags": "county_overlap",
+  "tiles": {"min_zoom": 6, "max_zoom": 13},
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#6A4C93", "fill": false, "width": 1.5}},
+  "default_style": "outline",
+  "legend": {"title": "Census tracts"},
+  "buffer_role": "source",
+  "clip_mode": "mask",
+  "refresh_cadence": "static",
+  "leave_out": [],
+  "examples": [
+    {"label": "Tracts with 8,000 people or more", "conditions": [{"field": "population_2020", "op": "range", "min": 8000, "max": null}]},
+    {"label": "Census tracts in Newark", "place": {"county_fips": "013", "mun_code": "0714"}, "conditions": []},
+    {"label": "Tracts where nobody lives", "conditions": [{"field": "population_2020", "op": "range", "min": null, "max": 0}]}
+  ]
+}

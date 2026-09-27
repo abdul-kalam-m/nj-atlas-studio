@@ -1,0 +1,59 @@
+{
+  "max_features": 10000,
+  "profile_version": "pennsville-v1",
+  "sources": [
+    {
+      "attribution": "NJ Office of Information Technology, Office of GIS (NJOGIS), and source data stewards",
+      "fields": {
+        "CENSUS2020": "esriFieldTypeString",
+        "COUNTY": "esriFieldTypeString",
+        "MUN": "esriFieldTypeString",
+        "MUN_CODE": "esriFieldTypeString",
+        "OBJECTID": "esriFieldTypeOID"
+      },
+      "id": "nj_municipalities",
+      "item_url": "https://www.arcgis.com/sharing/rest/content/items/3d5d1db8a1b34b418c331f4ce1fd0fef",
+      "native_epsg": 3424,
+      "terms_reviewed_on": "2026-09-19",
+      "terms_sha256": "c07ff1d961790c737a146bd11e51eec19776e732de6e63c3833c91cd813d82b5",
+      "url": "https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/2",
+      "where": "MUN_CODE='1709'",
+      "registry_id": "nj_municipalities"
+    },
+    {
+      "attribution": "NJ Office of Information Technology, Office of GIS (NJOGIS), and source data stewards",
+      "fields": {
+        "CALC_ACRE": "esriFieldTypeDouble",
+        "GIS_PIN": "esriFieldTypeString",
+        "OBJECTID": "esriFieldTypeOID",
+        "PAMS_PIN": "esriFieldTypeString",
+        "PCLBLOCK": "esriFieldTypeString",
+        "PCLLASTUPD": "esriFieldTypeDate",
+        "PCLLOT": "esriFieldTypeString",
+        "PCLQCODE": "esriFieldTypeString",
+        "PCL_GUID": "esriFieldTypeString",
+        "PCL_MUN": "esriFieldTypeString",
+        "PCL_PBDATE": "esriFieldTypeDate",
+        "PROP_CLASS": "esriFieldTypeString",
+        "LAND_VAL": "esriFieldTypeInteger",
+        "IMPRVT_VAL": "esriFieldTypeInteger",
+        "NET_VALUE": "esriFieldTypeInteger"
+      },
+      "id": "nj_parcels_modiv",
+      "item_url": "https://www.arcgis.com/sharing/rest/content/items/533599bbfbaa4748bf39faf1375a8a9c",
+      "native_epsg": 3857,
+      "terms_reviewed_on": "2026-09-19",
+      "terms_sha256": "d729665bddf7550554363d13e2eaceb8b433c7b845e9d9f16fcf3460dddf9b8d",
+      "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Parcels_Composite_NJ_WM/FeatureServer/0",
+      "where": "PCL_MUN='1709'",
+      "registry_id": "nj_parcels_modiv"
+    }
+  ],
+  "study_area": {
+    "county": "Salem",
+    "county_fips": "033",
+    "geoid": "3403357870",
+    "mun_code": "1709",
+    "municipality": "Pennsville Township"
+  }
+}

@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nj-atlas.local/catalog/layer.schema.json",
+  "title": "NJ-Atlas layer recipe, v2 (NJ Atlas Studio)",
+  "description": "One hand-written recipe per layer, stored as catalog/layers/<id>.json. Copy layers are built into map tiles, downloads and catalog entries; live layers are only described; hybrid layers build map tiles only (DECISIONS.md D-030). Field reference: docs/studio/IMPLEMENTATION_GUIDE.md §4.1. Changing this schema requires a DECISIONS.md entry approved by the human owner.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "category", "status", "geometry", "noun", "summary", "source", "license", "fields", "label_field", "examples",
+               "access", "area_mode", "styles", "default_style", "legend", "buffer_role", "clip_mode", "refresh_cadence", "leave_out"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "id": {
+      "description": "Permanent layer ID. Must equal the file name without .json.",
+      "type": "string",
+      "pattern": "^nj_[a-z0-9_]{2,40}$"
+    },
+    "title": {
+      "description": "Plain-language name shown on the layer card, e.g. 'Preserved open space'.",
+      "type": "string", "minLength": 3, "maxLength": 50
+    },
+    "category": {
+      "description": "Group heading in the viewer's Data list. Boundary layers (DECISIONS.md D-020) use boundaries and appear in the Boundary list instead.",
+      "enum": ["boundaries", "property", "environment", "hazards", "water", "transportation", "community", "government", "planning"]
+    },
+    "status": {
+      "description": "draft layers appear only in local builds run with --include-drafts. published requires a human license review (see allOf below).",
+      "enum": ["draft", "published"]
+    },
+    "geometry": {"enum": ["polygon", "point", "line"]},
+    "noun": {
+      "description": "Words for one item and many items, used in sentences like '12 of 564 municipalities match'.",
+      "type": "object", "additionalProperties": false, "required": ["singular", "plural"],
+      "properties": {
+        "singular": {"type": "string", "pattern": "^[a-z][a-z -]{1,30}$"},
+        "plural": {"type": "string", "pattern": "^[a-z][a-z -]{1,30}$"}
+      }
+    },
+    "summary": {
+      "description": "One or two plain-language sentences for a non-GIS reader. No jargon.",
+      "type": "string", "minLength": 20, "maxLength": 300
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "url", "where", "id_field", "publisher", "landing_page", "expected_count"],
+      "properties": {
+        "type": {"description": "Only ArcGIS REST layers are supported in v1.", "const": "arcgis"},
+        "url": {"description": "ArcGIS layer URL ending in /MapServer/<n> or /FeatureServer/<n>.", "type": "string", "pattern": "^https://.+/(MapServer|FeatureServer)/[0-9]+$"},
+        "where": {"description": "ArcGIS where clause. Use 1=1 for the whole layer.", "type": "string", "minLength": 1},
+        "id_field": {"description": "Source field whose value becomes atlas_id. Must be unique. OBJECTID is acceptable.", "type": "string", "minLength": 1},
+        "publisher": {"type": "string", "minLength": 3},
+        "landing_page": {"description": "Human-readable page about the data, shown as 'More about this data'.", "type": "string", "pattern": "^https://"},
+        "expected_count": {
+          "description": "The build stops if the source returns a count outside this range.",
+          "type": "object", "additionalProperties": false, "required": ["min", "max"],
+          "properties": {"min": {"type": "integer", "minimum": 1}, "max": {"type": "integer", "minimum": 1}}
+        }
+      }
+    },
+    "license": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "url", "attribution", "reviewed_by", "reviewed_on"],
+      "properties": {
+        "name": {"description": "License or terms name as the publisher states it. null until known.", "type": ["string", "null"]},
+        "url": {"description": "Where the terms are published. null until known.", "type": ["string", "null"], "pattern": "^https://"},
+        "attribution": {"description": "Credit line shown on the map and in downloads.", "type": "string", "minLength": 3},
+        "reviewed_by": {"description": "Human owner's name. Agents never fill this in.", "type": ["string", "null"]},
+        "reviewed_on": {"description": "YYYY-MM-DD of the human review. Agents never fill this in.", "type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+      }
+    },
+    "fields": {
+      "description": "Source fields to keep, in display order. Everything else is dropped.",
+      "type": "array", "minItems": 1, "maxItems": 20,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["source", "name", "label", "type", "filter", "popup"],
+        "properties": {
+          "source": {"description": "Exact field name in the ArcGIS layer (case-sensitive).", "type": "string", "minLength": 1},
+          "name": {"description": "Output column name. Must not be a reserved name: atlas_id, lon, lat, geometry, or a place-tag column this layer receives.", "type": "string", "pattern": "^[a-z][a-z0-9_]{0,30}$"},
+          "label": {"description": "Plain-language column label.", "type": "string", "minLength": 1, "maxLength": 40},
+          "type": {"enum": ["text", "category", "number", "date"]},
+          "filter": {"description": "search for text, checklist for category, range for number or date, or none.", "enum": ["search", "checklist", "range", "none"]},
+          "popup": {"description": "Show in the click popup and the results table.", "type": "boolean"},
+          "unit": {"description": "Shown after numbers, e.g. 'acres' or 'sq mi'.", "type": "string", "maxLength": 12},
+          "decimals": {"description": "Decimals shown in the viewer and written to CSV. Data keeps full precision so filters match the source (D-018). Default 2.", "type": "integer", "minimum": 0, "maximum": 6},
+          "transform": {
+            "description": "Optional clean-up. last3 keeps the last 3 characters; zfill3/zfill4 left-pad with zeros; titlecase turns 'CAPE MAY' into 'Cape May' (all applied before type conversion). sq_m_to_sq_mi turns square meters into square miles and zero_is_blank blanks zeros (number fields only, D-022, D-028). yymmdd reads dates like '941008' as 1994-10-08, with years 00-29 in the 2000s (date fields only, D-028).",
+            "enum": ["last3", "zfill3", "zfill4", "titlecase", "upper", "sq_m_to_sq_mi", "zero_is_blank", "yymmdd"]
+          },
+          "value_labels": {
+            "description": "Text and category fields only (DECISIONS.md D-017). Replaces coded source values with plain words after any transform, e.g. {\"Y\": \"Yes\", \"N\": \"No\"}. Mapping a value to null makes it blank. Values not listed are kept as they are.",
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {"type": ["string", "null"]}
+          }
+        },
+        "allOf": [
+          {"if": {"properties": {"type": {"const": "text"}}}, "then": {"properties": {"filter": {"enum": ["search", "none"]}}}},
+          {"if": {"properties": {"type": {"const": "category"}}}, "then": {"properties": {"filter": {"enum": ["checklist", "none"]}}}},
+          {"if": {"properties": {"type": {"const": "number"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}, "not": {"required": ["value_labels"]}}},
+          {"if": {"properties": {"type": {"const": "date"}}}, "then": {"not": {"required": ["value_labels"]}}},
+          {"if": {"properties": {"type": {"const": "date"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}}},
+          {"if": {"required": ["transform"], "properties": {"transform": {"enum": ["sq_m_to_sq_mi", "zero_is_blank"]}}}, "then": {"properties": {"type": {"const": "number"}}}},
+          {"if": {"required": ["transform"], "properties": {"transform": {"const": "yymmdd"}}}, "then": {"properties": {"type": {"const": "date"}}}}
+        ]
+      }
+    },
+    "label_field": {"description": "Output field name used as each item's title in popups and the table.", "type": "string"},
+    "access": {
+      "description": "live: queried from the source at view time and never stored. hybrid: drawn from our map tiles; counts, lists and exports queried live. copy: built by the pipeline. The boundary layers must be copy (D-030).",
+      "enum": ["live", "hybrid", "copy"]
+    },
+    "area_mode": {
+      "description": "How the layer is sliced to the chosen area. tags: place columns built into a copy (D-006). code: the source's own code field, per area_codes; levels area_codes does not name use intersects. intersects: the server tests the area's outline (D-032).",
+      "enum": ["tags", "code", "intersects"]
+    },
+    "area_codes": {
+      "description": "area_mode code only. The source field holding each level's code, and how to read it. mun_code: the 4-digit NJ municipal code ('1709'). mun_prefix: a 4-digit municipal code whose first 2 digits are the NJ county number ('17' is Salem). county_number: the 2-digit NJ county number. county_fips: the 3-digit county FIPS code ('033'). county_name: the county name, compared upper-case, with or without ' COUNTY'.",
+      "type": "object", "additionalProperties": false, "minProperties": 1,
+      "properties": {
+        "municipality": {
+          "type": "object", "additionalProperties": false, "required": ["field", "match"],
+          "properties": {"field": {"type": "string", "minLength": 1}, "match": {"const": "mun_code"}}
+        },
+        "county": {
+          "type": "object", "additionalProperties": false, "required": ["field", "match"],
+          "properties": {"field": {"type": "string", "minLength": 1}, "match": {"enum": ["mun_prefix", "county_number", "county_fips", "county_name"]}}
+        }
+      }
+    },
+    "min_zoom": {
+      "description": "Live layers only: the zoom at which features start loading (CATALOG.md 'Min zoom').",
+      "type": "integer", "minimum": 0, "maximum": 16
+    },
+    "styles": {
+      "description": "Style presets keyed by a short ID, 1 to 5 (IMPLEMENTATION_GUIDE.md §4.3). Style fields are output field names.",
+      "type": "object", "minProperties": 1, "maxProperties": 5,
+      "propertyNames": {"pattern": "^[a-z][a-z0-9_]{0,24}$"},
+      "additionalProperties": {"$ref": "#/$defs/style"}
+    },
+    "default_style": {"description": "The key in styles used when the layer is added.", "type": "string"},
+    "legend": {
+      "type": "object", "additionalProperties": false, "required": ["title"],
+      "properties": {"title": {"type": "string", "minLength": 2, "maxLength": 40}, "unit": {"type": "string", "minLength": 1, "maxLength": 12}}
+    },
+    "buffer_role": {
+      "description": "source: can be a buffer's site. target: listed inside buffers. both, or none.",
+      "enum": ["none", "source", "target", "both"]
+    },
+    "distance_query": {
+      "description": "Live and hybrid layers only: true when the service reports supportsQueryWithDistance, so buffer targets come from a distance query rather than sending the ring (D-033).",
+      "type": "boolean"
+    },
+    "clip_mode": {
+      "description": "What data exports do at the area's edge. cut: lines and polygons are cut at the edge. mask: whole features are kept. Points are always mask.",
+      "enum": ["mask", "cut"]
+    },
+    "list_fields": {
+      "description": "Buffer targets only: 1 to 4 output field names shown after the label field in buffer result lists. The first fills the combined list's Type column.",
+      "type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true, "items": {"type": "string"}
+    },
+    "refresh_cadence": {
+      "description": "Shown in 'About this data'. live layers use live; copy and hybrid layers use one of the others.",
+      "enum": ["live", "quarterly", "yearly_check", "static"]
+    },
+    "leave_out": {
+      "description": "Source fields that must never be requested, shown or exported, usually personal data (CATALOG.md 'Leave out'). Required, even when empty.",
+      "type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}
+    },
+    "export_note": {
+      "description": "parcels: every list and export containing this layer carries the line 'not a certified list of property owners' (D-041).",
+      "enum": ["parcels"]
+    },
+    "known_answers": {
+      "description": "Live and hybrid layers only: counts the nightly health check runs against the source. where uses source field names.",
+      "type": "array", "maxItems": 5,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["label", "where", "expected"],
+        "properties": {
+          "label": {"type": "string", "minLength": 5, "maxLength": 70},
+          "where": {"type": "string", "minLength": 3},
+          "expected": {
+            "type": "object", "additionalProperties": false, "required": ["min", "max"],
+            "properties": {"min": {"type": "integer", "minimum": 0}, "max": {"type": "integer", "minimum": 0}}
+          }
+        }
+      }
+    },
+    "place_tags": {
+      "description": "Copy layers only. Which place columns the build adds (OPERATING_GUIDE.md §6.2). Every data layer uses all: county, county_fips, municipality, mun_code, tract, tract_geoid, block_group and bg_geoid, from the item's representative point. The boundary layers use the mode listed for them in pipeline/levels.py: none (state, counties), county (municipalities), county_overlap (census tracts), county_overlap_tract (block groups). all_by_district is for data layers whose source names each item's municipality (parcels, D-026): county and municipality come from the layer's own district_code field, tract and block group from the point.",
+      "enum": ["none", "county", "county_overlap", "county_overlap_tract", "all", "all_by_district"]
+    },
+    "tiles": {
+      "description": "Copy and hybrid layers only: the zoom range written into the PMTiles file, which is also where the layer draws. Dense layers use a higher min_zoom.",
+      "type": "object", "additionalProperties": false, "required": ["min_zoom", "max_zoom"],
+      "properties": {"min_zoom": {"type": "integer", "minimum": 0, "maximum": 14}, "max_zoom": {"type": "integer", "minimum": 4, "maximum": 16}}
+    },
+    "partition": {
+      "description": "Parked (D-031); copy layers only. Large layers (M7, D-025): the build writes one set of files per municipality, and the viewer loads only the chosen municipality's files. `field` is the source field holding the 4-digit municipal code and must also be the source of the layer's district_code field. `host` r2 keeps the files off GitHub Pages (catalog/hosting.json). `selftest` names the municipality whose files the self-test cases use.",
+      "type": "object", "additionalProperties": false, "required": ["by", "field", "host", "selftest"],
+      "properties": {
+        "by": {"const": "municipality"},
+        "field": {"type": "string", "minLength": 1},
+        "host": {"enum": ["pages", "r2"]},
+        "selftest": {"type": "string", "pattern": "^[0-9]{4}$"}
+      }
+    },
+    "examples": {
+      "description": "One-click example filters shown to users. The build also turns them into self-test cases with expected counts. Data layers need at least one (LAYER_PLAYBOOK.md); the state outline has none.",
+      "type": "array", "minItems": 0, "maxItems": 4,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["label", "conditions"],
+        "properties": {
+          "label": {"description": "Plain-language description, e.g. 'Towns with more than 50,000 people'.", "type": "string", "minLength": 5, "maxLength": 70},
+          "place": {"$ref": "#/$defs/place"},
+          "conditions": {"type": "array", "maxItems": 4, "items": {"$ref": "#/$defs/condition"}}
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "published"}}},
+      "then": {
+        "properties": {
+          "license": {
+            "properties": {
+              "name": {"type": "string", "minLength": 2},
+              "url": {"type": "string"},
+              "reviewed_by": {"type": "string", "minLength": 2},
+              "reviewed_on": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "copy: built with place tags and map tiles; sliced by its tags.",
+      "if": {"properties": {"access": {"const": "copy"}}},
+      "then": {
+        "required": ["place_tags", "tiles"],
+        "properties": {"area_mode": {"const": "tags"}, "refresh_cadence": {"enum": ["quarterly", "yearly_check", "static"]}},
+        "not": {"anyOf": [{"required": ["min_zoom"]}, {"required": ["distance_query"]}, {"required": ["known_answers"]}]}
+      }
+    },
+    {
+      "description": "hybrid: map tiles only, no place tags; sliced and queried live.",
+      "if": {"properties": {"access": {"const": "hybrid"}}},
+      "then": {
+        "required": ["tiles", "distance_query"],
+        "properties": {"area_mode": {"enum": ["code", "intersects"]}, "refresh_cadence": {"enum": ["quarterly", "yearly_check", "static"]}},
+        "not": {"anyOf": [{"required": ["place_tags"]}, {"required": ["partition"]}, {"required": ["min_zoom"]}]}
+      }
+    },
+    {
+      "description": "live: nothing is built.",
+      "if": {"properties": {"access": {"const": "live"}}},
+      "then": {
+        "required": ["min_zoom", "distance_query"],
+        "properties": {"area_mode": {"enum": ["code", "intersects"]}, "refresh_cadence": {"const": "live"}},
+        "not": {"anyOf": [{"required": ["place_tags"]}, {"required": ["partition"]}, {"required": ["tiles"]}]}
+      }
+    },
+    {
+      "description": "area_codes goes with area_mode code, and only with it.",
+      "if": {"properties": {"area_mode": {"const": "code"}}},
+      "then": {"required": ["area_codes"]},
+      "else": {"not": {"required": ["area_codes"]}}
+    },
+    {
+      "description": "list_fields goes with buffer targets, and only with them.",
+      "if": {"properties": {"buffer_role": {"enum": ["target", "both"]}}},
+      "then": {"required": ["list_fields"]},
+      "else": {"not": {"required": ["list_fields"]}}
+    },
+    {
+      "if": {"properties": {"geometry": {"const": "point"}}},
+      "then": {"properties": {"clip_mode": {"const": "mask"}}}
+    }
+  ],
+  "$defs": {
+    "color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+    "style": {
+      "description": "One style preset (IMPLEMENTATION_GUIDE.md §4.3). single: one color. categories: a color per displayed value of a field. graduated: 3 to 7 classes of a number field. Any kind may add labels.",
+      "type": "object", "additionalProperties": false, "required": ["label", "kind"],
+      "properties": {
+        "label": {"description": "Preset name in the Style panel, e.g. 'By property class'.", "type": "string", "minLength": 2, "maxLength": 40},
+        "kind": {"enum": ["single", "categories", "graduated"]},
+        "color": {"description": "single: the fill, line or point color.", "$ref": "#/$defs/color"},
+        "fill": {"description": "single, polygons: false draws the outline only. Default true.", "type": "boolean"},
+        "outline": {"description": "Polygon edge or point ring color.", "$ref": "#/$defs/color"},
+        "opacity": {"type": "number", "minimum": 0, "maximum": 1},
+        "width": {"description": "Line or outline width in pixels.", "type": "number", "minimum": 0.5, "maximum": 8},
+        "radius": {"description": "Point radius in pixels.", "type": "number", "minimum": 2, "maximum": 12},
+        "field": {"description": "categories and graduated: the output field styled.", "type": "string"},
+        "colors": {"description": "categories: a color per displayed value (after transforms and value_labels).", "type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/color"}},
+        "widths": {"description": "categories, lines: a width in pixels per displayed value.", "type": "object", "minProperties": 1, "additionalProperties": {"type": "number", "minimum": 0.5, "maximum": 8}},
+        "palette": {"description": "A fixed palette defined in site/js/studio/style.js. okabe_ito, anderson_level1 and flood are for categories; blues, greens, oranges and purples for graduated.", "enum": ["okabe_ito", "anderson_level1", "flood", "blues", "greens", "oranges", "purples"]},
+        "other": {"description": "categories: the color of values not listed. Default #BDBDBD.", "$ref": "#/$defs/color"},
+        "classes": {"type": "integer", "minimum": 3, "maximum": 7},
+        "method": {"enum": ["quantile", "equal"]},
+        "breaks": {"description": "graduated: fixed class breaks, ascending, one fewer than classes.", "type": "array", "minItems": 2, "maxItems": 6, "items": {"type": "number"}},
+        "labels": {
+          "type": "object", "additionalProperties": false, "required": ["field"],
+          "properties": {"field": {"type": "string"}, "size": {"type": "integer", "minimum": 11, "maximum": 16}, "halo": {"type": "boolean"}}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"const": "single"}}},
+          "then": {
+            "required": ["color"],
+            "not": {"anyOf": [{"required": ["field"]}, {"required": ["colors"]}, {"required": ["widths"]}, {"required": ["palette"]},
+                              {"required": ["other"]}, {"required": ["classes"]}, {"required": ["method"]}, {"required": ["breaks"]}]}
+          }
+        },
+        {
+          "if": {"properties": {"kind": {"const": "categories"}}},
+          "then": {
+            "required": ["field"],
+            "oneOf": [{"required": ["colors"], "not": {"required": ["palette"]}}, {"required": ["palette"], "not": {"required": ["colors"]}}],
+            "properties": {"palette": {"enum": ["okabe_ito", "anderson_level1", "flood"]}},
+            "not": {"anyOf": [{"required": ["color"]}, {"required": ["fill"]}, {"required": ["classes"]}, {"required": ["method"]}, {"required": ["breaks"]}]}
+          }
+        },
+        {
+          "if": {"properties": {"kind": {"const": "graduated"}}},
+          "then": {
+            "required": ["field", "classes", "method", "palette"],
+            "properties": {"palette": {"enum": ["blues", "greens", "oranges", "purples"]}},
+            "not": {"anyOf": [{"required": ["color"]}, {"required": ["fill"]}, {"required": ["colors"]}, {"required": ["widths"]}, {"required": ["other"]}]}
+          }
+        }
+      ]
+    },
+    "place": {
+      "description": "Place slice. county_fips is 3 digits (e.g. '033'); mun_code is the 4-digit NJ municipal code (e.g. '1709'); tract_geoid is the 11-digit census tract code and bg_geoid the 12-digit block group code.",
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "county_fips": {"type": ["string", "null"], "pattern": "^[0-9]{3}$"},
+        "mun_code": {"type": ["string", "null"], "pattern": "^[0-9]{4}$"},
+        "tract_geoid": {"type": ["string", "null"], "pattern": "^34[0-9]{9}$"},
+        "bg_geoid": {"type": ["string", "null"], "pattern": "^34[0-9]{10}$"}
+      }
+    },
+    "condition": {
+      "description": "One filter condition. The same shape is used in recipes, in the viewer, in share links and in tests.",
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false, "required": ["field", "op", "values"],
+          "properties": {
+            "field": {"type": "string"},
+            "op": {"const": "in"},
+            "values": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+            "include_blank": {"type": "boolean"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["field", "op", "value"],
+          "properties": {
+            "field": {"type": "string"},
+            "op": {"const": "contains"},
+            "value": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["field", "op"],
+          "properties": {
+            "field": {"type": "string"},
+            "op": {"const": "range"},
+            "min": {"type": ["number", "string", "null"]},
+            "max": {"type": ["number", "string", "null"]}
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "description": "Go to an address (IMPLEMENTATION_GUIDE.md §1.3): the NJOGIS statewide geocoding service, asked for candidates with findAddressCandidates. Address points are too slow to search by text (a full-address match took over 40 s in the trial), so they are not used.",
+  "url": "https://geo.nj.gov/arcgis/rest/services/Tasks/NJ_Geocode/GeocodeServer",
+  "publisher": "New Jersey Office of GIS (NJOGIS)",
+  "attribution": "Address search: New Jersey Office of GIS (NJOGIS)",
+  "min_characters": 4,
+  "max_results": 6,
+  "min_score": 80
+}

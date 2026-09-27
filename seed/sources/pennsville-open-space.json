@@ -1,0 +1,35 @@
+{
+  "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+  "capture_guard_meters": 1000,
+  "distribution": "local_research",
+  "fields": {
+    "ACCESS_TYPE": "esriFieldTypeString",
+    "ENCUMBRANCE_STATUS": "esriFieldTypeString",
+    "GLOBALID": "esriFieldTypeGlobalID",
+    "NAME_LABEL": "esriFieldTypeString",
+    "OBJECTID": "esriFieldTypeOID",
+    "PAMS_PIN": "esriFieldTypeString",
+    "PRESERVATION_DATE": "esriFieldTypeDate",
+    "STATCODE": "esriFieldTypeString"
+  },
+  "item_url": "https://www.arcgis.com/sharing/rest/content/items/d4df5d8bb5e042debd4b5194bfa408a7",
+  "limitations": [
+    "NJDEP state/local/nonprofit inventory; not all preserved land or neighboring-state inventories.",
+    "Encumbered subset only; unencumbered or unknown records do not qualify.",
+    "Distance is geometric proximity, not access or walking distance."
+  ],
+  "max_features": 2000,
+  "metadata_sha256": "47ce240183c717677721404388b7c7627d366f49f522e9e14e3f2a0d7a5c86cc",
+  "metadata_url": "https://www.arcgis.com/sharing/rest/content/items/d4df5d8bb5e042debd4b5194bfa408a7/info/metadata/metadata.xml",
+  "native_epsg": 3424,
+  "page_size": 100,
+  "profile_version": "pennsville-open-space-v1",
+  "publication_date": "2026-07-20",
+  "publisher": "NJDEPBGIS",
+  "qualification": "ENCUMBRANCE_STATUS = 'Encumbered'",
+  "reviewed_on": "2026-09-24",
+  "search_radius_meters": 5000,
+  "terms_sha256": "c588fd3b3d2383672d17498fa024042b72f2785e4296edb68405b6a485059914",
+  "url": "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Open_Space/FeatureServer/66",
+  "registry_id": "nj_preserved_open_space"
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_hospitals",
+  "title": "Acute care hospitals",
+  "category": "community",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "hospital", "plural": "hospitals"},
+  "summary": "General acute care hospitals licensed by the New Jersey Department of Health.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Acute_Care_Hospitals_in_New_Jersey/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with NJ Department of Health",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=fa1c17ee2e144617aec5ef74edbe98d7",
+    "expected_count": {"min": 71, "max": 71}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Department of Health",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "LICENSED_NAME", "name": "hospital", "label": "Hospital", "type": "text", "filter": "search", "popup": true},
+    {"source": "ADDRESS", "name": "address", "label": "Address", "type": "text", "filter": "search", "popup": true},
+    {"source": "FAC_CITY", "name": "city", "label": "City", "type": "category", "filter": "checklist", "popup": true, "transform": "titlecase"},
+    {"source": "BED_TOTAL", "name": "beds", "label": "Licensed beds", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "COUNTY", "name": "county_name", "label": "County", "type": "category", "filter": "checklist", "popup": true, "transform": "titlecase"}
+  ],
+  "label_field": "hospital",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {"county": {"field": "COUNTY", "match": "county_name"}},
+  "min_zoom": 7,
+  "styles": {"points": {"label": "Red points", "kind": "single", "color": "#C0392B", "radius": 5}},
+  "default_style": "points",
+  "legend": {"title": "Acute care hospitals"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["beds", "city"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": ["FACEMAIL", "FAXPHONE", "TELEPHONE", "ADMIN", "TITLE", "OWNADDR", "OWNCSZ"],
+  "examples": [
+    {"label": "300 or more beds", "conditions": [{"field": "beds", "op": "range", "min": 300, "max": null}]}
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_long_term_care",
+  "title": "Long-term care facilities",
+  "category": "community",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "long-term care facility", "plural": "long-term care facilities"},
+  "summary": "Nursing homes, assisted living and other long-term care facilities licensed by the New Jersey Department of Health.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Long_Term_Care_Facilities/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with NJ Department of Health",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=1f80a9e6aab8410cafd3f6b61bf3e457",
+    "expected_count": {"min": 693, "max": 767}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Department of Health",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "FacilityName", "name": "facility", "label": "Facility", "type": "text", "filter": "search", "popup": true},
+    {"source": "FacilityType", "name": "facility_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "Address1", "name": "address", "label": "Address", "type": "text", "filter": "search", "popup": true},
+    {"source": "City", "name": "city", "label": "City", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "facility",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 9,
+  "styles": {
+    "points": {"label": "Violet points", "kind": "single", "color": "#8E44AD", "radius": 4},
+    "by_type": {"label": "By type", "kind": "categories", "field": "facility_type", "palette": "okabe_ito", "radius": 4}
+  },
+  "default_style": "points",
+  "legend": {"title": "Long-term care facilities"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["facility_type", "city"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Nursing homes", "conditions": [{"field": "facility_type", "op": "in", "values": ["Nursing Home"]}]}
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_streams",
+  "title": "Streams (2015)",
+  "category": "water",
+  "status": "published",
+  "geometry": "line",
+  "noun": {"singular": "stream segment", "plural": "stream segments"},
+  "summary": "Rivers, streams, canals and ditches from the high-resolution National Hydrography Dataset.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Hydrography/MapServer/49",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 256048, "max": 283002}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "GNIS_NAME", "name": "name", "label": "Name", "type": "text", "filter": "search", "popup": true},
+    {"source": "FTYPE_DESCRIPTION", "name": "stream_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "STREAMORDER", "name": "stream_order", "label": "Stream order", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "name",
+  "access": "hybrid",
+  "area_mode": "intersects",
+  "tiles": {"min_zoom": 9, "max_zoom": 14},
+  "styles": {
+    "by_order": {"label": "Width by stream order", "kind": "categories", "field": "stream_order", "colors": {"1": "#3F86BF", "2": "#3F86BF", "3": "#3F86BF", "4": "#3F86BF", "5": "#3F86BF", "6": "#3F86BF", "7": "#3F86BF", "8": "#3F86BF"}, "widths": {"1": 0.6, "2": 0.9, "3": 1.2, "4": 1.6, "5": 2.0, "6": 2.4, "7": 2.8, "8": 3.2}, "other": "#7FB0D8"},
+    "line": {"label": "Blue lines", "kind": "single", "color": "#3F86BF", "width": 1}
+  },
+  "default_style": "by_order",
+  "legend": {"title": "Streams"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["stream_type"],
+  "clip_mode": "cut",
+  "refresh_cadence": "yearly_check",
+  "leave_out": [],
+  "examples": [
+    {"label": "Named rivers and streams", "conditions": [{"field": "stream_type", "op": "in", "values": ["Stream/River"]}]}
+  ]
+}

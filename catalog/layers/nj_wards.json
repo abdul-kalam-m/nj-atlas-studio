@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_wards",
+  "title": "Wards",
+  "category": "government",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "ward", "plural": "wards"},
+  "summary": "Municipal wards used for elections.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Ward_Boundaries_for_New_Jersey/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with NJ Division of Elections",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=b6df174950f54128bea05f8c01bd061f",
+    "expected_count": {"min": 787, "max": 871}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Division of Elections",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "WARD_KEY", "name": "ward_key", "label": "Ward key", "type": "text", "filter": "search", "popup": true},
+    {"source": "MUN_NAME", "name": "municipality_name", "label": "Municipality", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "WARD_CODE", "name": "ward", "label": "Ward", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "ward_key",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {
+    "municipality": {"field": "MCODE_1040", "match": "mun_code"},
+    "county": {"field": "MCODE_1040", "match": "mun_prefix"}
+  },
+  "min_zoom": 9,
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#34495E", "fill": false, "width": 1.5, "labels": {"field": "ward", "size": 12, "halo": true}}},
+  "default_style": "outline",
+  "legend": {"title": "Wards"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["municipality_name", "ward"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

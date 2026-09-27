@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>NJ Atlas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">NJ</span>
+    <div>
+      <h1 data-text="siteTitle"></h1>
+      <p class="tagline" data-text="tagline"></p>
+    </div>
+  </div>
+  <button id="about-button" class="secondary" type="button" data-text="aboutButton" disabled></button>
+</header>
+
+<main class="layout" id="app">
+  <aside class="panel">
+    <section class="panel-section help" id="help" aria-labelledby="help-heading" hidden>
+      <h2 id="help-heading" data-text="help.heading"></h2>
+      <ol id="help-steps"></ol>
+      <button id="help-dismiss" class="secondary" type="button" data-text="help.dismiss"></button>
+    </section>
+
+    <section class="panel-section" aria-labelledby="boundary-heading">
+      <h2 id="boundary-heading" data-text="boundaryHeading"></h2>
+      <p id="catalog-status" class="status" role="status"></p>
+      <div class="field" id="boundary-field" hidden>
+        <label for="boundary-select" data-text="boundary.label"></label>
+        <select id="boundary-select"></select>
+        <p id="boundary-hint" class="hint"></p>
+      </div>
+      <div id="area-pickers" class="area-pickers"></div>
+      <p id="area-status" class="status" role="status"></p>
+    </section>
+
+    <section class="panel-section" id="data-section" aria-labelledby="data-heading" hidden>
+      <h2 id="data-heading" data-text="dataHeading"></h2>
+      <div class="field">
+        <label for="data-select" data-text="data.label"></label>
+        <select id="data-select"></select>
+      </div>
+      <p id="data-note" class="data-note"></p>
+    </section>
+
+    <section class="panel-section" id="narrow-section" aria-labelledby="narrow-heading" hidden>
+      <h2 id="narrow-heading" data-text="narrowHeading"></h2>
+      <div id="examples" class="examples"></div>
+      <div id="filter-controls"></div>
+    </section>
+
+    <section class="panel-section" id="results-section" aria-labelledby="results-heading" hidden>
+      <h2 id="results-heading" data-text="resultsHeading"></h2>
+      <p id="match-count" class="match-count" aria-live="polite"></p>
+      <div id="active-filters" class="chips"></div>
+      <div id="notices" class="notices" role="status"></div>
+      <div class="actions">
+        <button id="download-matches" class="secondary" type="button" data-text="results.downloadMatches"></button>
+        <button id="copy-link" class="secondary" type="button" data-text="results.copyLink"></button>
+      </div>
+      <p id="copy-status" class="status" role="status"></p>
+      <label id="copy-fallback-field" class="field" hidden><span data-text="results.linkLabel"></span>
+        <input id="copy-fallback" type="text" readonly></label>
+    </section>
+  </aside>
+
+  <div class="map-column">
+    <div class="map-wrap">
+      <div id="map"></div>
+      <p id="zoom-hint" class="map-note" hidden></p>
+      <p id="map-status" class="map-note map-status" role="status" hidden></p>
+    </div>
+    <section id="table-section" class="table-section" hidden>
+      <p id="table-note" class="table-note"></p>
+      <div class="table-scroll">
+        <table id="results-table"></table>
+      </div>
+    </section>
+  </div>
+</main>
+
+<section id="selftest" class="selftest" hidden></section>
+
+<dialog id="about-dialog" aria-labelledby="about-title">
+  <div id="about-content" class="dialog-content"></div>
+  <form method="dialog" class="dialog-actions">
+    <button type="submit" data-text="close"></button>
+  </form>
+</dialog>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

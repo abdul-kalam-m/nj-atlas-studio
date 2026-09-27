@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "title": "Site screening: proposed community center",
+  "subtitle": "Pennsville Township, Salem County",
+  "created_at": "2026-10-05T14:02:00Z",
+  "area": {"level": "municipality", "county_fips": "033", "mun_code": "1709", "tract_geoid": null, "bg_geoid": null},
+  "mask": true,
+  "basemap": "positron",
+  "view": {"center": [-75.51, 39.65], "zoom": 15.2, "bearing": 0},
+  "layers": [
+    {"id": "nj_parcels", "visible": true, "opacity": 1, "filters": [], "style": {"preset": "outline", "overrides": {}}},
+    {"id": "nj_wetlands", "visible": true, "opacity": 0.8, "filters": [], "style": {"preset": "fill", "overrides": {}}},
+    {"id": "nj_flood_zones", "visible": true, "opacity": 0.6, "filters": [], "style": {"preset": "by_zone", "overrides": {}}},
+    {"id": "nj_c1_waters", "visible": true, "opacity": 1, "filters": [], "style": {"preset": "line", "overrides": {}}}
+  ],
+  "buffers": [
+    {"id": "b1",
+     "source": {"kind": "feature", "layer": "nj_parcels", "atlas_id": "1709_301_19", "label": "Block 301, lot 19",
+                "geometry": {"type": "Polygon", "coordinates": [[[-75.5105, 39.6478], [-75.5098, 39.6478], [-75.5098, 39.6483], [-75.5105, 39.6483], [-75.5105, 39.6478]]]}},
+     "distance_ft": 300, "targets": ["nj_wetlands", "nj_flood_zones", "nj_c1_waters"], "label": "300 ft"}
+  ],
+  "layout": {"paper": "letter", "orientation": "landscape", "legend": true, "scale_bar": true, "north_arrow": true, "notes": ""},
+  "credits": ["New Jersey Office of GIS (NJOGIS)"],
+  "source_versions": {"nj_wetlands": {"mode": "hybrid", "tiles_built": "2026-10-01", "queried_at": "2026-10-05T14:01:40Z"}},
+  "extensions": {}
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_election_districts",
+  "title": "Election districts",
+  "category": "government",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "election district", "plural": "election districts"},
+  "summary": "Voting precincts (election districts), with their ward and legislative and congressional districts.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Election_Districts_for_New_Jersey/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with NJ Division of Elections",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=764362ac87254d77b976a080f926a6fe",
+    "expected_count": {"min": 6030, "max": 6666}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Division of Elections",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "ELECD_KEY", "name": "district_key", "label": "District key", "type": "text", "filter": "search", "popup": true},
+    {"source": "MUN_NAME", "name": "municipality_name", "label": "Municipality", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "WARD_CODE", "name": "ward", "label": "Ward", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "ELECD_CODE", "name": "election_district", "label": "Election district", "type": "text", "filter": "search", "popup": true},
+    {"source": "LEGIS_DIST", "name": "legislative_district", "label": "Legislative district", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "CONGR_DIST", "name": "congressional_district", "label": "Congressional district", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "district_key",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {
+    "municipality": {"field": "MCODE_1040", "match": "mun_code"},
+    "county": {"field": "MCODE_1040", "match": "mun_prefix"}
+  },
+  "min_zoom": 10,
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#34495E", "fill": false, "width": 1, "labels": {"field": "election_district", "size": 12, "halo": true}}},
+  "default_style": "outline",
+  "legend": {"title": "Election districts"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["municipality_name", "ward", "election_district"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

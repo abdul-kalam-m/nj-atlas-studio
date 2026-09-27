@@ -1,0 +1,25 @@
+{
+  "profile_version": "pennsville-nfhl-v1",
+  "publisher": "FEMA",
+  "reviewed_on": "2026-09-24",
+  "metadata_url": "https://catalog.data.gov/dataset/national-flood-hazard-layer",
+  "license_url": "https://www.usa.gov/government-works",
+  "distribution": "local_research",
+  "max_features": 2000,
+  "page_size": 50,
+  "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28",
+  "native_epsg": 4269,
+  "fields": {
+    "OBJECTID": "esriFieldTypeOID",
+    "DFIRM_ID": "esriFieldTypeString",
+    "FLD_AR_ID": "esriFieldTypeString",
+    "FLD_ZONE": "esriFieldTypeString",
+    "ZONE_SUBTY": "esriFieldTypeString",
+    "SFHA_TF": "esriFieldTypeString",
+    "SOURCE_CIT": "esriFieldTypeString"
+  },
+  "sfha_rule": "SFHA_TF = 'T'",
+  "coverage_rule": "Union of all returned mapped flood-zone polygons; missing coverage is unknown",
+  "temporal_policy": "Effective NFHL service capture, not preliminary; capture date is not a panel effective date",
+  "registry_id": "nj_fema_flood_zones"
+}

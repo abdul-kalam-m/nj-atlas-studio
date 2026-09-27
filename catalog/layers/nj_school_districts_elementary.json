@@ -1,0 +1,44 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_school_districts_elementary",
+  "title": "School districts (elementary)",
+  "category": "government",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "elementary school district", "plural": "elementary school districts"},
+  "summary": "Elementary school district boundaries from the U.S. Census Bureau and NJDOE.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/School_Districts___Elementary/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with U.S. Census Bureau and NJ Department of Education",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=f3e41d7ca433407298bda037806a5e81",
+    "expected_count": {"min": 162, "max": 180}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); U.S. Census Bureau and NJ Department of Education",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "DIST_NAME", "name": "district", "label": "District", "type": "text", "filter": "search", "popup": true},
+    {"source": "NJDOE_ID_E", "name": "njdoe_id", "label": "NJDOE district ID", "type": "text", "filter": "search", "popup": true}
+  ],
+  "label_field": "district",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 8,
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#34495E", "fill": false, "width": 1.5, "labels": {"field": "district", "size": 12, "halo": true}}},
+  "default_style": "outline",
+  "legend": {"title": "School districts (elementary)"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["njdoe_id"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

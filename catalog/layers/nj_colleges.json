@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_colleges",
+  "title": "Colleges and universities",
+  "category": "community",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "college or university", "plural": "colleges and universities"},
+  "summary": "College and university campuses.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Colleges_and_Universities_in_NJ_3424/FeatureServer/1",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=ab31a69538694428adc66319ac89bef2",
+    "expected_count": {"min": 78, "max": 78}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS)",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "NAME", "name": "college", "label": "College", "type": "text", "filter": "search", "popup": true},
+    {"source": "NAICSDESCR", "name": "college_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true, "transform": "titlecase"},
+    {"source": "MUNICIPALITY", "name": "municipality_name", "label": "Municipality", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "college",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {
+    "municipality": {"field": "MUN_CODE", "match": "mun_code"},
+    "county": {"field": "MUN_CODE", "match": "mun_prefix"}
+  },
+  "min_zoom": 7,
+  "styles": {"fill": {"label": "Amber fill", "kind": "single", "color": "#B7791F", "opacity": 0.4}},
+  "default_style": "fill",
+  "legend": {"title": "Colleges and universities"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["college_type"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": ["PHONE"],
+  "examples": [
+    {"label": "Community colleges", "conditions": [{"field": "college_type", "op": "in", "values": ["Community Colleges"]}]}
+  ]
+}

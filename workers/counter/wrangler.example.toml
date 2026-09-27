@@ -1,0 +1,16 @@
+# Copy to wrangler.toml (not committed) and fill in. See README.md.
+name = "nj-atlas-counter"
+main = "index.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://<owner>.github.io"
+PILOTS = ""
+
+[[d1_databases]]
+binding = "DB"
+database_name = "nj-atlas-counter"
+database_id = "<database id from wrangler d1 create>"
+
+[observability]
+enabled = false  # no request logs (D-044)

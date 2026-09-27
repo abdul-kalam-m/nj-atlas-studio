@@ -1,0 +1,186 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_contaminated_sites",
+  "title": "Known contaminated sites",
+  "category": "hazards",
+  "status": "published",
+  "geometry": "point",
+  "noun": {
+    "singular": "site",
+    "plural": "sites"
+  },
+  "summary": "Places where the state has confirmed soil or groundwater contamination that is still being cleaned up or watched, from NJDEP's Known Contaminated Sites List.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental_NJEMS/MapServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Site Remediation Program",
+    "landing_page": "https://dep.nj.gov/srp/",
+    "expected_count": {
+      "min": 12350,
+      "max": 12870
+    }
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-26"
+  },
+  "fields": [
+    {
+      "source": "PI_NAME",
+      "name": "site_name",
+      "label": "Site name",
+      "type": "text",
+      "filter": "search",
+      "popup": true
+    },
+    {
+      "source": "ADDRESS",
+      "name": "address",
+      "label": "Address",
+      "type": "text",
+      "filter": "search",
+      "popup": true,
+      "value_labels": {
+        "N/A": null
+      }
+    },
+    {
+      "source": "ZIP_CODE",
+      "name": "zip_code",
+      "label": "ZIP code",
+      "type": "text",
+      "filter": "search",
+      "popup": true
+    },
+    {
+      "source": "STATUS",
+      "name": "status",
+      "label": "Status",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "LEAD",
+      "name": "oversight",
+      "label": "Oversight program",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "REM_LEVEL",
+      "name": "remedial_level",
+      "label": "Remedial level",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "NPL_STATUS",
+      "name": "superfund",
+      "label": "Federal Superfund list",
+      "type": "category",
+      "filter": "checklist",
+      "popup": true
+    },
+    {
+      "source": "STATUS_DT",
+      "name": "status_date",
+      "label": "Status date",
+      "type": "date",
+      "filter": "range",
+      "popup": true
+    },
+    {
+      "source": "SITE_ID",
+      "name": "site_id",
+      "label": "NJDEP site ID",
+      "type": "text",
+      "filter": "none",
+      "popup": true
+    },
+    {
+      "source": "CEA_STATUS",
+      "name": "groundwater_restriction",
+      "label": "Groundwater use restriction",
+      "type": "category",
+      "filter": "none",
+      "popup": true
+    },
+    {
+      "source": "DN_STATUS",
+      "name": "deed_notice",
+      "label": "Deed notice",
+      "type": "category",
+      "filter": "none",
+      "popup": true
+    }
+  ],
+  "label_field": "site_name",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {
+    "municipality": {"field": "COMU_CODE", "match": "mun_code"},
+    "county": {"field": "COMU_CODE", "match": "mun_prefix"}
+  },
+  "min_zoom": 9,
+  "styles": {
+    "by_status": {"label": "By status", "kind": "categories", "field": "status", "palette": "okabe_ito"},
+    "points": {"label": "Red points", "kind": "single", "color": "#C0392B", "radius": 5}
+  },
+  "default_style": "by_status",
+  "legend": {"title": "Known contaminated sites"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["status", "site_id", "remedial_level"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "known_answers": [
+    {"label": "Known contaminated sites in Salem County", "where": "COMU_CODE LIKE '17%'", "expected": {"min": 100, "max": 130}}
+  ],
+  "examples": [
+    {
+      "label": "Active sites in Camden County",
+      "place": {
+        "county_fips": "007",
+        "mun_code": null
+      },
+      "conditions": [
+        {
+          "field": "status",
+          "op": "in",
+          "values": [
+            "Active"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Sites on the federal Superfund list",
+      "conditions": [
+        {
+          "field": "superfund",
+          "op": "in",
+          "values": [
+            "Final"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Sites in Pennsville Township",
+      "place": {
+        "county_fips": "033",
+        "mun_code": "1709"
+      },
+      "conditions": []
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "Where a release finds files that are not on GitHub Pages. r2_base_url: parked split layers (D-025, D-031). tiles_base_url: the public address of the hybrid map tiles (D-037, O-6), ending in '/'; while it is null, a release draws hybrid layers live. counter_url: the export counter endpoint (D-044); null switches the counter off. Local builds always use site/data and never count.",
+  "r2_base_url": null,
+  "tiles_base_url": null,
+  "counter_url": null
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_congressional_districts",
+  "title": "Congressional districts",
+  "category": "government",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "congressional district", "plural": "congressional districts"},
+  "summary": "New Jersey's 12 U.S. House districts and their representatives.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Congressional_Districts_of_NJ_Hosted_3857/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with NJ Redistricting Commission",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=2d5a9cbb86da4519899ff56e4d094f4c",
+    "expected_count": {"min": 12, "max": 12}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Redistricting Commission",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "DIST_LABEL", "name": "district", "label": "District", "type": "text", "filter": "search", "popup": true},
+    {"source": "US_REP", "name": "representative", "label": "Representative", "type": "text", "filter": "search", "popup": true},
+    {"source": "PARTY", "name": "party", "label": "Party", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"D": "Democratic", "R": "Republican"}}
+  ],
+  "label_field": "district",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#34495E", "fill": false, "width": 2, "labels": {"field": "district", "size": 12, "halo": true}}},
+  "default_style": "outline",
+  "legend": {"title": "Congressional districts"},
+  "buffer_role": "source",
+  "distance_query": true,
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": ["CONTACT", "S1_CONTACT", "S2_CONTACT"],
+  "known_answers": [
+    {"label": "All congressional districts", "where": "1=1", "expected": {"min": 12, "max": 12}}
+  ],
+  "examples": []
+}

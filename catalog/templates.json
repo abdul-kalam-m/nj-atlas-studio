@@ -1,0 +1,15 @@
+{
+  "description": "Studio templates (IMPLEMENTATION_GUIDE.md S4-T3). Layer IDs live here, not in site/. Nothing here is designed or named for official notices (D-041).",
+  "site_screening": {
+    "site_layer": "nj_parcels",
+    "layers": [
+      {"id": "nj_parcels", "preset": "outline"},
+      {"id": "nj_c1_waters", "preset": "line"},
+      {"id": "nj_wetlands", "preset": "fill"},
+      {"id": "nj_flood_zones", "preset": "by_zone"}
+    ],
+    "targets": ["nj_wetlands", "nj_flood_zones", "nj_c1_waters"],
+    "distance_ft": 300,
+    "layout": {"paper": "letter", "orientation": "landscape"}
+  }
+}

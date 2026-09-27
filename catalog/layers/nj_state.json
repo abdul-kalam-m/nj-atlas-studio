@@ -1,0 +1,43 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_state",
+  "title": "State",
+  "category": "boundaries",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "state", "plural": "states"},
+  "summary": "The outline of New Jersey, including its bays and coastal waters.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/0",
+    "where": "1=1",
+    "id_field": "GNIS",
+    "publisher": "New Jersey Office of GIS (NJOGIS)",
+    "landing_page": "https://nj.gov/njgin/edata/boundaries/",
+    "expected_count": {"min": 1, "max": 1}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS)",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-26"
+  },
+  "fields": [
+    {"source": "NAME", "name": "state", "label": "State", "type": "text", "filter": "none", "popup": true},
+    {"source": "SQ_MILES", "name": "area_sq_mi", "label": "Area", "type": "number", "filter": "none", "popup": true, "unit": "sq mi", "decimals": 0}
+  ],
+  "label_field": "state",
+  "access": "copy",
+  "area_mode": "tags",
+  "place_tags": "none",
+  "tiles": {"min_zoom": 4, "max_zoom": 10},
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#1D4E89", "fill": false, "width": 1.5}},
+  "default_style": "outline",
+  "legend": {"title": "State"},
+  "buffer_role": "none",
+  "clip_mode": "mask",
+  "refresh_cadence": "static",
+  "leave_out": [],
+  "examples": []
+}

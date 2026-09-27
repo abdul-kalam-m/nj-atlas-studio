@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_municipalities",
+  "title": "Municipalities",
+  "category": "boundaries",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "municipality", "plural": "municipalities"},
+  "summary": "Every city, town, borough, township and village in New Jersey, with its 2020 population, population density and land area.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/2",
+    "where": "1=1",
+    "id_field": "MUN_CODE",
+    "publisher": "New Jersey Office of GIS (NJOGIS)",
+    "landing_page": "https://nj.gov/njgin/edata/boundaries/",
+    "expected_count": {"min": 560, "max": 570}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS)",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-26"
+  },
+  "fields": [
+    {"source": "MUN_LABEL", "name": "municipality", "label": "Municipality", "type": "text", "filter": "search", "popup": true},
+    {"source": "MUN_CODE", "name": "mun_code", "label": "Municipal code", "type": "text", "filter": "none", "popup": false},
+    {"source": "MUN_TYPE", "name": "mun_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "POP2020", "name": "population_2020", "label": "Population (2020)", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "POPDEN2020", "name": "density_2020", "label": "People per square mile (2020)", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "SQ_MILES", "name": "area_sq_mi", "label": "Area", "type": "number", "filter": "range", "popup": true, "unit": "sq mi", "decimals": 1}
+  ],
+  "label_field": "municipality",
+  "access": "copy",
+  "area_mode": "tags",
+  "place_tags": "county",
+  "tiles": {"min_zoom": 5, "max_zoom": 11},
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#1D4E89", "fill": false, "width": 1.5}},
+  "default_style": "outline",
+  "legend": {"title": "Municipalities"},
+  "buffer_role": "source",
+  "clip_mode": "mask",
+  "refresh_cadence": "yearly_check",
+  "leave_out": [],
+  "examples": [
+    {"label": "Towns with 50,000 people or more", "conditions": [{"field": "population_2020", "op": "range", "min": 50000, "max": null}]},
+    {"label": "Townships", "conditions": [{"field": "mun_type", "op": "in", "values": ["Township"]}]},
+    {"label": "Townships in Salem County", "place": {"county_fips": "033", "mun_code": null}, "conditions": [{"field": "mun_type", "op": "in", "values": ["Township"]}]}
+  ]
+}

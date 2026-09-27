@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_wetlands",
+  "title": "Wetlands (2012)",
+  "category": "water",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "wetland area", "plural": "wetland areas"},
+  "summary": "Wetlands mapped by NJDEP from 2012 aerial photography. Wetland boundaries are confirmed only by an NJDEP Letter of Interpretation.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land_lu/MapServer/2",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 136045, "max": 150367}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-27"
+  },
+  "fields": [
+    {"source": "LABEL12", "name": "wetland_type", "label": "Wetland type", "type": "category", "filter": "checklist", "popup": true, "transform": "titlecase"},
+    {"source": "ACRES", "name": "acres", "label": "Area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 2}
+  ],
+  "label_field": "wetland_type",
+  "access": "hybrid",
+  "area_mode": "intersects",
+  "tiles": {"min_zoom": 9, "max_zoom": 14},
+  "styles": {
+    "fill": {"label": "Wetland fill", "kind": "single", "color": "#5FAE9C", "opacity": 0.6},
+    "by_type": {"label": "By wetland type", "kind": "categories", "field": "wetland_type", "palette": "okabe_ito", "opacity": 0.6}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Wetlands, 2012"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["acres"],
+  "clip_mode": "cut",
+  "refresh_cadence": "yearly_check",
+  "leave_out": [],
+  "examples": [
+    {"label": "Wooded wetlands", "conditions": [{"field": "wetland_type", "op": "in", "values": ["Deciduous Wooded Wetlands"]}]}
+  ]
+}

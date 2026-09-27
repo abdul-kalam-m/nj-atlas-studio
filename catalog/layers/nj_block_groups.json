@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_block_groups",
+  "title": "Block groups",
+  "category": "boundaries",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "block group", "plural": "block groups"},
+  "summary": "The smaller parts of each census tract, usually home to 600 to 3,000 residents each, with their 2020 population and housing.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2020/MapServer/8",
+    "where": "STATE='34'",
+    "id_field": "GEOID",
+    "publisher": "U.S. Census Bureau",
+    "landing_page": "https://www.census.gov/programs-surveys/geography/about/glossary.html",
+    "expected_count": {"min": 6599, "max": 6599}
+  },
+  "license": {
+    "name": "Public domain (U.S. Government work, 17 U.S.C. § 105)",
+    "url": "https://www.copyright.gov/title17/92chap1.html#105",
+    "attribution": "U.S. Census Bureau, 2020 Census (TIGERweb)",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-26"
+  },
+  "fields": [
+    {"source": "NAME", "name": "block_group", "label": "Block group", "type": "text", "filter": "none", "popup": true},
+    {"source": "GEOID", "name": "bg_geoid", "label": "Block group code", "type": "text", "filter": "search", "popup": true},
+    {"source": "POP100", "name": "population_2020", "label": "Population (2020)", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "HU100", "name": "housing_units_2020", "label": "Housing units (2020)", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "AREALAND", "name": "land_sq_mi", "label": "Land area", "type": "number", "filter": "range", "popup": true, "unit": "sq mi", "decimals": 2, "transform": "sq_m_to_sq_mi"}
+  ],
+  "label_field": "block_group",
+  "access": "copy",
+  "area_mode": "tags",
+  "place_tags": "county_overlap_tract",
+  "tiles": {"min_zoom": 7, "max_zoom": 14},
+  "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#8A4F7D", "fill": false, "width": 1.5}},
+  "default_style": "outline",
+  "legend": {"title": "Block groups"},
+  "buffer_role": "source",
+  "clip_mode": "mask",
+  "refresh_cadence": "static",
+  "leave_out": [],
+  "examples": [
+    {"label": "Block groups with 3,000 people or more", "conditions": [{"field": "population_2020", "op": "range", "min": 3000, "max": null}]},
+    {"label": "Block groups in Camden city", "place": {"county_fips": "007", "mun_code": "0408"}, "conditions": []}
+  ]
+}
