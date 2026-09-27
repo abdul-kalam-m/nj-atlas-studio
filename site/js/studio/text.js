@@ -19,6 +19,7 @@ export const TEXT = {
   tabs: { area: 'Area', layers: 'Layers', analysis: 'Analysis', export: 'Export' },
   docBar: { layers: (n) => (n === 1 ? '1 layer' : `${n} layers`), buffer: (feet) => `${feet} ft buffer` },
   basemaps: { label: 'Basemap', positron: 'Light', liberty: 'Streets', none: 'None' },
+  templates: { start: 'Start from template', heading: 'Templates' },
 
   area: {
     level: 'Level',

@@ -55,6 +55,7 @@ export function renderTabs(app) {
     tab.tabIndex = selected ? 0 : -1;
     $(tab.getAttribute('aria-controls')).hidden = !selected;
   }
+  renderProperties(app);
 }
 
 // The map document at a glance (D-068): its title, its area and how many layers it has.
@@ -362,6 +363,7 @@ function aboutSection(app, rt) {
   return el('div', { class: 'section' }, nodes);
 }
 
+// One row of the layer list: show, name, count, order and remove. Choosing the row opens its properties.
 export function renderLayer(app, id) {
   const T = app.text;
   const index = app.doc.layers.findIndex((l) => l.id === id);
@@ -369,38 +371,76 @@ export function renderLayer(app, id) {
   const rt = app.runtimes.get(id);
   const old = document.querySelector(`[data-layer="${CSS.escape(id)}"]`);
   if (!layer || !rt) { old?.remove(); return; }
-  const open = app.ui.open[id] ?? {};
+  const selected = app.ui.selected === id;
   const visible = el('input', { type: 'checkbox', id: `v-${id}`, checked: layer.visible, 'aria-label': `${T.layers.show}: ${rt.entry.title}` });
   visible.addEventListener('change', () => app.actions.setLayer(id, { visible: visible.checked }));
-  const opacity = el('input', { type: 'range', id: `o-${id}`, min: '0.1', max: '1', step: '0.1', value: String(layer.opacity), 'aria-label': `${T.layers.opacity}: ${rt.entry.title}` });
-  opacity.addEventListener('change', () => app.actions.setLayer(id, { opacity: Number(opacity.value) }));
-  const toggle = (section, label) => el('button', { type: 'button', class: `tab${open[section] ? ' on' : ''}`, 'aria-expanded': open[section] ? 'true' : 'false',
-    text: label, onclick: () => app.actions.toggleSection(id, section) });
-  const tabs = [toggle('filter', T.layers.filter), toggle('style', T.layers.style), toggle('table', T.layers.table), toggle('about', T.layers.about)];
-  if (!rt.entry.fields.some((f) => f.filter !== 'none')) tabs.shift();
-  const node = el('li', { class: 'layer', 'data-layer': id }, [
+  const node = el('li', { class: `layer${selected ? ' selected' : ''}`, 'data-layer': id }, [
     el('div', { class: 'layer-head' }, [
       visible,
-      el('label', { for: visible.id, class: 'layer-title', text: rt.entry.title }),
-      el('span', { class: 'badge', title: T.layers.access[rt.entry.access], text: T.layers.access[rt.entry.access] }),
+      el('button', { type: 'button', class: 'layer-title', 'aria-pressed': selected ? 'true' : 'false', 'aria-controls': 'layer-props',
+        text: rt.entry.title, onclick: () => app.actions.selectLayer(selected ? null : id) }),
+      el('span', { class: 'badge', text: T.layers.access[rt.entry.access] }),
       el('button', { type: 'button', class: 'icon', 'aria-label': `${T.layers.up}: ${rt.entry.title}`, text: '↑', disabled: index === 0, onclick: () => app.actions.moveLayer(id, -1) }),
       el('button', { type: 'button', class: 'icon', 'aria-label': `${T.layers.down}: ${rt.entry.title}`, text: '↓', disabled: index === app.doc.layers.length - 1, onclick: () => app.actions.moveLayer(id, 1) }),
       el('button', { type: 'button', class: 'icon', 'aria-label': `${T.remove}: ${rt.entry.title}`, text: '×', onclick: () => app.actions.removeLayer(id) }),
     ]),
-    el('div', { class: 'layer-meta' }, [el('p', { class: 'status', 'data-status': id, role: 'status' }), opacity]),
-    el('div', { class: 'tabs' }, tabs),
-    open.filter ? filterSection(app, layer, rt) : null,
-    open.style ? styleSection(app, layer, rt) : null,
-    open.about ? aboutSection(app, rt) : null,
+    el('p', { class: 'status', 'data-status': id, role: 'status' }),
   ]);
   if (old) old.replaceWith(node);
   else $('layer-list')?.append(node);
   renderLayerStatus(app, id);
+  if (selected) renderProperties(app);
 }
 
-function catalogChooser(app) {
+// The chosen layer's properties (D-070): Style, Filter and About as sections that can be open together.
+export function renderProperties(app) {
   const T = app.text;
-  const search = el('input', { type: 'search', id: 'add-search', placeholder: T.layers.search, value: app.ui.addQuery, autocomplete: 'off' });
+  const panel = $('layer-props');
+  const id = app.ui.selected;
+  const layer = app.doc.layers.find((l) => l.id === id);
+  const rt = id ? app.runtimes.get(id) : null;
+  if (!layer || !rt || app.ui.tab !== 'layers') {
+    panel.hidden = true;
+    panel.replaceChildren();
+    return;
+  }
+  const section = (key, label, body) => {
+    const details = el('details', { class: 'prop-section', 'data-section': key }, [el('summary', { text: label }), body]);
+    details.open = Boolean(app.ui.sections[key]);
+    details.addEventListener('toggle', () => app.actions.sectionToggled(key, details.open));
+    return details;
+  };
+  const opacity = el('input', { type: 'range', id: `o-${id}`, min: '0.1', max: '1', step: '0.1', value: String(layer.opacity) });
+  opacity.addEventListener('change', () => app.actions.setLayer(id, { opacity: Number(opacity.value) }));
+  const style = styleSection(app, layer, rt);
+  style.prepend(el('div', { class: 'field inline' }, [el('label', { for: opacity.id, text: T.layers.opacity }), opacity]));
+  const tableOpen = app.table?.id === id;
+  const sections = [section('style', T.layers.style, style)];
+  if (rt.entry.fields.some((f) => f.filter !== 'none')) sections.push(section('filter', T.layers.filter, filterSection(app, layer, rt)));
+  sections.push(section('about', T.layers.about, aboutSection(app, rt)));
+  panel.hidden = false;
+  panel.replaceChildren(
+    el('div', { class: 'props-head' }, [
+      el('h2', { text: rt.entry.title }),
+      el('button', { type: 'button', class: `secondary${tableOpen ? ' on' : ''}`, 'aria-pressed': tableOpen ? 'true' : 'false', text: T.layers.table,
+        onclick: () => app.actions.toggleTable(id) }),
+      el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => app.actions.selectLayer(null) }),
+    ]),
+    el('p', { class: 'hint', text: rt.entry.summary }),
+    ...sections,
+  );
+}
+
+// "Add layer": the catalog in a dialog, grouped by category, with a search box (D-070).
+export function openCatalog(app) {
+  const T = app.text;
+  let dialog = $('catalog-dialog');
+  if (!dialog) {
+    dialog = el('dialog', { id: 'catalog-dialog', class: 'catalog-dialog', 'aria-labelledby': 'catalog-title' });
+    document.body.append(dialog);
+  }
+  const search = el('input', { type: 'search', id: 'add-search', placeholder: T.layers.search, value: app.ui.addQuery, autocomplete: 'off',
+    'aria-label': T.layers.search });
   const list = el('div', { class: 'catalog' });
   const full = app.doc.layers.length >= MAX_LAYERS;
   const draw = () => {
@@ -412,23 +452,34 @@ function catalogChooser(app) {
       return el('div', { class: 'catalog-group' }, [el('h3', { text: T.categories[category] ?? category }),
         ...shown.map((entry) => {
           const added = app.doc.layers.some((l) => l.id === entry.id);
-          return el('button', { type: 'button', class: 'catalog-item', disabled: added || full, onclick: () => app.actions.addLayer(entry.id) }, [
+          return el('button', { type: 'button', class: 'catalog-item', disabled: added || full, title: entry.summary,
+            onclick: () => { dialog.close(); app.actions.addLayer(entry.id); } }, [
             el('span', { text: entry.title }), el('span', { class: 'badge', text: added ? T.layers.added : T.layers.access[entry.access] })]);
         })]);
     }).filter(Boolean));
   };
   search.addEventListener('input', draw);
   draw();
-  return el('div', { class: 'chooser' }, [el('label', { for: 'add-search', class: 'visually-hidden', text: T.layers.search }), search,
-    full ? el('p', { class: 'hint', text: T.layers.limit }) : null, list]);
+  dialog.replaceChildren(
+    el('div', { class: 'dialog-head' }, [el('h2', { id: 'catalog-title', text: T.layers.add }),
+      el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => dialog.close() })]),
+    search, full ? el('p', { class: 'hint', text: T.layers.limit }) : null, list,
+  );
+  if (!dialog.open) dialog.showModal();
+  search.focus();
 }
 
 export function renderLayers(app) {
   const T = app.text;
-  const add = el('button', { type: 'button', class: 'primary', 'aria-expanded': app.ui.addOpen ? 'true' : 'false', text: T.layers.add, onclick: () => app.actions.toggleAdd() });
-  $('panel-layers').replaceChildren(...[add, app.ui.addOpen ? catalogChooser(app) : null,
+  const buttons = el('div', { class: 'button-row' }, [
+    el('button', { type: 'button', class: 'primary', text: T.layers.add, disabled: app.doc.layers.length >= MAX_LAYERS, onclick: () => openCatalog(app) }),
+    app.registry.catalog.templates && Object.keys(app.registry.catalog.templates).length
+      ? el('button', { type: 'button', class: 'secondary', text: T.templates.start, onclick: () => app.actions.openTemplates() }) : null,
+  ].filter(Boolean));
+  $('panel-layers').replaceChildren(...[buttons,
     app.doc.layers.length ? el('ol', { id: 'layer-list', class: 'layer-list' }) : el('p', { class: 'hint', text: T.layers.empty })].filter(Boolean));
   for (const layer of app.doc.layers) renderLayer(app, layer.id);
+  renderProperties(app);
 }
 
 // ---- Buffer ----
@@ -613,7 +664,7 @@ export function renderTable(app) {
   drawer.replaceChildren(...[
     el('div', { class: 'drawer-head' }, [el('strong', { text: entry.title }),
       el('span', { class: 'hint', text: rt?.matched !== null && rt?.matched !== undefined ? T.count(formatCount(rt.matched), entry.noun.plural) : '' }),
-      el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => app.actions.toggleSection(table.id, 'table') })]),
+      el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => app.actions.toggleTable(table.id) })]),
     el('div', { class: 'table-scroll' }, el('table', {}, [el('thead', {}, head), el('tbody', {}, body)])),
     table.loading ? el('p', { class: 'hint', text: T.loading }) : null,
     !table.done && !table.loading ? el('button', { type: 'button', class: 'secondary', text: '+200', onclick: () => app.actions.loadMoreRows() }) : null,

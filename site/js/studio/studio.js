@@ -47,7 +47,7 @@ const app = {
   results: null,
   ring: null,
   table: null,
-  ui: { tab: 'area', open: {}, addOpen: false, addQuery: '', candidates: null, candidatesFor: null, status: '' },
+  ui: { tab: 'area', selected: null, sections: { style: true, filter: false, about: false }, addQuery: '', candidates: null, candidatesFor: null, status: '' },
   embed: new URLSearchParams(location.search).get('embed') === '1',
   pilot: null,
 };
@@ -186,7 +186,7 @@ async function refreshLayer(id) {
     rt.queryKey = null;
   }
   panels.renderLayerStatus(app, id);
-  if (app.ui.open[id]?.filter && !rt.stats.loaded) loadStats(id);
+  if (app.ui.selected === id && app.ui.sections.filter && !rt.stats.loaded) loadStats(id);
   // A style still missing its colors or breaks (for example, a source that did not answer when the layer was
   // added) is resolved once and stored, so the map and legend show them.
   const { style } = presetStyle(entry, layer.style);
@@ -446,10 +446,13 @@ export const actions = {
     } catch {
       // colors fall back to the preset's
     }
-    app.ui.addOpen = false;
+    app.ui.selected = id; // a new layer opens its properties (D-070)
+    app.ui.tab = 'layers';
     update((doc) => { doc.layers.unshift(layer); });
   },
   removeLayer(id) {
+    if (app.ui.selected === id) app.ui.selected = null;
+    if (app.table?.id === id) app.table = null;
     update((doc) => {
       doc.layers = doc.layers.filter((l) => l.id !== id);
       for (const buffer of doc.buffers) buffer.targets = buffer.targets.filter((t) => t !== id);
@@ -478,15 +481,25 @@ export const actions = {
     }
     update((doc) => { doc.layers.find((l) => l.id === id).style = { preset: choice.preset, overrides }; });
   },
-  toggleSection(id, section) {
-    const open = app.ui.open[id] ?? {};
-    app.ui.open[id] = { ...open, [section]: !open[section] };
-    if (section === 'filter' && app.ui.open[id].filter && !runtime(id).stats.loaded) loadStats(id);
-    if (section === 'table') {
-      if (app.ui.open[id].table) openTable(id);
-      else closeTable();
-    }
-    panels.renderLayer(app, id);
+  // The layer whose properties are open (D-070). An open table follows the chosen layer.
+  selectLayer(id) {
+    app.ui.selected = id;
+    if (id && app.table && app.table.id !== id) openTable(id);
+    if (id && app.ui.sections.filter && !runtime(id).stats.loaded) loadStats(id);
+    panels.renderLayers(app);
+  },
+  openTemplates() {
+    actions.startScreening();
+  },
+  sectionToggled(section, open) {
+    app.ui.sections[section] = open;
+    const id = app.ui.selected;
+    if (section === 'filter' && open && id && !runtime(id).stats.loaded) loadStats(id);
+  },
+  toggleTable(id) {
+    if (app.table?.id === id) closeTable();
+    else openTable(id);
+    panels.renderProperties(app);
   },
   cancelStats(id) {
     runtime(id).statsAbort?.abort();
@@ -496,10 +509,7 @@ export const actions = {
     loadStats(id);
     panels.renderLayer(app, id);
   },
-  toggleAdd() {
-    app.ui.addOpen = !app.ui.addOpen;
-    panels.renderLayers(app);
-  },
+
   retry(id) {
     runtime(id).queryKey = null;
     refreshLayer(id);
@@ -913,7 +923,6 @@ async function exportData(id, format) {
 // ---- Table ----
 
 async function openTable(id) {
-  for (const other of Object.keys(app.ui.open)) if (other !== id && app.ui.open[other]?.table) app.ui.open[other].table = false;
   app.table = { id, rows: [], offset: 0, sort: null, done: false };
   await loadTablePage();
 }
