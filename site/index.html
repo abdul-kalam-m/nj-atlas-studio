@@ -24,23 +24,20 @@
 
 <main class="studio-layout">
   <aside class="studio-panel" aria-label="Map controls">
-    <div id="notices" class="notices" role="status" hidden></div>
-    <details class="panel-block" open>
-      <summary><h2 id="area-heading"></h2></summary>
-      <div id="panel-area" class="panel-body"></div>
-    </details>
-    <details class="panel-block" open>
-      <summary><h2 id="layers-heading"></h2></summary>
-      <div id="panel-layers" class="panel-body"></div>
-    </details>
-    <details class="panel-block" open>
-      <summary><h2 id="buffer-heading"></h2></summary>
-      <div id="panel-buffer" class="panel-body"></div>
-    </details>
-    <details class="panel-block">
-      <summary><h2 id="export-heading"></h2></summary>
-      <div id="panel-export" class="panel-body"></div>
-    </details>
+    <div id="doc-bar" class="doc-bar"></div>
+    <div id="tabs" class="tab-bar" role="tablist" aria-label="Studio">
+      <button type="button" role="tab" id="tab-area" aria-controls="panel-area" data-tab="area"></button>
+      <button type="button" role="tab" id="tab-layers" aria-controls="panel-layers" data-tab="layers"></button>
+      <button type="button" role="tab" id="tab-analysis" aria-controls="panel-buffer" data-tab="analysis"></button>
+      <button type="button" role="tab" id="tab-export" aria-controls="panel-export" data-tab="export"></button>
+    </div>
+    <div class="tab-panels">
+      <div id="notices" class="notices" role="status" hidden></div>
+      <section id="panel-area" class="panel-body" role="tabpanel" aria-labelledby="tab-area" tabindex="0"></section>
+      <section id="panel-layers" class="panel-body" role="tabpanel" aria-labelledby="tab-layers" tabindex="0" hidden></section>
+      <section id="panel-buffer" class="panel-body" role="tabpanel" aria-labelledby="tab-analysis" tabindex="0" hidden></section>
+      <section id="panel-export" class="panel-body" role="tabpanel" aria-labelledby="tab-export" tabindex="0" hidden></section>
+    </div>
   </aside>
 
   <div class="studio-map-column">

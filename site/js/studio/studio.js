@@ -47,7 +47,7 @@ const app = {
   results: null,
   ring: null,
   table: null,
-  ui: { open: {}, addOpen: false, addQuery: '', candidates: null, candidatesFor: null, status: '' },
+  ui: { tab: 'area', open: {}, addOpen: false, addQuery: '', candidates: null, candidatesFor: null, status: '' },
   embed: new URLSearchParams(location.search).get('embed') === '1',
   pilot: null,
 };
@@ -379,6 +379,10 @@ export async function setDoc(next, { render = true, fit = false } = {}) {
   const areaChanged = !before || JSON.stringify(before.area) !== JSON.stringify(next.area);
   const maskChanged = !before || before.mask !== next.mask;
   if (areaChanged || maskChanged) await syncArea();
+  if (app.map && app.map.basemap !== next.basemap) {
+    await app.map.setBasemap(next.basemap); // Studio's layers come along (D-071)
+    app.map.basemapControl?.set(next.basemap);
+  }
   if (areaChanged && fit) fitArea();
   ensureLoaders(); // layer runtimes exist before the panels draw them
   panels.renderAll(app);
@@ -412,6 +416,13 @@ const scheduleHash = debounce(async () => {
 // ---- Actions (called by panels.js) ----
 
 export const actions = {
+  setTab(tab) {
+    app.ui.tab = tab;
+    panels.renderTabs(app);
+  },
+  setBasemap(name) {
+    update((doc) => { doc.basemap = name; });
+  },
   async setLevel(level) {
     const area = { ...app.doc.area, level };
     Object.assign(area, trimPlace(area, level));
@@ -498,12 +509,14 @@ export const actions = {
   startSelect() {
     app.draw?.stop();
     app.mode = 'select';
+    actions.setTab('analysis');
     app.map.map.getCanvas().style.cursor = 'pointer';
     panels.renderBuffer(app);
   },
   startDraw(kind) {
     app.mode = null;
     app.draw.start(kind);
+    actions.setTab('analysis');
     panels.renderBuffer(app);
   },
   cancelMode() {
@@ -996,7 +1009,8 @@ async function boot() {
   app.levels = places.levels;
   await Promise.all(['county', 'municipality'].map((level) => unitsNow(level).catch(() => [])));
   app.health = await loadHealth(dataUrl('health.json'));
-  app.map = await createStudioMap($('map'));
+  app.areaName = areaName;
+  app.map = await createStudioMap($('map'), { basemap: app.doc.basemap, onBasemap: (name) => actions.setBasemap(name), text: TEXT.basemaps });
   app.draw = new DrawTool(app.map, {
     onDone: (shape) => setSite({ kind: 'drawn', geometry: shape }, TEXT.buffer.drawnSite),
     onCancel: () => panels.renderBuffer(app),

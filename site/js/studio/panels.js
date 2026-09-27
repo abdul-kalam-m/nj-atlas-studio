@@ -28,17 +28,54 @@ export function renderShell(app, actions) {
   $('about-close').textContent = T.close;
   $('about-content').replaceChildren(el('h2', { id: 'about-dialog-title', text: T.appTitle }), ...T.aboutApp.map((line) => el('p', { text: line })),
     el('p', {}, [el('a', { href: 'atlas/', text: T.atlasLink }), ` · ${T.codeLicense}`]));
-  for (const [id, key] of [['area-heading', 'area'], ['layers-heading', 'layers'], ['buffer-heading', 'buffer'], ['export-heading', 'export']]) {
-    $(id).textContent = T.panels[key];
+  // Tabs (D-068), following the WAI-ARIA tab pattern: one tab in the Tab order, arrows move between them.
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  for (const tab of tabs) {
+    tab.textContent = T.tabs[tab.dataset.tab];
+    tab.addEventListener('click', () => actions.setTab(tab.dataset.tab));
+    tab.addEventListener('keydown', (event) => {
+      const index = tabs.indexOf(tab);
+      const next = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: tabs.length - 1 }[event.key];
+      if (next === undefined) return;
+      event.preventDefault();
+      const target = tabs[(next + tabs.length) % tabs.length];
+      actions.setTab(target.dataset.tab);
+      target.focus();
+    });
   }
+  $('tabs').setAttribute('aria-label', T.appTitle);
   $('embed-open').textContent = T.embed.open;
-  // Phones open on the map, with the panels folded below it.
-  if (window.matchMedia?.('(max-width: 760px)').matches) document.querySelectorAll('.panel-block').forEach((block) => { block.open = false; });
   $('embed-open').href = location.href.replace('?embed=1', '').replace('&embed=1', '');
+}
+
+export function renderTabs(app) {
+  for (const tab of document.querySelectorAll('[role="tab"]')) {
+    const selected = tab.dataset.tab === app.ui.tab;
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    $(tab.getAttribute('aria-controls')).hidden = !selected;
+  }
+}
+
+// The map document at a glance (D-068): its title, its area and how many layers it has.
+export function renderDocBar(app) {
+  const T = app.text;
+  const bar = $('doc-bar');
+  let input = bar.querySelector('input');
+  if (!input) {
+    input = el('input', { id: 'doc-title', type: 'text', placeholder: T.export.untitled, 'aria-label': T.export.title, autocomplete: 'off' });
+    input.addEventListener('input', () => app.actions.setText('title', input.value));
+    bar.replaceChildren(input, el('p', { class: 'doc-meta' }));
+  }
+  if (document.activeElement !== input) input.value = app.doc.title;
+  bar.querySelector('.doc-meta').textContent = [app.areaName?.() ?? '', T.docBar.layers(app.doc.layers.length),
+    app.doc.buffers.length ? T.docBar.buffer(app.doc.buffers[0].distance_ft) : null].filter(Boolean).join(' · ');
 }
 
 export function renderAll(app) {
   if (!app.registry) return;
+  renderTabs(app);
+  renderDocBar(app);
   renderArea(app);
   renderLayers(app);
   renderBuffer(app);
@@ -510,7 +547,7 @@ export function renderExport(app) {
       el('button', { type: 'button', class: 'link-button', text: T.formats.geojson, onclick: () => app.actions.exportData(layer.id, 'geojson') })]);
   });
   $('panel-export').replaceChildren(...[
-    text('title', T.export.title), text('subtitle', T.export.subtitle), text('notes', T.export.notes, true),
+    text('subtitle', T.export.subtitle), text('notes', T.export.notes, true),
     select('paper', T.export.paper, T.export.papers), select('orientation', T.export.orientation, T.export.orientations),
     el('div', { class: 'checks' }, [check('legend', T.export.legend), check('scale_bar', T.export.scaleBar), check('north_arrow', T.export.northArrow)]),
     el('div', { class: 'button-row' }, [
