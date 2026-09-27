@@ -36,7 +36,7 @@
   "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#1F78B4", "fill": false, "width": 1.5, "labels": {"field": "name", "size": 12, "halo": true}}},
   "default_style": "outline",
   "legend": {"title": "Subwatersheds"},
-  "buffer_role": "both",
+  "buffer_role": "target",
   "distance_query": true,
   "list_fields": ["huc14", "management_area"],
   "clip_mode": "mask",

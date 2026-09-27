@@ -42,7 +42,7 @@
   "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#34495E", "fill": false, "width": 1, "labels": {"field": "election_district", "size": 12, "halo": true}}},
   "default_style": "outline",
   "legend": {"title": "Election districts"},
-  "buffer_role": "both",
+  "buffer_role": "target",
   "distance_query": true,
   "list_fields": ["municipality_name", "ward", "election_district"],
   "clip_mode": "mask",

@@ -47,7 +47,7 @@
   },
   "default_style": "by_criteria",
   "legend": {"title": "Overburdened communities"},
-  "buffer_role": "both",
+  "buffer_role": "target",
   "distance_query": true,
   "list_fields": ["criteria", "population"],
   "clip_mode": "mask",

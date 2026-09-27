@@ -145,3 +145,9 @@ A hybrid layer (`access: hybrid`) ships a map copy only: `python -m pipeline bui
 - **Shape repairs (D-063).** Invalid shapes go through `make_valid`. When GEOS refuses a shape that mixes dimensions ("Overlay input is mixed-dimension"), the build tries the structure repair without collapsed parts, then `buffer(0)`, whole and then part by part. Shapes nothing can repair are dropped and counted in `dropped_empty_shapes`. NJDEP flood zones needed all of this; other layers may too.
 - **Tile limits.** The tile writer truncates a tile above 200,000 shapes. If the build warns about it, raise `tiles.min_zoom` until it stops (land use starts at 9, D-066); Studio draws a map copy only from its minimum zoom.
 
+## Buffer role (D-074)
+
+- `buffer_role: both` for a layer people buffer or screen from (schools, parcels, streams, flood zones…).
+- `buffer_role: target` for a **boundary layer**: administrative, political, statistical or hydrologic units and designations drawn on them (categories `boundaries` and `government`, subwatersheds, overburdened communities, tax blocks). It can be listed inside a screening but never buffered. `pipeline validate` enforces this; a new boundary-like layer outside those categories goes into `BOUNDARY_LAYERS` in `pipeline/recipes.py`.
+- Either way, `list_fields` is required (the screening list).
+

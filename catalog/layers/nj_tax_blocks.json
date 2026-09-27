@@ -38,7 +38,7 @@
   "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#8A5A44", "fill": false, "width": 1, "labels": {"field": "block", "size": 12, "halo": true}}},
   "default_style": "outline",
   "legend": {"title": "Tax blocks"},
-  "buffer_role": "both",
+  "buffer_role": "target",
   "distance_query": true,
   "list_fields": ["municipal_code"],
   "clip_mode": "mask",

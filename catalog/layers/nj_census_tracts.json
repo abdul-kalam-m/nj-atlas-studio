@@ -38,7 +38,7 @@
   "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#6A4C93", "fill": false, "width": 1.5}},
   "default_style": "outline",
   "legend": {"title": "Census tracts"},
-  "buffer_role": "both",
+  "buffer_role": "target",
   "list_fields": ["tract_geoid", "population_2020"],
   "clip_mode": "mask",
   "refresh_cadence": "static",

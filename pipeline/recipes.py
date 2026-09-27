@@ -15,6 +15,10 @@ DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 NEVER_REQUEST = {"OWNER_NAME"}
 # Which geometry a style key applies to (IMPLEMENTATION_GUIDE.md §4.3).
 STYLE_KEY_GEOMETRY = {"fill": "polygon", "radius": "point", "widths": "line"}
+# Boundary layers are not buffered (D-074): administrative, political, statistical and hydrologic units, and the
+# designations drawn on them. A screening can still list them.
+BOUNDARY_CATEGORIES = {"boundaries", "government"}
+BOUNDARY_LAYERS = {"nj_subwatersheds", "nj_overburdened_communities", "nj_tax_blocks"}
 
 
 class RecipeError(ValueError):
@@ -79,6 +83,9 @@ def extra_rule_errors(recipe: dict, file_stem: str) -> list[str]:
     for index, example in enumerate(recipe["examples"]):
         for condition in example["conditions"]:
             errors.extend(f"examples/{index}: {problem}" for problem in condition_errors(condition, by_name))
+    boundary = recipe["category"] in BOUNDARY_CATEGORIES or recipe["id"] in BOUNDARY_LAYERS
+    if boundary and recipe["buffer_role"] in ("source", "both"):
+        errors.append("a boundary layer cannot be buffered: buffer_role must be 'target' or 'none' (D-074)")
     errors.extend(style_errors(recipe, by_name))
     errors.extend(list_field_errors(recipe, by_name))
     errors.extend(personal_data_errors(recipe))

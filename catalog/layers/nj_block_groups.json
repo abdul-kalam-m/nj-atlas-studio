@@ -38,7 +38,7 @@
   "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#8A4F7D", "fill": false, "width": 1.5}},
   "default_style": "outline",
   "legend": {"title": "Block groups"},
-  "buffer_role": "both",
+  "buffer_role": "target",
   "list_fields": ["bg_geoid", "population_2020"],
   "clip_mode": "mask",
   "refresh_cadence": "static",

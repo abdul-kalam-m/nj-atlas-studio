@@ -128,6 +128,16 @@ def test_boundary_layers_must_be_copies():
     assert has(problems_for(counties), "a boundary layer must have access 'copy'")
 
 
+def test_boundary_layers_cannot_be_buffered():
+    for layer_id in ("nj_municipalities", "nj_wards", "nj_subwatersheds", "nj_tax_blocks"):
+        recipe = load(layer_id)
+        assert not problems_for(recipe)
+        recipe["buffer_role"] = "both"
+        assert has(problems_for(recipe), "a boundary layer cannot be buffered")
+    schools = load("nj_schools")
+    assert schools["buffer_role"] == "both" and not problems_for(schools)
+
+
 def test_area_codes_go_with_code_mode_only():
     parcels = load("nj_parcels")
     parcels.pop("area_codes")

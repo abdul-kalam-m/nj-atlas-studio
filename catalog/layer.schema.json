@@ -143,7 +143,7 @@
       "properties": {"title": {"type": "string", "minLength": 2, "maxLength": 40}, "unit": {"type": "string", "minLength": 1, "maxLength": 12}}
     },
     "buffer_role": {
-      "description": "source: can be a buffer's site. target: listed inside buffers. both, or none.",
+      "description": "source: can be buffered (buffer layers) and be a screening's site. target: listed inside screenings. both, or none. Boundary layers are target or none (D-074).",
       "enum": ["none", "source", "target", "both"]
     },
     "distance_query": {

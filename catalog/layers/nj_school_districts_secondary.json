@@ -34,7 +34,7 @@
   "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#34495E", "fill": false, "width": 1.5, "labels": {"field": "district", "size": 12, "halo": true}}},
   "default_style": "outline",
   "legend": {"title": "School districts (secondary)"},
-  "buffer_role": "both",
+  "buffer_role": "target",
   "distance_query": true,
   "list_fields": ["njdoe_id"],
   "clip_mode": "mask",
