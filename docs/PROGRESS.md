@@ -688,3 +688,13 @@ Template (from OPERATING_GUIDE.md §4):
   - 52 layers and none of the three drafts; the new categories "Planning and regulation" and "History and culture" appear.
   - Pennsville: 7 historic districts, 30 archaeological grid cells, 5 CAFRA zone parts, 1 library. There is no Highlands area and no known-extent contamination area there, as expected.
 
+### Tier 2, the layers that can be live now (D-084) · done · 2026-09-28
+- The owner's request in chat: "Proceed with the next tier."
+- Changed: 23 recipes in catalog/layers; CANDIDATES.md (Tier 2 split into "In Studio" and "Still waiting"); DECISIONS.md; LICENSE_REVIEW.md.
+- Checks:
+  - `pipeline inspect` for every source (build/inspect/). `pipeline validate` passes.
+  - `node tools/healthcheck.mjs` passes for all 23, including the code-versus-outline test for the two code-sliced layers.
+  - 194 Python and 212 JavaScript tests pass, and the lint passes.
+  - Browser, Jersey City: 827 bus stops, 590 air-permitted facilities, 82 brownfields, 65 tidelands areas, 18 combined sewer overflows, 4 High Injury Network segments, 1 electric territory. Vacant land shows 0, which the source confirms (Pennsville has 291).
+- Assumptions: the High Injury Network starts with state roads only; soils show map units without properties.
+

@@ -111,3 +111,16 @@ At the owner's instruction ("add Tier 1"), the published layers carry `reviewed_
 
 **Personal data checked.** SADC's `ORIG_OWNER` and `LATEST_LANDOWNER` are in `NEVER_REQUEST`. `PI_NAME` (the responsible party) is left out of the CEA and deed notice layers. Staff usernames (`USER_ID`, `USER_LAST_UPDATE`, `DIGISTAFF`) are left out. The wetland mitigation site parcels layer (with owner names) is not used.
 
+## Tier 2 layers (2026-09-28, D-084)
+
+Recorded as in D-083 (`reviewed_by: abdul-kalam-m`, `reviewed_on: 2026-09-28`), for the owner's review.
+
+| Publisher | Layers | Terms, as found | Applied |
+| --- | --- | --- | --- |
+| NJDEP | 20 layers (see D-084) | NJDEP Data Distribution Agreement (O-3) | Published |
+| DCA | Vacant land for affordable housing | Acknowledgement requested; the State's legal statement applies | Published |
+| NJ TRANSIT | Bus stops, bus routes, rail lines | "Not for design purposes. Data is NOT survey grade." No redistribution limit stated; credit to the NJ TRANSIT GIS Department | Published. NJ TRANSIT's GTFS license is separate and not used. |
+| NJDOT | High Injury Network (state roads) | No license text on the item; public agency data; the State's legal statement applies | Published |
+
+**Personal data checked.** The brownfield inventory's `owner_name`, `owner_phone` and `owner_email` are left out. The MS4 layers' edit-tracking usernames are left out. The underground storage tank layer is not used (residential tanks, with names).
+

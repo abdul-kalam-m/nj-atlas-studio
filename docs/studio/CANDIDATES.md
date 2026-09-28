@@ -65,26 +65,39 @@ The proposed approach:
 
 The standardized layer is a paid-tier candidate. Each county's own layer stays free.
 
-## Tier 2: next
+## Tier 2
 
-| Layer | Source and URL | Records | Why it waits |
+### In Studio (2026-09-28, D-084)
+
+All are live. Twenty are NJDEP layers under the agreement already accepted; the others are from DCA, NJ TRANSIT and NJDOT.
+
+| Layer | Source | Records | Notes |
 | --- | --- | --- | --- |
-| ACS demographics on tracts and block groups (income, age, tenure, vehicles) | Census API | — | Not ArcGIS: needs a join step in the pipeline. Probably the most valuable next addition. |
-| Land capacity for affordable housing (fourth round) | DCA, `services.arcgis.com/Aur8tCo478N3VovT/.../Vacant_Land_Output/FeatureServer/0` | 26,707 | Tied to P.L. 2024, c.2; DCA's terms to check |
-| Wetland mitigation banks, service areas and sites | NJDEP `Features/Land/MapServer/70–75` | 23 / 22 / 546 | Small and specialized; the site parcels layer (76) carries owner names and stays out |
-| Landscape Project habitat, plus vernal pools | NJDEP ArcGIS Online (6 regional services, for example Piedmont 229,154; pools 13,595) | large | Needs a map copy that merges the regions |
-| Natural Heritage Priority Sites | NJDEP `Features/Environmental_habitat/MapServer/93` | 343 | Environmental screening |
-| State Plan critical environmental and historic sites | OPA | 981 | OPA's permission (O-10) |
-| CAFRA coastal planning areas; tidelands claims | NJDEP `Land_CAFRA_coast/2`, `Hydrography/30` | 1,073; 28,697 | Coastal permitting detail |
-| Groundwater recharge; soils (SSURGO); surface water quality classifications | NJDEP `Geology/18`, `Geology/11`, `Hydrography/7` | 191,436; 116,800; 284,763 | Need map copies; useful soil properties need a table join |
-| Bus stops, bus lines, rail lines | NJ Transit ArcGIS Online | 19,739; 264; 13 | Terms say only "not survey grade"; NJ Transit to confirm |
-| Transit villages | OPA points, or NJ Transit's municipality list | 35 | OPA's terms, or a thin layer |
-| High Injury Network 2025 | NJDOT, 4 layers by road owner | 243 | Merge into one layer |
-| MS4 stormwater inlets and outfalls | NJDEP `Applications/MS4_Map` | 77,613; 73,793 | Coverage varies by municipality; for municipal engineers |
-| Permitted facilities (air, storage tanks, NJPDES), landfills, combined sewer overflows, power plants | NJDEP | 17,010; 45,955; 3,574; 412; 211; 77 | Cumulative-impact and environmental justice screening |
-| Electric and gas utility territories | NJDEP `Utilities/10`, `Utilities/11` | 51; 33 | |
-| Urban land with future flooding | NJDEP `Government/43` | 4,344 | Sea-level rise planning |
-| Brownfield development areas; brownfield inventory | NJDEP | 39; 803 | The inventory is drawn from contaminated sites |
+| Vacant land for affordable housing (fourth round) | DCA | 26,707 | P.L. 2024, c.2; covers only the municipalities the analysis includes (none in Jersey City, 291 areas in Pennsville) |
+| Tidelands claims | NJDEP | 28,697 | Drawn from zoom 12 |
+| Natural Heritage Priority Sites | NJDEP | 343 | Biodiversity rank B1 to B5 |
+| Wetland mitigation banks; mitigation bank service areas | NJDEP | 23; 22 | The site parcels layer (owner names) is not used |
+| Soils (SSURGO) | NJDEP, from USDA NRCS | 116,800 | Map unit names; drawn from zoom 13. Soil properties still need a table join. |
+| Groundwater recharge | NJDEP, NJ Geological and Water Survey | 191,436 | Drawn from zoom 13 |
+| Surface water quality classifications | NJDEP | 284,763 lines | Drawn from zoom 12 |
+| Electric and gas utility territories | NJDEP, from BPU | 51; 33 | Listed in screenings, not buffered |
+| Stormwater inlets and outfalls (MS4) | NJDEP, MS4 permittees | 77,613; 73,793 | Drawn from zoom 15 and 14; coverage depends on each permittee |
+| Combined sewer overflows | NJDEP | 211 | |
+| Air permitted facilities; NJPDES facilities; landfills; power plants | NJDEP | 17,010; 3,574; 412; 77 | Cumulative-impact screening |
+| Brownfield development areas; brownfield inventory | NJDEP | 39; 803 | Owners' names, phones and emails in the inventory are never requested |
+| Bus stops; bus routes; rail lines | NJ TRANSIT | 19,739; 264; 13 | |
+| High Injury Network (state roads) | NJDOT | 156 | The county, municipal and Turnpike layers (61, 25, 1) wait for a merge step |
+
+### Still waiting
+
+| Layer | Why |
+| --- | --- |
+| ACS demographics on tracts and block groups | Needs a Census API join step in the pipeline. Probably the most valuable next addition. |
+| Landscape Project habitat, plus vernal pools | Six regional services to merge into one map copy |
+| State Plan critical environmental and historic sites; transit villages | OPA's permission (O-10) |
+| High Injury Network (county, municipal and Turnpike roads) | A merge step, so the four road owners are one layer |
+| Urban land with future flooding | The source has only a census ID and acres |
+| Underground storage tank facilities (45,955) | Mostly residential heating-oil tanks, with the responsible party's name |
 
 ## Tier 3: needs new work or a source decision
 
