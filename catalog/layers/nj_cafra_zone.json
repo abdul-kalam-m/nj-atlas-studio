@@ -1,0 +1,47 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_cafra_zone",
+  "title": "CAFRA zone",
+  "category": "planning",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "cafra zone area", "plural": "cafra zone areas"},
+  "summary": "The coastal area where the Coastal Area Facility Review Act (CAFRA) regulates development.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land_CAFRA_coast/MapServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 150, "max": 167}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "ZONE_", "name": "zone", "label": "Zone", "type": "text", "filter": "none", "popup": true},
+    {"source": "OBJECTID", "name": "part", "label": "Part", "type": "text", "filter": "none", "popup": false}
+  ],
+  "label_field": "zone",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#1F78B4", "opacity": 0.2, "outline": "#1F78B4"},
+    "outline": {"label": "Outline", "kind": "single", "color": "#1F78B4", "fill": false, "width": 2}
+  },
+  "default_style": "fill",
+  "legend": {"title": "CAFRA zone"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["part"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

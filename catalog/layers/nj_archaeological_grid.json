@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_archaeological_grid",
+  "title": "Archaeological site grid",
+  "category": "history",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "grid cell", "plural": "grid cells"},
+  "summary": "Grid cells that contain known archaeological sites; the grid stands in for exact locations, which the Historic Preservation Office does not publish.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land/MapServer/56",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Historic Preservation Office",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 5503, "max": 6084}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "CELL_NUM", "name": "cell", "label": "Cell", "type": "text", "filter": "search", "popup": true},
+    {"source": "STATUS", "name": "status", "label": "Site status", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"NHL": "National Historic Landmark", "LISTED": "Listed", "ELIGIBLE": "Eligible", "LOCALLY_DESIGNATED": "Locally designated", "IDENTIFIED": "Identified", "DELISTED": "Delisted", "NOT_ELIGIBLE": "Not eligible"}}
+  ],
+  "label_field": "cell",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 8,
+  "styles": {
+    "by_status": {"label": "By status", "kind": "categories", "field": "status", "colors": {"National Historic Landmark": "#7B3F00", "Listed": "#B35806", "Eligible": "#E08214", "Locally designated": "#FDB863", "Identified": "#D8C3A5"}, "opacity": 0.35},
+    "outline": {"label": "Outline", "kind": "single", "color": "#8E6C3A", "fill": false, "width": 1}
+  },
+  "default_style": "by_status",
+  "legend": {"title": "Archaeological site grid"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["status"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": ["CREATED_USER", "LAST_EDITED_USER", "NOTES"],
+  "examples": [
+    {"label": "Cells with listed sites", "conditions": [{"field": "status", "op": "in", "values": ["Listed", "National Historic Landmark"]}]}
+  ]
+}

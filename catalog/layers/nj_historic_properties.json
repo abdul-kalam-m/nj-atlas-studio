@@ -1,0 +1,55 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_historic_properties",
+  "title": "Historic properties",
+  "category": "history",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "historic property", "plural": "historic properties"},
+  "summary": "Buildings, sites, structures and objects evaluated by the NJ Historic Preservation Office, including those inside historic districts.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land/MapServer/55",
+    "where": "(LOC_RESTR IS NULL OR LOC_RESTR <> 'YES') AND (DIGIPOST IS NULL OR DIGIPOST <> 5)",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Historic Preservation Office",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 140653, "max": 155460}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "NAME", "name": "name", "label": "Name", "type": "text", "filter": "search", "popup": true},
+    {"source": "ADDRESS", "name": "address", "label": "Address", "type": "text", "filter": "search", "popup": true},
+    {"source": "STATUS", "name": "status", "label": "Status", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"NHL_INDV": "National Historic Landmark", "NHL_HD": "National Historic Landmark district", "LISTED_INDV": "Listed", "LISTED_HD": "Listed, in a district", "ELIGIBLE_INDV": "Eligible", "ELIGIBLE_HD": "Eligible, in a district", "LOCAL_LANDMARK": "Local landmark", "LOCALLY_DESIGNATED_HD": "Locally designated district", "IDENTIFIED_INDV": "Identified", "IDENTIFIED_HD": "Identified, in a district", "DELISTED_HD": "Delisted, in a district", "DELISTED_INDV": "Delisted", "NOT_ELIGIBLE_HD": "Not eligible, in a district", "NOT_ELIGIBLE_INDV": "Not eligible"}},
+    {"source": "HD_NAME", "name": "district", "label": "Historic district", "type": "text", "filter": "search", "popup": true},
+    {"source": "HD_STATUS", "name": "district_role", "label": "Role in the district", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"C": "Contributing", "KC": "Key contributing", "NC": "Non-contributing", "UNK": "Not assessed"}},
+    {"source": "NRDATE", "name": "national_register", "label": "National Register", "type": "date", "filter": "range", "popup": true},
+    {"source": "SRDATE", "name": "state_register", "label": "State Register", "type": "date", "filter": "none", "popup": true},
+    {"source": "DEMOLISHED", "name": "demolished", "label": "Demolished", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"YES": "Yes", "Yes": "Yes", "NO": "No", "No": "No", "UNK": "Unknown"}}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 13,
+  "styles": {
+    "points": {"label": "Fill", "kind": "single", "color": "#8E6C3A", "opacity": 0.5, "outline": "#5A4424"},
+    "by_status": {"label": "By status", "kind": "categories", "field": "status", "palette": "okabe_ito", "opacity": 0.55}
+  },
+  "default_style": "points",
+  "legend": {"title": "Historic properties"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["status", "district"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": ["DIGISTAFF", "CREATED_USER", "LAST_EDITED_USER"],
+  "examples": [
+    {"label": "Individually listed", "conditions": [{"field": "status", "op": "in", "values": ["Listed", "National Historic Landmark"]}]}
+  ]
+}

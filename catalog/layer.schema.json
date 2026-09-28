@@ -20,7 +20,7 @@
     },
     "category": {
       "description": "Group heading in the viewer's Data list. Boundary layers (DECISIONS.md D-020) use boundaries and appear in the Boundary list instead.",
-      "enum": ["boundaries", "property", "environment", "hazards", "water", "transportation", "community", "government", "planning"]
+      "enum": ["boundaries", "planning", "property", "environment", "hazards", "water", "history", "transportation", "community", "government"]
     },
     "status": {
       "description": "draft layers appear only in local builds run with --include-drafts. published requires a human license review (see allOf below).",

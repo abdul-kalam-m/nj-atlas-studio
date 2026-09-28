@@ -11,13 +11,14 @@ RESERVED = {"atlas_id", "lon", "lat", "geometry"}
 PLACE_COLUMNS = TAG_COLUMNS
 FILTER_FOR_OP = {"in": "checklist", "contains": "search", "range": "range"}
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-# Source fields no recipe may request, whatever its leave_out says: owner names are personal data in every NJ source.
-NEVER_REQUEST = {"OWNER_NAME"}
+# Source fields no recipe may request, whatever its leave_out says: owner names are personal data in every NJ source
+# (parcels' OWNER_NAME; preserved farmland's original and latest landowner, D-083).
+NEVER_REQUEST = {"OWNER_NAME", "ORIG_OWNER", "LATEST_LANDOWNER"}
 # Which geometry a style key applies to (IMPLEMENTATION_GUIDE.md §4.3).
 STYLE_KEY_GEOMETRY = {"fill": "polygon", "radius": "point", "widths": "line"}
-# Boundary layers are not buffered (D-074): administrative, political, statistical and hydrologic units, and the
-# designations drawn on them. A screening can still list them.
-BOUNDARY_CATEGORIES = {"boundaries", "government"}
+# Boundary layers are not buffered (D-074): administrative, political, statistical and hydrologic units, the
+# designations drawn on them, and planning and regulatory areas (D-083). A screening can still list them.
+BOUNDARY_CATEGORIES = {"boundaries", "government", "planning"}
 BOUNDARY_LAYERS = {"nj_subwatersheds", "nj_overburdened_communities", "nj_tax_blocks"}
 
 

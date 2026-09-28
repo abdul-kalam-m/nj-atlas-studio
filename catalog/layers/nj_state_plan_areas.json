@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_state_plan_areas",
+  "title": "State Plan planning areas",
+  "category": "planning",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "planning area", "plural": "planning areas"},
+  "summary": "Planning areas of the State Development and Redevelopment Plan Policy Map (PA1 to PA5 and other designations).",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services3.arcgis.com/iy3mGBSHxkFa1uPL/arcgis/rest/services/Planning_Area_Boundaries_of_the_NJ_State_Development_and_Redevelopment_Plan_New_Jersey/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office for Planning Advocacy (OPA)",
+    "landing_page": "https://www.nj.gov/state/planning/",
+    "expected_count": {"min": 2958, "max": 3271}
+  },
+  "license": {
+    "name": "Office for Planning Advocacy End User License Agreement (no redistribution without permission)",
+    "url": "https://www.arcgis.com/home/item.html?id=6612a7d2b6334787b1109efbfa2fa601",
+    "attribution": "New Jersey Office for Planning Advocacy",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "SPDETAIL", "name": "planning_area", "label": "Planning area", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"METROPOLITAN": "Metropolitan (PA1)", "SUBURBAN": "Suburban (PA2)", "FRINGE": "Fringe (PA3)", "RURAL": "Rural (PA4)", "RURAL ENV. SENSITIVE": "Rural/Environmentally Sensitive (PA4B)", "ENVIRONMENTALLY SENSITIVE": "Environmentally Sensitive (PA5)", "ENV. SENSITIVE BARRIER IS": "Environmentally Sensitive Barrier Islands (PA5B)", "PARK": "Park", "STATE PARK": "Park", "FEDERAL PARK": "Park", "PARK 1ST PLAN": "Park", "OPEN SPACE": "Park", "SPORTS & EXPOSITION AUTH.": "Meadowlands District", "PINELANDS": "Pinelands", "WATER": "Water", "MILITARY": "Military", "HIGHLANDS PRESERVATION": "Highlands Preservation Area", "HIGHLANDS PLANNING AREA": "Highlands Planning Area", "ELLIS ISLAND- NJ": "Ellis Island"}},
+    {"source": "SPDETAIL2", "name": "detail", "label": "Detail", "type": "text", "filter": "none", "popup": true, "transform": "titlecase"},
+    {"source": "P2ACRES", "name": "acres", "label": "Area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 0}
+  ],
+  "label_field": "planning_area",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "by_area": {"label": "By planning area", "kind": "categories", "field": "planning_area", "colors": {"Metropolitan (PA1)": "#D7301F", "Suburban (PA2)": "#FC8D59", "Fringe (PA3)": "#FDCC8A", "Rural (PA4)": "#D9F0A3", "Rural/Environmentally Sensitive (PA4B)": "#ADDD8E", "Environmentally Sensitive (PA5)": "#41AB5D", "Environmentally Sensitive Barrier Islands (PA5B)": "#238443", "Park": "#006837"}, "other": "#BDBDBD", "opacity": 0.45}
+  },
+  "default_style": "by_area",
+  "legend": {"title": "State Plan planning areas"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["acres"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Metropolitan and Suburban", "conditions": [{"field": "planning_area", "op": "in", "values": ["Metropolitan (PA1)", "Suburban (PA2)"]}]}
+  ]
+}

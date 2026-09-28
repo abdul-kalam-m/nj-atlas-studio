@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_urban_enterprise_zones",
+  "title": "Urban enterprise zones",
+  "category": "planning",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "urban enterprise zone", "plural": "urban enterprise zones"},
+  "summary": "Urban Enterprise Zones, where qualified businesses get tax and program benefits.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Government/MapServer/24",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), from the NJ Department of Community Affairs",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 35, "max": 40}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "UEZ_NAME", "name": "name", "label": "Zone", "type": "text", "filter": "search", "popup": true, "transform": "titlecase"},
+    {"source": "MUNICIPAL", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true, "transform": "titlecase"},
+    {"source": "DATE_DESIG", "name": "designated", "label": "Designated", "type": "date", "filter": "range", "popup": true},
+    {"source": "MUN", "name": "municipal_code", "label": "Municipal code", "type": "text", "filter": "none", "popup": false}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {"municipality": {"field": "MUN", "match": "mun_code"}, "county": {"field": "MUN", "match": "mun_prefix"}},
+  "min_zoom": 5,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#6B4C9A", "opacity": 0.3, "outline": "#4A3470"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Urban enterprise zones"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["designated"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": ["CONTACT_ID"],
+  "examples": [
+    {"label": "Zones in Camden County", "place": {"county_fips": "007", "mun_code": null}, "conditions": []}
+  ]
+}

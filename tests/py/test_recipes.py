@@ -129,13 +129,29 @@ def test_boundary_layers_must_be_copies():
 
 
 def test_boundary_layers_cannot_be_buffered():
-    for layer_id in ("nj_municipalities", "nj_wards", "nj_subwatersheds", "nj_tax_blocks"):
+    for layer_id in ("nj_municipalities", "nj_wards", "nj_subwatersheds", "nj_tax_blocks", "nj_sewer_service_areas", "nj_highlands_areas"):
         recipe = load(layer_id)
         assert not problems_for(recipe)
         recipe["buffer_role"] = "both"
         assert has(problems_for(recipe), "a boundary layer cannot be buffered")
     schools = load("nj_schools")
     assert schools["buffer_role"] == "both" and not problems_for(schools)
+
+
+def test_farm_owner_names_are_never_requested():
+    farms = load("nj_preserved_farmland")
+    assert not problems_for(farms)
+    for source in ("ORIG_OWNER", "LATEST_LANDOWNER"):
+        bad = load("nj_preserved_farmland")
+        bad["leave_out"] = []
+        bad["fields"].append({"source": source, "name": "owner", "label": "Owner", "type": "text", "filter": "none", "popup": True})
+        assert has(problems_for(bad), "owner names are never requested")
+
+
+def test_location_restricted_history_stays_out():
+    for layer_id in ("nj_historic_districts", "nj_historic_properties"):
+        where = load(layer_id)["source"]["where"]
+        assert "LOC_RESTR" in where and "DIGIPOST" in where
 
 
 def test_area_codes_go_with_code_mode_only():

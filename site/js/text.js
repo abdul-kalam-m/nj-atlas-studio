@@ -30,6 +30,7 @@ export const TEXT = {
     transportation: 'Transportation',
     community: 'Community',
     planning: 'Planning',
+    history: 'History and culture',
   },
 
   levels: {

@@ -1,0 +1,52 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_state_plan_centers",
+  "title": "State Plan designated centers",
+  "category": "planning",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "center", "plural": "centers"},
+  "summary": "Centers designated under the State Development and Redevelopment Plan, with their designation and expiration dates.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services3.arcgis.com/iy3mGBSHxkFa1uPL/arcgis/rest/services/Designated_Centers_of_the_NJ_State_Development_and_Redevelopment_Plan/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office for Planning Advocacy (OPA)",
+    "landing_page": "https://www.nj.gov/state/planning/",
+    "expected_count": {"min": 48, "max": 53}
+  },
+  "license": {
+    "name": "Office for Planning Advocacy End User License Agreement (no redistribution without permission)",
+    "url": "https://www.arcgis.com/home/item.html?id=d4437a3a956f43d085ba85791442f763",
+    "attribution": "New Jersey Office for Planning Advocacy",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "CENNAME2", "name": "name", "label": "Center", "type": "text", "filter": "search", "popup": true},
+    {"source": "CENTYPE", "name": "center_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"UC": "Urban Center", "DR": "Regional Center", "DT": "Town", "DV": "Village", "DH": "Hamlet"}},
+    {"source": "MUNI", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true},
+    {"source": "CENDATE", "name": "designated", "label": "Designated", "type": "date", "filter": "range", "popup": true},
+    {"source": "ENDDATE", "name": "expires", "label": "Expires", "type": "date", "filter": "range", "popup": true},
+    {"source": "ACRES", "name": "acres", "label": "Area", "type": "number", "filter": "none", "popup": true, "unit": "acres", "decimals": 0}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#D55E00", "opacity": 0.35, "outline": "#9A4400"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "State Plan designated centers"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["center_type", "expires"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Towns and villages", "conditions": [{"field": "center_type", "op": "in", "values": ["Town", "Village"]}]}
+  ]
+}

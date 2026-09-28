@@ -1,0 +1,50 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_libraries",
+  "title": "Public libraries",
+  "category": "community",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "library", "plural": "libraries"},
+  "summary": "Public libraries and their branches.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/Aur8tCo478N3VovT/arcgis/rest/services/Libraries_2023/FeatureServer/11",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "NJ Department of Community Affairs (DCA), with the NJ State Library",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=9341dca37cdf4f258f2df6ae439f5be4",
+    "expected_count": {"min": 425, "max": 470}
+  },
+  "license": {
+    "name": "State of New Jersey data terms (no license stated)",
+    "url": "https://www.nj.gov/nj/legal.html",
+    "attribution": "NJ State Library; NJ Department of Community Affairs, Division of Local Planning Services",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "Library", "name": "library", "label": "Library", "type": "text", "filter": "search", "popup": true},
+    {"source": "Town", "name": "town", "label": "Town", "type": "text", "filter": "search", "popup": true},
+    {"source": "Address", "name": "address", "label": "Address", "type": "text", "filter": "none", "popup": true},
+    {"source": "Links", "name": "website", "label": "Website", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "library",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "points": {"label": "Amber points", "kind": "single", "color": "#B7791F", "radius": 5, "outline": "#FFFFFF"}
+  },
+  "default_style": "points",
+  "legend": {"title": "Public libraries"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["town"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Libraries in Salem County", "place": {"county_fips": "033", "mun_code": null}, "conditions": []}
+  ]
+}

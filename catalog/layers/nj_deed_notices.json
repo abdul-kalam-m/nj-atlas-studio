@@ -1,0 +1,56 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_deed_notices",
+  "title": "Deed notice areas",
+  "category": "hazards",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "deed notice area", "plural": "deed notice areas"},
+  "summary": "Areas where contamination was left in place under a cap or other control, recorded with a deed notice that limits use.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental/MapServer/40",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Site Remediation Program",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 4106, "max": 4539}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "DN_NAME", "name": "name", "label": "Name", "type": "text", "filter": "search", "popup": true},
+    {"source": "PREF_ID_NUM", "name": "site_id", "label": "Site ID", "type": "text", "filter": "search", "popup": true},
+    {"source": "ADDRESS", "name": "address", "label": "Address", "type": "text", "filter": "search", "popup": true},
+    {"source": "MUNICIPALITY", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true},
+    {"source": "BLOCK_LOT", "name": "block_lot", "label": "Block and lot", "type": "text", "filter": "none", "popup": true},
+    {"source": "FILED_DATE", "name": "filed", "label": "Filed", "type": "date", "filter": "range", "popup": true},
+    {"source": "CAP_TYPE", "name": "cap_type", "label": "Cap or control", "type": "text", "filter": "search", "popup": true},
+    {"source": "DEPTH", "name": "depth", "label": "Depth", "type": "text", "filter": "none", "popup": true},
+    {"source": "HISTORIC_FILL", "name": "historic_fill", "label": "Historic fill", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "ACRES", "name": "acres", "label": "Area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 2}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 9,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#8E44AD", "opacity": 0.35, "outline": "#5B2C6F"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Deed notice areas"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["cap_type", "filed"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": ["PI_NAME"],
+  "examples": [
+    {"label": "Historic fill", "conditions": [{"field": "historic_fill", "op": "in", "values": ["Yes"]}]}
+  ]
+}

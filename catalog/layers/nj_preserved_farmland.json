@@ -1,0 +1,54 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_preserved_farmland",
+  "title": "Preserved farmland",
+  "category": "environment",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "preserved farm", "plural": "preserved farms"},
+  "summary": "Farms preserved through the State Farmland Preservation Program: easements and fee purchases by the state, counties, municipalities and nonprofits.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/gzSkSfQGxyX6dicF/arcgis/rest/services/NJFPP_Preserved_Farms/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "NJ State Agriculture Development Committee (SADC)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=f20260b686d0432988a715534af9eec7",
+    "expected_count": {"min": 8534, "max": 9433}
+  },
+  "license": {
+    "name": "SADC GIS data terms (credit and disclaimer required)",
+    "url": "https://www.arcgis.com/home/item.html?id=f20260b686d0432988a715534af9eec7",
+    "attribution": "This map was developed, in part, using the State Agriculture Development Committee's (SADC's) Geographic Information System digital data but this secondary product has not been verified by the SADC and is not SADC authorized.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "NME_COMMON", "name": "farm", "label": "Farm", "type": "text", "filter": "search", "popup": true},
+    {"source": "SADC_ID", "name": "sadc_id", "label": "SADC ID", "type": "text", "filter": "search", "popup": true},
+    {"source": "PROGRAM", "name": "program", "label": "Program", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "ACRE_EASEMENT", "name": "acres", "label": "Preserved area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 1},
+    {"source": "DATE_CLOSED", "name": "closed", "label": "Preserved on", "type": "date", "filter": "range", "popup": true},
+    {"source": "MUNICIPALITY", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "farm",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 9,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#7A9A2E", "opacity": 0.45, "outline": "#55701C"},
+    "by_program": {"label": "By program", "kind": "categories", "field": "program", "palette": "okabe_ito", "opacity": 0.5}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Preserved farmland"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["program", "acres"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": ["ORIG_OWNER", "LATEST_LANDOWNER"],
+  "examples": [
+    {"label": "Farms of 100 acres or more", "conditions": [{"field": "acres", "op": "range", "min": 100}]},
+    {"label": "Preserved farms in Salem County", "place": {"county_fips": "033", "mun_code": null}, "conditions": []}
+  ]
+}

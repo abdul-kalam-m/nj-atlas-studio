@@ -1,0 +1,47 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_meadowlands_district",
+  "title": "Meadowlands District",
+  "category": "planning",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "district", "plural": "districts"},
+  "summary": "The Hackensack Meadowlands District, where the NJ Sports and Exposition Authority is the zoning and planning agency.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/7",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Office of GIS (NJOGIS), with the NJ Sports and Exposition Authority",
+    "landing_page": "https://njogis-newjersey.opendata.arcgis.com/",
+    "expected_count": {"min": 1, "max": 1}
+  },
+  "license": {
+    "name": "NJOGIS terms of use (credit requested)",
+    "url": "https://www.arcgis.com/home/item.html?id=3d5d1db8a1b34b418c331f4ce1fd0fef",
+    "attribution": "New Jersey Office of GIS (NJOGIS); NJ Sports and Exposition Authority",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "OBJECTID", "name": "district", "label": "District", "type": "category", "filter": "none", "popup": true, "value_labels": {"1": "Meadowlands District"}},
+    {"source": "Acres", "name": "acres", "label": "Area", "type": "number", "filter": "none", "popup": true, "unit": "acres", "decimals": 0}
+  ],
+  "label_field": "district",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "outline": {"label": "Outline", "kind": "single", "color": "#5D6D7E", "fill": false, "width": 2.5},
+    "fill": {"label": "Fill", "kind": "single", "color": "#5D6D7E", "opacity": 0.2}
+  },
+  "default_style": "outline",
+  "legend": {"title": "Meadowlands District"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["acres"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

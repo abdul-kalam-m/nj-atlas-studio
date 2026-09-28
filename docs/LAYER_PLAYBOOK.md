@@ -71,6 +71,7 @@ Also leave out the source's own county, municipality, census tract and block gro
   | community | `#B7791F` |
   | government | `#34495E` |
   | planning | `#5D6D7E` |
+  | history | `#8E6C3A` |
 
 - **`tiles`** (copy and hybrid layers; live layers use `min_zoom` from CATALOG.md): choose the zoom range by layer size.
 

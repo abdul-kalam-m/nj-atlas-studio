@@ -1,0 +1,48 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_water_purveyors",
+  "title": "Public water service areas",
+  "category": "planning",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "water service area", "plural": "water service areas"},
+  "summary": "Areas served by public community water systems (2017 purveyor service areas).",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Utilities/MapServer/13",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 538, "max": 595}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "SYS_NAME", "name": "system", "label": "Water system", "type": "text", "filter": "search", "popup": true, "transform": "titlecase"},
+    {"source": "PWID", "name": "system_id", "label": "System ID", "type": "text", "filter": "search", "popup": true}
+  ],
+  "label_field": "system",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#4A8FD1", "opacity": 0.25, "outline": "#2F6FA8"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Public water service areas"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["system_id"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": ["USER_LAST_UPDATE"],
+  "examples": [
+    {"label": "Water systems in Pennsville Township", "place": {"county_fips": "033", "mun_code": "1709"}, "conditions": []}
+  ]
+}

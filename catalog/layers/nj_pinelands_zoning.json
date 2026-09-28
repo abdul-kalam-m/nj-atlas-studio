@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_pinelands_zoning",
+  "title": "Pinelands municipal zoning",
+  "category": "planning",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "zone", "plural": "zones"},
+  "summary": "Municipal zoning districts inside the Pinelands Area, as certified by the Pinelands Commission.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services1.arcgis.com/nCm6SZaiGMuGX35l/arcgis/rest/services/Pinelands_Municipal_Zoning/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Pinelands Commission",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=d9aeabe5dfab4bd0ba897ad0377aa2be",
+    "expected_count": {"min": 1392, "max": 1539}
+  },
+  "license": {
+    "name": "NJ Pinelands Commission data terms (no redistribution without written permission)",
+    "url": "https://www.arcgis.com/home/item.html?id=d9aeabe5dfab4bd0ba897ad0377aa2be",
+    "attribution": "This map was developed using New Jersey Pinelands Commission Geographic Information System digital data, but this secondary product has not been verified by NJPC and is not state-authorized.",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "ZONE_", "name": "zone", "label": "Zone", "type": "text", "filter": "search", "popup": true},
+    {"source": "SUB_ZONE", "name": "sub_zone", "label": "Sub-zone", "type": "text", "filter": "none", "popup": true, "value_labels": {"<Null>": null}},
+    {"source": "MUNICIPAL_NAME", "name": "municipality", "label": "Municipality", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "Cou", "name": "municipal_code", "label": "Municipal code", "type": "text", "filter": "none", "popup": false}
+  ],
+  "label_field": "zone",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {"municipality": {"field": "Cou", "match": "mun_code"}, "county": {"field": "Cou", "match": "mun_prefix"}},
+  "min_zoom": 8,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#5D6D7E", "opacity": 0.3, "outline": "#34495E"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Pinelands municipal zoning"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["municipality"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Zones in Pennsville Township", "place": {"county_fips": "033", "mun_code": "1709"}, "conditions": []}
+  ]
+}

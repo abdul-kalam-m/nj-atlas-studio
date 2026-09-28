@@ -1,0 +1,52 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_rail_stations",
+  "title": "Passenger rail stations",
+  "category": "transportation",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "station", "plural": "stations"},
+  "summary": "NJ Transit rail and light rail, PATH and PATCO stations, compiled by DCA (updated 2021).",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/Aur8tCo478N3VovT/arcgis/rest/services/NJ_Passenger_Rail_Stations/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "NJ Department of Community Affairs (DCA), from NJ Transit and DVRPC",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=4e8764433a5a4eb9a323635b428c6f22",
+    "expected_count": {"min": 222, "max": 247}
+  },
+  "license": {
+    "name": "State of New Jersey data terms (acknowledgement requested)",
+    "url": "https://www.nj.gov/nj/legal.html",
+    "attribution": "NJ Department of Community Affairs, Office of Local Planning Services; NJ Office of GIS",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "STATION", "name": "station", "label": "Station", "type": "text", "filter": "search", "popup": true},
+    {"source": "RAIL_LINE", "name": "line", "label": "Line", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "AMTRAK", "name": "amtrak", "label": "Amtrak", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "MUNI", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "station",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "points": {"label": "Purple points", "kind": "single", "color": "#6B4C9A", "radius": 5, "outline": "#FFFFFF"},
+    "by_amtrak": {"label": "By Amtrak service", "kind": "categories", "field": "amtrak", "colors": {"Yes": "#D55E00", "No": "#6B4C9A"}, "radius": 5}
+  },
+  "default_style": "points",
+  "legend": {"title": "Passenger rail stations"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["line", "amtrak"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Stations with Amtrak service", "conditions": [{"field": "amtrak", "op": "in", "values": ["Yes"]}]},
+    {"label": "Light rail stations", "conditions": [{"field": "line", "op": "in", "values": ["Hudson-Bergen Light Rail", "Newark Light Rail", "River Line Light Rail"]}]}
+  ]
+}
