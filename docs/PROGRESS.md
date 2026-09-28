@@ -664,3 +664,25 @@ Template (from OPERATING_GUIDE.md §4):
   - Hide covers everything outside, including labels;
   - Outside the area shows Show, Dim and Hide.
 
+### Layer tiers and Tier 1 (D-083) · done · 2026-09-28
+- The owner's request in chat: save the tier list as CANDIDATES.md, add Tier 1, and merge in a pasted review of candidates ("proceed with the best hybrid candidate and tier approach").
+- Changed:
+  - docs/studio/CANDIDATES.md (new);
+  - 20 recipes in catalog/layers (17 published, 3 drafts);
+  - layer.schema.json (category `history`), pipeline/recipes.py (`planning` in the boundary rule; farm owner names in `NEVER_REQUEST`);
+  - site/js/text.js and studio/text.js (categories);
+  - tests/py/test_recipes.py;
+  - LAYER_PLAYBOOK.md, LICENSE_REVIEW.md, DECISIONS.md (D-083, O-10, O-11).
+- Checks:
+  - Each source was inspected (`pipeline inspect`, saved in build/inspect/). `pipeline validate` passes.
+  - `node tools/healthcheck.mjs` passes for all 20 (fields, counts, cross-origin use, and the code-versus-outline test for the two code-sliced layers).
+  - 194 Python and 212 JavaScript tests pass, and the lint passes.
+  - Browser, Pennsville: 3 water systems, 4 deed notices, 11 CEAs, 117 historic properties, 4 preserved farms and 7 sewer service areas. Popups read "Pennsville STP · Salem County BOCF · NJ0021598".
+  - A half-mile screening of block 301, lot 19 lists 2 sewer service areas, 1 water system, 3 CEAs and 35 historic properties.
+  - Hudson County: 33 rail stations buffered at half a mile, dissolved; 7 urban enterprise zones; the Meadowlands District named.
+- Assumptions:
+  - Rail stations use DCA's combined layer (all passenger rail) rather than NJ Transit's two.
+  - The Pinelands Area boundary comes from NJDEP's copy.
+  - Codes with no stated meaning (the SADC status codes, the sewer discharge types, NJDEP's program codes) are left out rather than guessed.
+- Follow-ups (owner): O-10 (OPA), O-11 (Pinelands Commission), and a review of the licenses applied.
+

@@ -96,3 +96,18 @@ For the owner's review. Basemaps are not catalog layers, but prints and PNGs now
 | Satellite (New Jersey) | NJ Office of GIS, 2020 natural color orthophotography, cached tile service `maps.nj.gov/.../Orthos_Natural_2020_NJ_WM` | NJOGIS public data, as for the NJOGIS layers above; the service's credit names NJOIT OGIS and its funding partners | Imagery: NJ Office of GIS (2020 aerial photography) |
 | Satellite (outside NJ) | USGS The National Map, USGSImageryOnly | USGS products are in the public domain; credit requested | USGS The National Map |
 
+## Tier 1 layers (2026-09-28, D-083)
+
+At the owner's instruction ("add Tier 1"), the published layers carry `reviewed_by: abdul-kalam-m`, `reviewed_on: 2026-09-28`, as D-046 did. For the owner's review.
+
+| Publisher | Layers | Terms, as found | Applied |
+| --- | --- | --- | --- |
+| NJDEP | Pinelands Area, CAFRA zone, redevelopment areas, urban enterprise zones, sewer and water service areas, groundwater CEA and known extent, deed notices, historic districts and properties, archaeological grid | The NJDEP Data Distribution Agreement, already accepted (O-3) | Published, with the NJDEP credit sentence |
+| NJOGIS (hosting the Highlands Council and NJSEA data) | Highlands regions, Meadowlands District | NJOGIS terms of use, credit requested (O-3; the email about hosted data is still pending) | Published |
+| SADC | Preserved farmland | Maps and documents must carry SADC's credit and disclaimer, which is quoted word for word as the layer's credit. No redistribution limit. | Published; landowner names left out |
+| DCA | Passenger rail stations, libraries | Acknowledgement of DCA (and NJOGIS) requested; the State's legal statement applies (nj.gov/nj/legal.html). No redistribution limit. | Published |
+| Office for Planning Advocacy | State Plan planning areas and centers | End user license agreement: "will not be reproduced or redistributed for use by anyone else, without first obtaining permission from OPA" | **Draft** until OPA agrees (O-10) |
+| Pinelands Commission | Pinelands municipal zoning | Data "may not be reproduced or redistributed for use by anyone without first obtaining written permission"; printed maps are not restricted; a credit sentence is required | **Draft** until the Commission agrees (O-11). The Pinelands Area boundary is taken from NJDEP instead. |
+
+**Personal data checked.** SADC's `ORIG_OWNER` and `LATEST_LANDOWNER` are in `NEVER_REQUEST`. `PI_NAME` (the responsible party) is left out of the CEA and deed notice layers. Staff usernames (`USER_ID`, `USER_LAST_UPDATE`, `DIGISTAFF`) are left out. The wetland mitigation site parcels layer (with owner names) is not used.
+

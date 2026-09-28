@@ -132,4 +132,7 @@ Use the 3-digit FIPS code everywhere in NJ-Atlas (`county_fips`). NJ's own munic
 
 ## Other candidates (unverified)
 
+Superseded on 2026-09-28 by the verified tiers in [studio/CANDIDATES.md](studio/CANDIDATES.md).
+
+
 `seed/datasets.json` lists 20 families. Besides the layers above, these have ArcGIS-type sources worth inspecting when the human picks M4 layers (O-2): land use/land cover, wetlands, hydrography. Families whose sources are downloads, APIs or rasters (Census geographies, ACS demographics, transit, elevation, imagery, schools, hospitals) are outside v1, which is ArcGIS-only (DECISIONS.md D-011).
