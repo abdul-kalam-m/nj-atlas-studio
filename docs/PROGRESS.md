@@ -647,5 +647,6 @@ Template (from OPERATING_GUIDE.md §4):
   - Print preview on Satellite, Dim renders the imagery (no cross-origin block) and credits it.
   - Statewide at zoom 7.3: schools (3,736), bridges (7,878) and contaminated sites (12,609, in 3 s) all draw.
 - Bug found and fixed: when the area changed while another update was running, a count could use the old area's outline but be stored under the new area. Studio then kept the wrong count and, below 2,000, drew only the first 2,001 shapes. Seen: Salem County wetlands shown as Pennsville's 1,052 instead of 10,924. Queries now take the outline of the exact area they are keyed by. After the fix, the same sequence gave Cumberland County's 10,929, matching the source.
+- Released as gh-pages c44cb978, stacked on the previous release. Live check: four basemaps offered; Satellite on Dim draws with the veil; statewide at zoom 7.3, schools (3,736) and contaminated sites (12,609) draw complete; wetlands, flood zones and Category 1 waters start at 11, parcels 15, roads 11.
 - Assumptions: Streets stays as a fourth basemap. Dense layers come out one zoom, not four; the rest needs the map copies hosted (O-6, D-064).
 
