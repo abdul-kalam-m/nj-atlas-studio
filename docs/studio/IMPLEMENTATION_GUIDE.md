@@ -438,6 +438,12 @@ Each preset has a `label` (its name in the Style panel) and a `kind`. The schema
 - Dim: a veil in the basemap's background color at 60%, just beneath Studio's layers, and basemap labels at 45%. Off: every basemap layer hidden and the veil opaque. Each layer's own visibility and label opacity are kept, so On restores them. The mode carries over when the basemap changes.
 - The mask and area outline take the basemap's colors (`THEMES`). Prints and PNGs use the same basemap and mode, and add its credit.
 
+### The area's edge (as built, D-082)
+
+- **Requests:** a live layer in tiled mode classifies each tile against the area's outline with `clipAreaToBox` (clip.js). An outside tile sends nothing. An inside tile sends its box. An edge tile sends the outline cut to the tile, as an intersects polygon. Classifications are cached per tile until the area or filters change. Whole mode already sent the outline.
+- **Display:** Outside the area is Show, Dim or Hide (`mask`). Dim is a see-through mask beneath the basemap's labels. Hide is an opaque mask in the page's color above them (`mask-top`), with the outline redrawn above it (`area-line-top`). With the basemap off, Dim hides. The mask includes the area's holes.
+- **Not clipped at the source:** copy layers (place tags) and hosted map copies draw whole tiles; Hide gives them the same clean edge.
+
 ### Buffer layers (as built, D-074 to D-078)
 
 - **Input:** a layer on the map that is not a boundary layer (D-074). Choose all its features in the area, a filter (the layer's own filter to start with, then its own), or features selected on the map (click to add or remove; Escape or Done ends). The count shows before running.

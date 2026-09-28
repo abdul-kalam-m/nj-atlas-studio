@@ -650,3 +650,14 @@ Template (from OPERATING_GUIDE.md §4):
 - Released as gh-pages c44cb978, stacked on the previous release. Live check: four basemaps offered; Satellite on Dim draws with the veil; statewide at zoom 7.3, schools (3,736) and contaminated sites (12,609) draw complete; wetlands, flood zones and Category 1 waters start at 11, parcels 15, roads 11.
 - Assumptions: Streets stays as a fourth basemap. Dense layers come out one zoom, not four; the rest needs the map copies hosted (O-6, D-064).
 
+### Live data cut to the area; Outside the area: Show, Dim or Hide (D-082) · done · 2026-09-27
+- The owner's question in chat: lines and areas were not sliced to the area like points, as in a screenshot of Hudson County land use drawn over Newark. "If there is a way to clip the live datasets of polygons and lines… Also think about how the clip works when the background is turned off."
+- Cause: dense live layers load by map tile, and each tile asked for its whole box, so everything in the area's bounding box came back. Points had moved to whole loading (D-081), which always sent the outline.
+- Changed:
+  - site/js/studio/clip.js (`clipRingToBox`, `clipAreaToBox`), tiles.js, geo.js (`worldMinus` masks holes), basemaps.js (`OUTSIDE_MODES`, `maskPaint`), mapview.js (`mask-top`, `area-line-top`), mapdoc.js (`mask`), panels.js, text.js, studio.css;
+  - tests: geo.test.js, screening.test.js, basemaps.test.js, fixtures/mapdocs/v2-buffers.json.
+- Checks:
+  - 192 Python and 212 JavaScript tests pass, and the lint passes.
+  - Browser, release catalog (land use drawn live), Hudson County at the owner's view: 3,335 shapes in 0.75 to 0.9 s against 6,807 in 1.0 to 1.5 s by tile boxes, alternating warm runs. Newark no longer carries land use.
+  - Hide leaves nothing outside, including basemap labels, and the outline stays crisp. Basemap Off with Dim gives the same clean edge. Show with the basemap off shows the shapes that cross the edge. The print renders.
+

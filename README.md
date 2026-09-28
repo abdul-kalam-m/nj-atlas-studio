@@ -16,7 +16,7 @@ Studio is built (stages S0 to S5, and the S6 export counter), with every automat
 - the pilot (S6): five municipalities and three non-GIS testers;
 - written confirmation from NJOGIS that its terms cover the layers it hosts for other agencies (O-3, [docs/LICENSE_REVIEW.md](docs/LICENSE_REVIEW.md)).
 
-Checks: 192 Python tests, 209 JavaScript tests (run `npm ci` once first), the data checks, the plain-language lint, `node tools/healthcheck.mjs` (every live source, nightly in CI) and `node tools/trial.mjs` (live performance, [docs/studio/TRIAL.md](docs/studio/TRIAL.md)).
+Checks: 192 Python tests, 212 JavaScript tests (run `npm ci` once first), the data checks, the plain-language lint, `node tools/healthcheck.mjs` (every live source, nightly in CI) and `node tools/trial.mjs` (live performance, [docs/studio/TRIAL.md](docs/studio/TRIAL.md)).
 
 Run it locally:
 
