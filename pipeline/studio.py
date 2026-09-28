@@ -62,7 +62,8 @@ def studio_entry(recipe: dict, meta: dict | None, hosting: dict, for_release: bo
             entry["values"] = meta["values"]
         else:
             entry["tiles"] = None
-            entry["min_zoom"] = recipe["tiles"]["min_zoom"] + 3  # drawn live: start closer in
+            # drawn live: start closer in than the map copy would (D-052), or where the recipe says (D-081)
+            entry["min_zoom"] = recipe.get("live_min_zoom", recipe["tiles"]["min_zoom"] + 3)
     return entry
 
 

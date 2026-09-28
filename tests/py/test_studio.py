@@ -49,7 +49,7 @@ def test_hybrid_layers_are_drawn_live_without_their_map_copy(studio_atlas):
     catalog = build_studio_catalog(studio_atlas, include_drafts=True)
     wetlands = next(layer for layer in catalog["layers"] if layer["id"] == "nj_wetlands")
     assert wetlands["tiles"] is None
-    assert wetlands["min_zoom"] == 12  # tiles would start at 9; drawn live, three zooms closer
+    assert wetlands["min_zoom"] == 11  # tiles would start at 9; drawn live from the recipe's live_min_zoom (D-081)
 
 
 def test_a_built_hybrid_layer_needs_the_tile_host_in_a_release():

@@ -129,7 +129,7 @@
     "municipality": {"field": "COMU_CODE", "match": "mun_code"},
     "county": {"field": "COMU_CODE", "match": "mun_prefix"}
   },
-  "min_zoom": 9,
+  "min_zoom": 7,
   "styles": {
     "by_status": {"label": "By status", "kind": "categories", "field": "status", "palette": "okabe_ito"},
     "points": {"label": "Red points", "kind": "single", "color": "#C0392B", "radius": 5}

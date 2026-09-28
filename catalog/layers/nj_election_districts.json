@@ -38,7 +38,7 @@
     "municipality": {"field": "MCODE_1040", "match": "mun_code"},
     "county": {"field": "MCODE_1040", "match": "mun_prefix"}
   },
-  "min_zoom": 10,
+  "min_zoom": 8,
   "styles": {"outline": {"label": "Outline", "kind": "single", "color": "#34495E", "fill": false, "width": 1, "labels": {"field": "election_district", "size": 12, "halo": true}}},
   "default_style": "outline",
   "legend": {"title": "Election districts"},

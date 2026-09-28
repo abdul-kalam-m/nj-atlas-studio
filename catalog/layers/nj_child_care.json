@@ -35,7 +35,7 @@
   "access": "live",
   "area_mode": "code",
   "area_codes": {"county": {"field": "county", "match": "county_name"}},
-  "min_zoom": 11,
+  "min_zoom": 7,
   "styles": {"points": {"label": "Teal points", "kind": "single", "color": "#138D90", "radius": 4}},
   "default_style": "points",
   "legend": {"title": "Child care centers"},

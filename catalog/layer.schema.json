@@ -128,7 +128,11 @@
       }
     },
     "min_zoom": {
-      "description": "Live layers only: the zoom at which features start loading (CATALOG.md 'Min zoom').",
+      "description": "Live layers only: the zoom at which features start loading when the area holds more than 2,000 (fewer load whole, at any zoom). Set by density (D-081).",
+      "type": "integer", "minimum": 0, "maximum": 16
+    },
+    "live_min_zoom": {
+      "description": "Hybrid layers only: the zoom at which features start loading while the map copy is not hosted (D-052, D-081). Default: tiles.min_zoom + 3.",
       "type": "integer", "minimum": 0, "maximum": 16
     },
     "styles": {
@@ -250,7 +254,7 @@
       "then": {
         "required": ["place_tags", "tiles"],
         "properties": {"area_mode": {"const": "tags"}, "refresh_cadence": {"enum": ["quarterly", "yearly_check", "static"]}},
-        "not": {"anyOf": [{"required": ["min_zoom"]}, {"required": ["distance_query"]}, {"required": ["known_answers"]}]}
+        "not": {"anyOf": [{"required": ["min_zoom"]}, {"required": ["live_min_zoom"]}, {"required": ["distance_query"]}, {"required": ["known_answers"]}]}
       }
     },
     {
@@ -268,7 +272,7 @@
       "then": {
         "required": ["min_zoom", "distance_query"],
         "properties": {"area_mode": {"enum": ["code", "intersects"]}, "refresh_cadence": {"const": "live"}},
-        "not": {"anyOf": [{"required": ["place_tags"]}, {"required": ["partition"]}, {"required": ["tiles"]}]}
+        "not": {"anyOf": [{"required": ["place_tags"]}, {"required": ["partition"]}, {"required": ["tiles"]}, {"required": ["live_min_zoom"]}]}
       }
     },
     {

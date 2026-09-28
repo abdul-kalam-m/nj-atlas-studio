@@ -33,7 +33,7 @@
   "label_field": "carries",
   "access": "live",
   "area_mode": "intersects",
-  "min_zoom": 11,
+  "min_zoom": 7,
   "styles": {"points": {"label": "Purple points", "kind": "single", "color": "#6B4C9A", "radius": 4}},
   "default_style": "points",
   "legend": {"title": "Bridges"},

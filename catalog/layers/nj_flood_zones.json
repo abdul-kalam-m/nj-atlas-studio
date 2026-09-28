@@ -38,6 +38,7 @@
   "default_style": "by_zone",
   "legend": {"title": "Flood hazard zones"},
   "buffer_role": "both",
+  "live_min_zoom": 11,
   "distance_query": true,
   "list_fields": ["zone_subtype"],
   "clip_mode": "cut",

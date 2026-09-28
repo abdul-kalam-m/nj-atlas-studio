@@ -31,7 +31,7 @@
   "label_field": "name",
   "access": "live",
   "area_mode": "intersects",
-  "min_zoom": 12,
+  "min_zoom": 11,
   "styles": {"fill": {"label": "Water fill", "kind": "single", "color": "#4A8FD1", "opacity": 0.5}},
   "default_style": "fill",
   "legend": {"title": "Waterbodies"},

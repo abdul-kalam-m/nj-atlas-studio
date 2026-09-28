@@ -31,7 +31,7 @@
   "access": "live",
   "area_mode": "code",
   "area_codes": {"county": {"field": "COUNTY", "match": "county_name"}},
-  "min_zoom": 12,
+  "min_zoom": 11,
   "styles": {"by_zone": {"label": "By zone", "kind": "categories", "field": "zone", "palette": "okabe_ito", "opacity": 0.45}},
   "default_style": "by_zone",
   "legend": {"title": "Tidal flood elevation"},

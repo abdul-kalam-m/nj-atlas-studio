@@ -30,7 +30,7 @@
   "label_field": "area_id",
   "access": "live",
   "area_mode": "intersects",
-  "min_zoom": 11,
+  "min_zoom": 8,
   "styles": {"by_tier": {"label": "By tier", "kind": "categories", "field": "tier", "colors": {"Tier 1 (2 years)": "#08519C", "Tier 2 (5 years)": "#4292C6", "Tier 3 (12 years)": "#9ECAE1"}, "opacity": 0.45}},
   "default_style": "by_tier",
   "legend": {"title": "Wellhead protection areas"},

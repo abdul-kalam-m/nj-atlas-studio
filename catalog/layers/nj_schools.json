@@ -33,7 +33,7 @@
   "label_field": "school",
   "access": "live",
   "area_mode": "intersects",
-  "min_zoom": 9,
+  "min_zoom": 7,
   "styles": {
     "points": {"label": "Amber points", "kind": "single", "color": "#B7791F", "radius": 4},
     "by_type": {"label": "By type", "kind": "categories", "field": "school_type", "palette": "okabe_ito", "radius": 4}

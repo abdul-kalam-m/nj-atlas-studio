@@ -51,6 +51,27 @@ test('the CSV starts with the screening label, then the parcel line', () => {
   assert.equal(geojson.features.length, 2 + 3);
 });
 
+test('points load whole up to 15,000 in the area, at any zoom; areas still load by tile above 2,000 (D-081)', async () => {
+  const calls = { all: 0, tile: 0 };
+  const point = (i) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [-74.5, 40] }, properties: { OBJECTID: i } });
+  const client = {
+    allFeatures: async (url, options, cap) => { calls.all += 1; return { features: Array.from({ length: Math.min(12000, cap) }, (_, i) => point(i)) }; },
+    features: async () => { calls.tile += 1; return { features: [], exceeded: false }; },
+  };
+  const schools = recipe('nj_schools');
+  let drawn = 0;
+  const layer = new LiveLayer({ client, entry: schools, outFields: ['OBJECTID'], onData: (data) => { drawn = data.features.length; }, onStatus: () => {} });
+  layer.setQuery({ where: '1=1', geometry: null, total: 12000 });
+  await layer.update([-75.6, 38.9, -73.9, 41.4], 5);
+  await layer.update([-74.1, 40.6, -74.0, 40.7], 16); // zooming in reuses the points
+  assert.deepEqual([drawn, calls.all, calls.tile], [12000, 1, 0]);
+  const areas = new LiveLayer({ client, entry: { ...parcels, min_zoom: 15 }, outFields: ['OBJECTID'], onData: () => {}, onStatus: () => {} });
+  areas.setQuery({ where: '1=1', geometry: null, total: 12000 });
+  await areas.update([-74.01, 40.70, -74.00, 40.71], 16);
+  assert.equal(calls.all, 1); // not whole
+  assert.ok(calls.tile > 0);
+});
+
 test('a tile that stays full after three splits is drawn as it came and marked dense (D-053)', async () => {
   let requests = 0;
   const client = { features: async () => { requests += 1; return { features: [], exceeded: true }; } };

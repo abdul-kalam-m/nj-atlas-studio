@@ -40,7 +40,7 @@
     "municipality": {"field": "MUN_CODE", "match": "mun_code"},
     "county": {"field": "MUN_CODE", "match": "mun_prefix"}
   },
-  "min_zoom": 8,
+  "min_zoom": 7,
   "styles": {
     "by_criteria": {"label": "By criteria", "kind": "categories", "field": "criteria", "palette": "okabe_ito", "opacity": 0.6},
     "fill": {"label": "Amber fill", "kind": "single", "color": "#B7791F", "opacity": 0.5}

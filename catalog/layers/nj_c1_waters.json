@@ -31,7 +31,7 @@
   "label_field": "name",
   "access": "live",
   "area_mode": "intersects",
-  "min_zoom": 12,
+  "min_zoom": 11,
   "styles": {"line": {"label": "Dark blue line", "kind": "single", "color": "#0B3C8C", "width": 2.5}},
   "default_style": "line",
   "legend": {"title": "Category 1 waters"},
