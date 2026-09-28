@@ -659,5 +659,8 @@ Template (from OPERATING_GUIDE.md §4):
 - Checks:
   - 192 Python and 212 JavaScript tests pass, and the lint passes.
   - Browser, release catalog (land use drawn live), Hudson County at the owner's view: 3,335 shapes in 0.75 to 0.9 s against 6,807 in 1.0 to 1.5 s by tile boxes, alternating warm runs. Newark no longer carries land use.
-  - Hide leaves nothing outside, including basemap labels, and the outline stays crisp. Basemap Off with Dim gives the same clean edge. Show with the basemap off shows the shapes that cross the edge. The print renders.
+  - Hide leaves nothing outside, including basemap labels, and the outline stays crisp. Basemap Off with Dim gives the same clean edge. Show with the basemap off shows the shapes that cross the edge. The print renders.- Released as gh-pages 99bbdb79. Live check at the owner's view of Hudson County:
+  - land use (3,392 in the county) draws 2,810 shapes from 4 edge tiles, each sent as the outline cut to the tile;
+  - Hide covers everything outside, including labels;
+  - Outside the area shows Show, Dim and Hide.
 
