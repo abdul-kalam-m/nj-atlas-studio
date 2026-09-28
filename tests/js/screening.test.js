@@ -72,6 +72,25 @@ test('points load whole up to 15,000 in the area, at any zoom; areas still load 
   assert.ok(calls.tile > 0);
 });
 
+test('with an outline area, tiles outside it make no request and tiles on its edge ask for the part inside (D-082)', async () => {
+  const asked = [];
+  const client = { features: async (url, options) => { asked.push(options.geometry); return { features: [], exceeded: false }; } };
+  const layer = new LiveLayer({ client, entry: { ...parcels, min_zoom: 12 }, outFields: ['OBJECTID'], onData: () => {}, onStatus: () => {} });
+  // An area covering the western part of a zoom-12 view (tiles there are about 0.09 degrees wide)
+  const area = { type: 'Polygon', coordinates: [[[-74.3, 40.5], [-74.02, 40.5], [-74.02, 40.9], [-74.3, 40.9], [-74.3, 40.5]]] };
+  layer.setQuery({ where: '1=1', geometry: area, total: 99999 });
+  await layer.update([-74.25, 40.55, -73.9, 40.85], 12);
+  const [boxes, cut] = [asked.filter(Array.isArray), asked.filter((g) => !Array.isArray(g))];
+  assert.ok(boxes.length > 0 && cut.length > 0, `${boxes.length} boxes, ${cut.length} cut`);
+  assert.ok(cut.every((g) => g.type === 'Polygon'));
+  // every tile asked for touches the area; none lies wholly east of it
+  assert.ok(boxes.every((b) => b[0] < -74.02));
+  const before = asked.length;
+  layer.setQuery({ where: '1=1', geometry: null, total: 99999 }); // no outline (the whole state): boxes only, and more of them
+  await layer.update([-74.25, 40.55, -73.9, 40.85], 12);
+  assert.ok(asked.length - before > before, `${asked.length - before} vs ${before}`);
+});
+
 test('a tile that stays full after three splits is drawn as it came and marked dense (D-053)', async () => {
   let requests = 0;
   const client = { features: async () => { requests += 1; return { features: [], exceeded: true }; } };

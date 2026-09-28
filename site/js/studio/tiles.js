@@ -3,9 +3,11 @@
 //   to about a pixel, and fetched again with more detail after zooming in 3 levels (points need no more detail);
 // - tiled: above that, features load per web-mercator tile from the layer's min_zoom (zoom 14 for points, 15 for
 //   lines and areas at most), a tile that hits the service's page limit splits into four, and at most 50,000
-//   features stay cached.
+//   features stay cached. When the area is an outline, each tile asks only for the part of the area inside it,
+//   and a tile outside the area is never asked for (D-082).
 // Rows are converted to output names (transform.js) before they reach the map, so styles and popups match copies.
 import { bboxOf, pixelDegrees, tileBounds, tilesInBounds } from './geo.js';
+import { clipAreaToBox } from './clip.js';
 import { toRow } from './transform.js';
 
 export const WHOLE_LIMIT = 2000;
@@ -22,6 +24,7 @@ export class LiveLayer {
     this.query = null; // { where, geometry, total }
     this.cache = new Map(); // tile key -> features
     this.dense = new Set(); // tiles still full after MAX_SPLIT_DEPTH splits
+    this.parts = new Map(); // tile key -> how the tile meets the area (clipAreaToBox)
     this.wholeZoom = null;
     this.generation = 0;
     this.lastData = EMPTY;
@@ -34,6 +37,7 @@ export class LiveLayer {
     if (changed) {
       this.cache.clear();
       this.dense.clear();
+      this.parts.clear();
       this.wholeZoom = null;
     }
   }
@@ -123,14 +127,27 @@ export class LiveLayer {
   // A tile that reaches the service's page limit splits into four, up to MAX_SPLIT_DEPTH times; past that its
   // features are drawn as they came and the layer reports 'dense'.
   async loadTile(x, y, z, depth = 0) {
+    const geometry = this.tileArea(x, y, z);
+    if (!geometry) return { features: [], dense: false }; // outside the area: no request
     const page = await this.client.features(this.entry.source.url, {
-      where: this.query.where, geometry: tileBounds(x, y, z), outFields: this.outFields,
+      where: this.query.where, geometry, outFields: this.outFields,
       maxAllowableOffset: this.entry.geometry === 'point' ? undefined : pixelDegrees(z + 1), precision: 6,
     });
     if (!page.exceeded) return { features: this.convert(page.features), dense: false };
     if (depth >= MAX_SPLIT_DEPTH) return { features: this.convert(page.features), dense: true };
     const children = await Promise.all([[0, 0], [1, 0], [0, 1], [1, 1]].map(([dx, dy]) => this.loadTile(x * 2 + dx, y * 2 + dy, z + 1, depth + 1)));
     return { features: children.flatMap((child) => child.features), dense: children.some((child) => child.dense) };
+  }
+
+  // What a tile asks the source for: its box, the part of the area inside it, or null when it lies outside the area.
+  tileArea(x, y, z) {
+    const box = tileBounds(x, y, z);
+    if (!this.query.geometry) return box;
+    const key = `${z}/${x}/${y}`;
+    if (!this.parts.has(key)) this.parts.set(key, clipAreaToBox(this.query.geometry, box));
+    const part = this.parts.get(key);
+    if (part.relation === 'outside') return null;
+    return part.relation === 'inside' ? box : part.geometry;
   }
 
   trim() {
