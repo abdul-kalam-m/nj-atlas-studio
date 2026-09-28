@@ -684,5 +684,7 @@ Template (from OPERATING_GUIDE.md §4):
   - Rail stations use DCA's combined layer (all passenger rail) rather than NJ Transit's two.
   - The Pinelands Area boundary comes from NJDEP's copy.
   - Codes with no stated meaning (the SADC status codes, the sewer discharge types, NJDEP's program codes) are left out rather than guessed.
-- Follow-ups (owner): O-10 (OPA), O-11 (Pinelands Commission), and a review of the licenses applied.
+- Follow-ups (owner): O-10 (OPA), O-11 (Pinelands Commission), and a review of the licenses applied.- Released as gh-pages a2c478b6. Live check:
+  - 52 layers and none of the three drafts; the new categories "Planning and regulation" and "History and culture" appear.
+  - Pennsville: 7 historic districts, 30 archaeological grid cells, 5 CAFRA zone parts, 1 library. There is no Highlands area and no known-extent contamination area there, as expected.
 
