@@ -115,11 +115,15 @@ export function pointInPolygon(point, geometry) {
   return polygonsOf(geometry).some(([outer, ...holes]) => pointInRing(point, outer) && !holes.some((hole) => pointInRing(point, hole)));
 }
 
-// The world with the area cut out, so everything outside the area can be dimmed.
+// The world with the area cut out, so everything outside the area can be dimmed or hidden. The area's own holes
+// (a town inside a township) are outside it too, so they are masked as well.
 export function worldMinus(geometry) {
   const world = [[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]];
-  const holes = polygonsOf(geometry).map((polygon) => polygon[0]);
-  return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [world, ...holes] } };
+  const polygons = polygonsOf(geometry);
+  const outers = polygons.map((polygon) => polygon[0]);
+  const enclaves = polygons.flatMap((polygon) => polygon.slice(1)).map((hole) => [hole]);
+  const coordinates = enclaves.length ? [[world, ...outers], ...enclaves] : [world, ...outers];
+  return { type: 'Feature', properties: {}, geometry: { type: enclaves.length ? 'MultiPolygon' : 'Polygon', coordinates } };
 }
 
 const NICE = [1, 2, 5];

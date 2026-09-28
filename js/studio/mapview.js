@@ -3,11 +3,13 @@
 // outline, basemap labels, rings, results, the selection, the site, the drawing in progress (D-042).
 import { Protocol } from 'https://cdn.jsdelivr.net/npm/pmtiles@4.5.0/+esm';
 import { worldMinus } from './geo.js';
-import { BASEMAP_MODES, BASEMAP_NAMES, BASEMAP_STYLES, THEMES, modeOperations, veilPaint } from './basemaps.js';
+import { BASEMAP_MODES, BASEMAP_NAMES, BASEMAP_STYLES, THEMES, maskPaint, modeOperations, veilPaint } from './basemaps.js';
 
 const MAPLIBRE_URL = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
 const STUDIO_SOURCES = ['mask', 'area', 'rings', 'hits', 'selected', 'sites', 'draft'];
 const VEIL = 'basemap-veil'; // D-080: between the basemap and Studio's layers
+// D-082: Hide covers the basemap's labels too, so its mask and the area's outline also sit above them.
+const TOP_LAYERS = ['mask-top', 'area-line-top'];
 const isStudioSource = (id) => STUDIO_SOURCES.includes(id) || String(id).startsWith('L:');
 const isStudioLayer = (layer) => layer.id === VEIL || isStudioSource(layer.source);
 const NJ_BOUNDS = [[-75.6, 38.9], [-73.9, 41.4]];
@@ -152,6 +154,7 @@ export class StudioMap {
     this.sources = new Map(); // sourceId -> signature
     const firstLabel = map.getStyle().layers.find((layer) => layer.type === 'symbol')?.id;
     this.basemapMode = 'on';
+    this.outside = 'dim'; // D-082: show, dim or hide what lies outside the area
     this.saved = new Map(); // the basemap layers' own visibility and label opacity (D-080)
     map.addLayer({ id: VEIL, type: 'background', layout: { visibility: 'none' }, paint: { 'background-color': '#ffffff', 'background-opacity': 0 } }, firstLabel);
     map.addSource('mask', { type: 'geojson', data: EMPTY });
@@ -162,6 +165,8 @@ export class StudioMap {
       map.addSource(overlay.id, { type: 'geojson', data: EMPTY });
       for (const layer of overlay.layers) map.addLayer({ ...layer, source: overlay.id });
     }
+    map.addLayer({ id: 'mask-top', type: 'fill', source: 'mask', layout: { visibility: 'none' }, paint: { 'fill-color': '#ffffff', 'fill-opacity': 1 } }, 'ring-fill');
+    map.addLayer({ id: 'area-line-top', type: 'line', source: 'area', layout: { visibility: 'none' }, paint: { 'line-color': '#17212c', 'line-width': 2.2 } }, 'ring-fill');
     this.popup = null;
   }
 
@@ -213,7 +218,8 @@ export class StudioMap {
         transformStyle: (previous, next) => {
           const sources = Object.fromEntries(Object.entries(previous.sources).filter(([id]) => isStudioSource(id)));
           const ours = previous.layers.filter(isStudioLayer);
-          const below = ours.filter((layer) => layer.id === VEIL || layer.source.startsWith('L:') || layer.source === 'mask' || layer.source === 'area');
+          const below = ours.filter((layer) => layer.id === VEIL || layer.source.startsWith('L:')
+            || ((layer.source === 'mask' || layer.source === 'area') && !TOP_LAYERS.includes(layer.id)));
           const above = ours.filter((layer) => !below.includes(layer));
           const firstLabel = next.layers.findIndex((layer) => layer.type === 'symbol');
           const layers = firstLabel < 0 ? [...next.layers, ...below, ...above]
@@ -237,10 +243,24 @@ export class StudioMap {
     map.setLayoutProperty(VEIL, 'visibility', veil.visibility);
     map.setPaintProperty(VEIL, 'background-color', veil.color);
     map.setPaintProperty(VEIL, 'background-opacity', veil.opacity);
-    const theme = THEMES[this.basemap] ?? THEMES.positron;
-    map.setPaintProperty('mask-fill', 'fill-color', theme.mask);
-    map.setPaintProperty('mask-fill', 'fill-opacity', theme.maskOpacity);
-    map.setPaintProperty('area-line', 'line-color', theme.outline);
+    const outline = (THEMES[this.basemap] ?? THEMES.positron).outline;
+    map.setPaintProperty('area-line', 'line-color', outline);
+    map.setPaintProperty('area-line-top', 'line-color', outline);
+    this.paintMask();
+  }
+
+  // Dim: a see-through mask beneath the basemap's labels. Hide: an opaque one above them, with the outline on top.
+  paintMask() {
+    const mask = maskPaint(this.basemap, this.basemapMode, this.outside);
+    const hide = mask.visible && mask.opacity === 1;
+    const map = this.map;
+    map.setLayoutProperty('mask-fill', 'visibility', mask.visible && !hide ? 'visible' : 'none');
+    map.setPaintProperty('mask-fill', 'fill-color', mask.color);
+    map.setPaintProperty('mask-fill', 'fill-opacity', mask.opacity);
+    map.setLayoutProperty('mask-top', 'visibility', hide ? 'visible' : 'none');
+    map.setPaintProperty('mask-top', 'fill-color', mask.color);
+    map.setLayoutProperty('area-line', 'visibility', hide ? 'none' : 'visible');
+    map.setLayoutProperty('area-line-top', 'visibility', hide ? 'visible' : 'none');
   }
 
   setData(key, featureCollection) {
@@ -251,10 +271,12 @@ export class StudioMap {
     this.map.getSource(id)?.setData(featureCollection ?? EMPTY);
   }
 
-  // The area: its outline, and the world outside it dimmed when `mask` is on.
-  setArea(geometry, mask) {
+  // The area: its outline, and the world outside it shown, dimmed or hidden (`outside`, D-082).
+  setArea(geometry, outside) {
+    this.outside = outside;
     this.setOverlay('area', geometry ? { type: 'Feature', properties: {}, geometry } : EMPTY);
-    this.setOverlay('mask', geometry && mask ? worldMinus(geometry) : EMPTY);
+    this.setOverlay('mask', geometry && outside !== 'show' ? worldMinus(geometry) : EMPTY);
+    this.paintMask();
   }
 
   dataLayerIds() {

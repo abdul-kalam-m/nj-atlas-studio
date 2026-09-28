@@ -77,3 +77,59 @@ export function clipFeature(feature, area, intersect) {
     { type: 'Feature', properties: {}, geometry }, { type: 'Feature', properties: {}, geometry: area }] });
   return cut ? { ...feature, geometry: cut.geometry } : null;
 }
+
+// ---- Live requests cut to the area (D-082) ----
+
+function ringArea(ring) {
+  let sum = 0;
+  for (let i = 0; i < ring.length - 1; i += 1) sum += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1];
+  return Math.abs(sum / 2);
+}
+
+// A ring cut to an axis-aligned box [west, south, east, north] (Sutherland-Hodgman). Where the ring leaves the
+// box and comes back, the result runs along the box's edge; that adds no area, only the edge itself.
+export function clipRingToBox(ring, [west, south, east, north]) {
+  const sides = [
+    [(p) => p[0] >= west, (a, b) => [west, a[1] + ((west - a[0]) / (b[0] - a[0])) * (b[1] - a[1])]],
+    [(p) => p[0] <= east, (a, b) => [east, a[1] + ((east - a[0]) / (b[0] - a[0])) * (b[1] - a[1])]],
+    [(p) => p[1] >= south, (a, b) => [a[0] + ((south - a[1]) / (b[1] - a[1])) * (b[0] - a[0]), south]],
+    [(p) => p[1] <= north, (a, b) => [a[0] + ((north - a[1]) / (b[1] - a[1])) * (b[0] - a[0]), north]],
+  ];
+  const closed = ring.length > 1 && ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1];
+  let points = closed ? ring.slice(0, -1) : ring;
+  for (const [inside, cut] of sides) {
+    const input = points;
+    points = [];
+    for (let i = 0; i < input.length; i += 1) {
+      const current = input[i];
+      const previous = input[(i + input.length - 1) % input.length];
+      if (inside(current)) {
+        if (!inside(previous)) points.push(cut(previous, current));
+        points.push(current);
+      } else if (inside(previous)) points.push(cut(previous, current));
+    }
+    if (!points.length) return [];
+  }
+  return [...points, points[0]];
+}
+
+// How a map tile's box meets the area: { relation: 'outside' } (no request needed), { relation: 'inside' } (ask
+// for the box), or { relation: 'partial', geometry } (ask for the part of the area inside the box).
+export function clipAreaToBox(area, box) {
+  const polygons = [];
+  let covered = 0;
+  const shapes = area.type === 'Polygon' ? [area.coordinates] : area.type === 'MultiPolygon' ? area.coordinates : [];
+  for (const [outer, ...holes] of shapes) {
+    const cut = clipRingToBox(outer, box);
+    const cutArea = cut.length >= 4 ? ringArea(cut) : 0;
+    if (!cutArea) continue;
+    const cutHoles = holes.map((hole) => clipRingToBox(hole, box)).filter((hole) => hole.length >= 4 && ringArea(hole) > 0);
+    polygons.push([cut, ...cutHoles]);
+    covered += cutArea - cutHoles.reduce((sum, hole) => sum + ringArea(hole), 0);
+  }
+  if (!polygons.length || covered <= 0) return { relation: 'outside' };
+  const boxArea = (box[2] - box[0]) * (box[3] - box[1]);
+  if (covered >= boxArea * (1 - 1e-9)) return { relation: 'inside' };
+  return { relation: 'partial',
+    geometry: polygons.length === 1 ? { type: 'Polygon', coordinates: polygons[0] } : { type: 'MultiPolygon', coordinates: polygons } };
+}
