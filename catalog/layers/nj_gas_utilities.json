@@ -1,0 +1,46 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_gas_utilities",
+  "title": "Gas utility territories",
+  "category": "planning",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "service territory", "plural": "service territories"},
+  "summary": "Service territories of the four natural gas distribution companies.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Utilities/MapServer/11",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), from the NJ Board of Public Utilities",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 31, "max": 36}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "NAME", "name": "utility", "label": "Utility", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "LABEL", "name": "code", "label": "Code", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "utility",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "by_utility": {"label": "By utility", "kind": "categories", "field": "utility", "palette": "okabe_ito", "opacity": 0.3}
+  },
+  "default_style": "by_utility",
+  "legend": {"title": "Gas utility territories"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["code"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

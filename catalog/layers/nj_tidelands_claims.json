@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_tidelands_claims",
+  "title": "Tidelands claims",
+  "category": "property",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "tidelands area", "plural": "tidelands areas"},
+  "summary": "Lands now or formerly flowed by the tide, which the State may own; claims affect title and need a tidelands grant, lease or statement of no interest.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Hydrography/MapServer/30",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Tidelands",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 27262, "max": 30133}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "CLAIM_TYPE", "name": "claim_type", "label": "Claim type", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "CLAIM_STATUS_1", "name": "status", "label": "Status", "type": "category", "filter": "checklist", "popup": true, "transform": "titlecase"},
+    {"source": "TIDELANDS_REGION", "name": "region", "label": "Region", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "GRID_ID", "name": "map_sheet", "label": "Map sheet", "type": "text", "filter": "search", "popup": true},
+    {"source": "TRC_ADOPTION_DATE", "name": "adopted", "label": "Adopted", "type": "date", "filter": "range", "popup": true}
+  ],
+  "label_field": "claim_type",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 12,
+  "styles": {
+    "by_status": {"label": "By status", "kind": "categories", "field": "status", "colors": {"Claimed": "#1F78B4", "Unclaimed": "#A6CEE3"}, "opacity": 0.35}
+  },
+  "default_style": "by_status",
+  "legend": {"title": "Tidelands claims"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["status", "map_sheet"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Claimed areas", "conditions": [{"field": "status", "op": "in", "values": ["Claimed"]}]}
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_ms4_inlets",
+  "title": "Stormwater inlets (MS4)",
+  "category": "water",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "inlet", "plural": "inlets"},
+  "summary": "Storm drain inlets mapped by municipalities and agencies under their MS4 stormwater permits. Coverage depends on each permittee's mapping.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Applications/MS4_Map/MapServer/3",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), MS4 permittees",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 73732, "max": 81495}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "SWMINLET_ID", "name": "inlet_id", "label": "Inlet ID", "type": "text", "filter": "search", "popup": true},
+    {"source": "ROADNAME", "name": "road", "label": "Road", "type": "text", "filter": "search", "popup": true},
+    {"source": "FACILITY_NAME", "name": "permittee", "label": "Permittee", "type": "text", "filter": "search", "popup": true},
+    {"source": "INLETTYPE", "name": "inlet_type", "label": "Type", "type": "text", "filter": "none", "popup": true},
+    {"source": "OWNERTYPE", "name": "owner_type", "label": "Owner type", "type": "text", "filter": "none", "popup": true, "transform": "titlecase"}
+  ],
+  "label_field": "inlet_id",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 15,
+  "styles": {
+    "points": {"label": "Points", "kind": "single", "color": "#1F78B4", "radius": 4, "outline": "#FFFFFF"}
+  },
+  "default_style": "points",
+  "legend": {"title": "Stormwater inlets"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["road", "permittee"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": ["CREATED_USER", "LAST_EDITED_USER", "AGOL_CREATED_USER", "AGOL_LAST_EDITOR"],
+  "examples": []
+}

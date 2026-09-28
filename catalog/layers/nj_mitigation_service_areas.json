@@ -1,0 +1,47 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_mitigation_service_areas",
+  "title": "Mitigation bank service areas",
+  "category": "planning",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "service area", "plural": "service areas"},
+  "summary": "Where each wetland mitigation bank may sell credits: projects inside a service area can buy from that bank.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land/MapServer/70",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 21, "max": 24}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "SERVICEAREA", "name": "service_area", "label": "Service area", "type": "text", "filter": "search", "popup": true},
+    {"source": "MIT_BANK", "name": "bank", "label": "Bank", "type": "text", "filter": "none", "popup": true},
+    {"source": "STATUS", "name": "status", "label": "Status", "type": "category", "filter": "checklist", "popup": true}
+  ],
+  "label_field": "service_area",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "outline": {"label": "Outline", "kind": "single", "color": "#2E7D6B", "fill": false, "width": 2}
+  },
+  "default_style": "outline",
+  "legend": {"title": "Mitigation bank service areas"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["bank"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

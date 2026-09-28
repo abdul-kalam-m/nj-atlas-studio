@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_cso_outfalls",
+  "title": "Combined sewer overflows",
+  "category": "water",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "overflow outfall", "plural": "overflow outfalls"},
+  "summary": "Outfalls where combined sewers overflow to waterways in heavy rain.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Utilities/MapServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 200, "max": 223}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "CSO_ID", "name": "outfall", "label": "Outfall", "type": "text", "filter": "search", "popup": true},
+    {"source": "PERMITTEE", "name": "permittee", "label": "Permittee", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "RECV_WATER", "name": "receiving", "label": "Receiving water", "type": "text", "filter": "none", "popup": true},
+    {"source": "CSO_STAT", "name": "status", "label": "Status", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "SOLIDS_FLOATABLES", "name": "solids_control", "label": "Solids and floatables control", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Y": "Yes", "N": "No"}}
+  ],
+  "label_field": "outfall",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "points": {"label": "Points", "kind": "single", "color": "#8C510A", "radius": 4, "outline": "#FFFFFF"}
+  },
+  "default_style": "points",
+  "legend": {"title": "Combined sewer overflows"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["status", "receiving"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Active outfalls", "conditions": [{"field": "status", "op": "in", "values": ["Active"]}]}
+  ]
+}

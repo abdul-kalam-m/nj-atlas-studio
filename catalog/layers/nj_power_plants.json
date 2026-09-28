@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_power_plants",
+  "title": "Power plants",
+  "category": "hazards",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "power plant", "plural": "power plants"},
+  "summary": "Electric generating stations above 1 megawatt, by primary energy source.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Utilities/MapServer/20",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), from U.S. EIA",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 73, "max": 82}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "PLANT_NAME", "name": "plant", "label": "Plant", "type": "text", "filter": "search", "popup": true},
+    {"source": "UTILITY_NAME", "name": "operator", "label": "Operator", "type": "text", "filter": "none", "popup": true},
+    {"source": "PRIMSOURCE", "name": "source", "label": "Primary source", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "TOTAL_MW", "name": "megawatts", "label": "Capacity", "type": "number", "filter": "range", "popup": true, "unit": "MW", "decimals": 0},
+    {"source": "TECHNICAL", "name": "technology", "label": "Technology", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "plant",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "by_source": {"label": "By source", "kind": "categories", "field": "source", "palette": "okabe_ito", "radius": 6}
+  },
+  "default_style": "by_source",
+  "legend": {"title": "Power plants"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["source", "megawatts"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Natural gas plants", "conditions": [{"field": "source", "op": "in", "values": ["Natural Gas"]}]}
+  ]
+}

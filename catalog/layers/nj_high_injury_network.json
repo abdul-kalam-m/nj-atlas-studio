@@ -1,0 +1,53 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_high_injury_network",
+  "title": "High Injury Network (state roads)",
+  "category": "transportation",
+  "status": "published",
+  "geometry": "line",
+  "noun": {"singular": "road segment", "plural": "road segments"},
+  "summary": "State highway segments with the most fatal and serious injury crashes, ranked (NJDOT, 2025).",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/HggmsDF7UJsNN1FK/arcgis/rest/services/HIN_2025_Jurisdiction_Filter1/FeatureServer/1",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Transportation (NJDOT)",
+    "landing_page": "https://www.nj.gov/transportation/",
+    "expected_count": {"min": 148, "max": 165}
+  },
+  "license": {
+    "name": "NJDOT public data (no license stated)",
+    "url": "https://www.nj.gov/nj/legal.html",
+    "attribution": "New Jersey Department of Transportation (NJDOT)",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "Road_Name", "name": "road", "label": "Road", "type": "text", "filter": "search", "popup": true},
+    {"source": "Rank", "name": "rank", "label": "Rank", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "K_Crashes", "name": "fatal_crashes", "label": "Fatal crashes", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "SI_Crashes", "name": "serious_injury_crashes", "label": "Serious injury crashes", "type": "number", "filter": "range", "popup": true, "decimals": 0},
+    {"source": "Total_Crashes", "name": "total_crashes", "label": "All crashes", "type": "number", "filter": "none", "popup": true, "decimals": 0},
+    {"source": "BG_MP", "name": "from_milepost", "label": "From milepost", "type": "number", "filter": "none", "popup": true, "decimals": 2},
+    {"source": "End_MP", "name": "to_milepost", "label": "To milepost", "type": "number", "filter": "none", "popup": true, "decimals": 2}
+  ],
+  "label_field": "road",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "line": {"label": "Red line", "kind": "single", "color": "#C0392B", "width": 4}
+  },
+  "default_style": "line",
+  "legend": {"title": "High Injury Network"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["rank", "fatal_crashes"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "The 25 highest-ranked segments", "conditions": [{"field": "rank", "op": "range", "max": 25}]}
+  ]
+}

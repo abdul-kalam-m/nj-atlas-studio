@@ -1,0 +1,48 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_landfills",
+  "title": "Landfills",
+  "category": "hazards",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "landfill", "plural": "landfills"},
+  "summary": "The extent of solid waste landfill sites, active and closed.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Utilities/MapServer/29",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 391, "max": 434}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "FACILITY_NAME", "name": "facility", "label": "Facility", "type": "text", "filter": "search", "popup": true},
+    {"source": "PREF_ID_NUM", "name": "program_id", "label": "Program ID", "type": "text", "filter": "search", "popup": true},
+    {"source": "ADDRESS", "name": "address", "label": "Address", "type": "text", "filter": "none", "popup": true},
+    {"source": "MUNICIPALITY", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true, "transform": "titlecase"}
+  ],
+  "label_field": "facility",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#8C6D31", "opacity": 0.4, "outline": "#5E4920"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Landfills"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["program_id"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

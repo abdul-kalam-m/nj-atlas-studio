@@ -1,0 +1,51 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_natural_heritage_sites",
+  "title": "Natural Heritage Priority Sites",
+  "category": "environment",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "priority site", "plural": "priority sites"},
+  "summary": "Areas with the best habitat for rare plants and ecological communities, ranked for biodiversity (B1 highest to B5).",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental_habitat/MapServer/93",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Natural Heritage Program",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 326, "max": 361}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "SITENAME", "name": "name", "label": "Site", "type": "text", "filter": "search", "popup": true},
+    {"source": "BIODIVRANK", "name": "biodiversity_rank", "label": "Biodiversity rank", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "SITECLASS", "name": "site_class", "label": "Class", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "MUNICIPALI", "name": "municipalities", "label": "Municipalities", "type": "text", "filter": "none", "popup": true},
+    {"source": "DESCRIPTIO", "name": "description", "label": "Description", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 6,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#2E7D4F", "opacity": 0.3, "outline": "#1D5234"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Natural Heritage Priority Sites"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["biodiversity_rank"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Outstanding significance (B1)", "conditions": [{"field": "biodiversity_rank", "op": "in", "values": ["B1", "B1V1"]}]}
+  ]
+}

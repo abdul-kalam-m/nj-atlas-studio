@@ -1,0 +1,54 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_land_capacity",
+  "title": "Vacant land for affordable housing (fourth round)",
+  "category": "property",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "vacant land area", "plural": "vacant land areas"},
+  "summary": "Vacant, unconstrained land that DCA's model counted toward municipal affordable housing obligations under P.L. 2024, c.2.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/Aur8tCo478N3VovT/arcgis/rest/services/Vacant_Land_Output/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "NJ Department of Community Affairs (DCA)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=12acdfe0a5104f8f8a2f604e96063e74",
+    "expected_count": {"min": 25372, "max": 28043}
+  },
+  "license": {
+    "name": "State of New Jersey data terms (acknowledgement requested)",
+    "url": "https://www.nj.gov/nj/legal.html",
+    "attribution": "NJ Department of Community Affairs, Office of Local Planning Services; NJ Office of GIS",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "MUN", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true, "transform": "titlecase"},
+    {"source": "VacantAcres", "name": "vacant_acres", "label": "Vacant area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 2},
+    {"source": "WeightedAcres", "name": "weighted_acres", "label": "Weighted area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 2},
+    {"source": "WeightFactor", "name": "weight", "label": "Weight", "type": "number", "filter": "none", "popup": true, "decimals": 2},
+    {"source": "Region", "name": "housing_region", "label": "Housing region", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"1": "Region 1", "2": "Region 2", "3": "Region 3", "4": "Region 4", "5": "Region 5", "6": "Region 6"}},
+    {"source": "MunicipalTotal", "name": "municipal_total", "label": "Municipal total", "type": "number", "filter": "none", "popup": true, "unit": "acres", "decimals": 1},
+    {"source": "MUN_CODE", "name": "municipal_code", "label": "Municipal code", "type": "text", "filter": "none", "popup": false}
+  ],
+  "label_field": "municipality",
+  "access": "live",
+  "area_mode": "code",
+  "area_codes": {"municipality": {"field": "MUN_CODE", "match": "mun_code"}, "county": {"field": "MUN_CODE", "match": "mun_prefix"}},
+  "min_zoom": 11,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#E69F00", "opacity": 0.5, "outline": "#A66F00"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Vacant land (fourth round)"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["vacant_acres", "housing_region"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Areas of an acre or more", "conditions": [{"field": "vacant_acres", "op": "range", "min": 1}]}
+  ]
+}

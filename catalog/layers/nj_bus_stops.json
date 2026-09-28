@@ -1,0 +1,48 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_bus_stops",
+  "title": "Bus stops",
+  "category": "transportation",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "bus stop", "plural": "bus stops"},
+  "summary": "Active NJ TRANSIT bus stops and the lines that serve them.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services6.arcgis.com/M0t0HPE53pFK525U/arcgis/rest/services/Single_Point_Bus_Stops_of_NJ_Transit/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "NJ TRANSIT",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=4809dada94c542e0beff00600ee930f6",
+    "expected_count": {"min": 18752, "max": 20727}
+  },
+  "license": {
+    "name": "NJ TRANSIT GIS data (not for design; not survey grade)",
+    "url": "https://www.arcgis.com/home/item.html?id=4809dada94c542e0beff00600ee930f6",
+    "attribution": "NJ TRANSIT GIS Department",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "DESCRIPTION_BSL", "name": "stop", "label": "Stop", "type": "text", "filter": "search", "popup": true},
+    {"source": "STOP_NUM", "name": "stop_number", "label": "Stop number", "type": "text", "filter": "search", "popup": true},
+    {"source": "ALL_LINES", "name": "lines", "label": "Lines", "type": "text", "filter": "search", "popup": true},
+    {"source": "MUNICIPALITY", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "stop",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 11,
+  "styles": {
+    "points": {"label": "Points", "kind": "single", "color": "#6B4C9A", "radius": 4, "outline": "#FFFFFF"}
+  },
+  "default_style": "points",
+  "legend": {"title": "Bus stops"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["lines"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

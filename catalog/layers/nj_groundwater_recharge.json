@@ -1,0 +1,50 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_groundwater_recharge",
+  "title": "Groundwater recharge",
+  "category": "water",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "recharge area", "plural": "recharge areas"},
+  "summary": "Estimated annual groundwater recharge by area (NJ Geological Survey method), ranked within each watershed management area.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Geology/MapServer/18",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), NJ Geological and Water Survey",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 181864, "max": 201009}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "VALUES_", "name": "recharge", "label": "Recharge", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"hydric soil-no recharge calulated": "Hydric soil (not calculated)", "no recharge calculated": "Not calculated", "wetlands, open water-no recharge calculated": "Wetlands or water (not calculated)"}},
+    {"source": "GWR", "name": "inches", "label": "Recharge", "type": "number", "filter": "range", "popup": true, "unit": "in/yr", "decimals": 0},
+    {"source": "RANK", "name": "rank", "label": "Rank in watershed", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "WMA_NAME", "name": "watershed", "label": "Watershed management area", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "recharge",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 13,
+  "styles": {
+    "by_recharge": {"label": "By recharge", "kind": "categories", "field": "recharge", "colors": {"16 to 23 in/yr": "#08519C", "11 to 15 in/yr": "#3182BD", "8 to 10 in/yr": "#6BAED6", "1 to 7 in/yr": "#BDD7E7", "0 in/yr": "#EFF3FF"}, "other": "#E0E0E0", "opacity": 0.5}
+  },
+  "default_style": "by_recharge",
+  "legend": {"title": "Groundwater recharge"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["inches"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "16 to 23 inches a year", "conditions": [{"field": "recharge", "op": "in", "values": ["16 to 23 in/yr"]}]}
+  ]
+}

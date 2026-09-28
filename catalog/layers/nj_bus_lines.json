@@ -1,0 +1,47 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_bus_lines",
+  "title": "Bus routes",
+  "category": "transportation",
+  "status": "published",
+  "geometry": "line",
+  "noun": {"singular": "bus route", "plural": "bus routes"},
+  "summary": "NJ TRANSIT bus routes.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services6.arcgis.com/M0t0HPE53pFK525U/arcgis/rest/services/Bus_Lines_of_NJ_Transit/FeatureServer/1",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "NJ TRANSIT",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=4809dada94c542e0beff00600ee930f6",
+    "expected_count": {"min": 251, "max": 278}
+  },
+  "license": {
+    "name": "NJ TRANSIT GIS data (not for design; not survey grade)",
+    "url": "https://www.arcgis.com/home/item.html?id=4809dada94c542e0beff00600ee930f6",
+    "attribution": "NJ TRANSIT GIS Department",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "LINE_STRING", "name": "route", "label": "Route", "type": "text", "filter": "search", "popup": true},
+    {"source": "LINE", "name": "number", "label": "Number", "type": "number", "filter": "none", "popup": true, "decimals": 0},
+    {"source": "NJ_URL", "name": "schedule", "label": "Schedule", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "route",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "line": {"label": "Line", "kind": "single", "color": "#6B4C9A", "width": 1.5, "opacity": 0.7}
+  },
+  "default_style": "line",
+  "legend": {"title": "Bus routes"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["number"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

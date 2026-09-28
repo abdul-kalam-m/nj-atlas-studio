@@ -1,0 +1,52 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_air_permits",
+  "title": "Air permitted facilities",
+  "category": "hazards",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "facility", "plural": "facilities"},
+  "summary": "Facilities holding an NJDEP air permit, major or minor.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental_NJEMS/MapServer/15",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Air Quality Permitting",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 16160, "max": 17861}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "FACILITY_NAME", "name": "facility", "label": "Facility", "type": "text", "filter": "search", "popup": true},
+    {"source": "PREF_ID_NUM", "name": "program_id", "label": "Program ID", "type": "text", "filter": "search", "popup": true},
+    {"source": "ADDRESS", "name": "address", "label": "Address", "type": "text", "filter": "search", "popup": true},
+    {"source": "CITY", "name": "city", "label": "City", "type": "text", "filter": "none", "popup": true},
+    {"source": "FACILITY_TYPE", "name": "facility_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "NAICS_DESC", "name": "industry", "label": "Industry", "type": "text", "filter": "search", "popup": true}
+  ],
+  "label_field": "facility",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 8,
+  "styles": {
+    "by_type": {"label": "By type", "kind": "categories", "field": "facility_type", "colors": {"Major": "#C0392B", "Minor": "#F1948A"}, "radius": 4}
+  },
+  "default_style": "by_type",
+  "legend": {"title": "Air permitted facilities"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["facility_type", "industry"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": [
+    {"label": "Major facilities", "conditions": [{"field": "facility_type", "op": "in", "values": ["Major"]}]}
+  ]
+}

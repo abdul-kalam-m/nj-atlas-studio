@@ -1,0 +1,54 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_brownfield_inventory",
+  "title": "Brownfield inventory",
+  "category": "hazards",
+  "status": "published",
+  "geometry": "point",
+  "noun": {"singular": "brownfield", "plural": "brownfields"},
+  "summary": "Brownfields NJDEP's Office of Brownfield and Community Revitalization tracks for reuse, with acreage and project notes.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental_mon/MapServer/36",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Office of Brownfield and Community Revitalization",
+    "landing_page": "https://gisdata-njdep.opendata.arcgis.com/",
+    "expected_count": {"min": 763, "max": 844}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "pi_name", "name": "site", "label": "Site", "type": "text", "filter": "search", "popup": true},
+    {"source": "pref_id_num", "name": "program_id", "label": "Program ID", "type": "text", "filter": "search", "popup": true},
+    {"source": "address", "name": "address", "label": "Address", "type": "text", "filter": "search", "popup": true},
+    {"source": "municipality", "name": "municipality", "label": "Municipality", "type": "text", "filter": "none", "popup": true},
+    {"source": "acreage", "name": "acres", "label": "Area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 1},
+    {"source": "brownfields_development_area", "name": "in_bda", "label": "In a development area", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "opportunity_zone", "name": "opportunity_zone", "label": "Opportunity Zone", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "project_description", "name": "description", "label": "Project", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "site",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "points": {"label": "Points", "kind": "single", "color": "#B35806", "radius": 4, "outline": "#FFFFFF"}
+  },
+  "default_style": "points",
+  "legend": {"title": "Brownfield inventory"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["acres", "in_bda"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": ["owner_name", "owner_phone", "owner_email"],
+  "examples": [
+    {"label": "In an Opportunity Zone", "conditions": [{"field": "opportunity_zone", "op": "in", "values": ["Yes"]}]}
+  ]
+}

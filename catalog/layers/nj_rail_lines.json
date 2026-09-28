@@ -1,0 +1,47 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_rail_lines",
+  "title": "Rail lines",
+  "category": "transportation",
+  "status": "published",
+  "geometry": "line",
+  "noun": {"singular": "rail line", "plural": "rail lines"},
+  "summary": "NJ TRANSIT commuter rail lines.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services6.arcgis.com/M0t0HPE53pFK525U/arcgis/rest/services/NJTRANSIT_RAIL_LINES_1/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "NJ TRANSIT",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=4809dada94c542e0beff00600ee930f6",
+    "expected_count": {"min": 13, "max": 13}
+  },
+  "license": {
+    "name": "NJ TRANSIT GIS data (not for design; not survey grade)",
+    "url": "https://www.arcgis.com/home/item.html?id=4809dada94c542e0beff00600ee930f6",
+    "attribution": "NJ TRANSIT GIS Department",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-28"
+  },
+  "fields": [
+    {"source": "LINE_NAME", "name": "line", "label": "Line", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "LINE_CODE", "name": "code", "label": "Code", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "line",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "by_line": {"label": "By line", "kind": "categories", "field": "line", "palette": "okabe_ito", "width": 3},
+    "line": {"label": "Line", "kind": "single", "color": "#34495E", "width": 3}
+  },
+  "default_style": "line",
+  "legend": {"title": "Rail lines"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["code"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}
