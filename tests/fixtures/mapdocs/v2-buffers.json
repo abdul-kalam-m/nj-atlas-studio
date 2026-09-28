@@ -6,6 +6,7 @@
   "area": {"level": "municipality", "county_fips": "033", "mun_code": "1709", "tract_geoid": null, "bg_geoid": null},
   "mask": true,
   "basemap": "positron",
+  "basemap_mode": "on",
   "view": {"center": [-75.51, 39.65], "zoom": 13.4, "bearing": 0},
   "layers": [
     {"id": "nj_schools", "visible": true, "opacity": 1, "filters": [], "style": {"preset": "points", "overrides": {}}},
