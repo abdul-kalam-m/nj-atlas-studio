@@ -40,7 +40,9 @@ export const TEXT = {
 
   area: {
     level: 'Level',
-    mask: 'Dim outside the area',
+    outside: 'Outside the area',
+    outsideModes: { show: 'Show', dim: 'Dim', hide: 'Hide' },
+    dimOff: 'Hidden while the basemap is off',
     all: { county: 'All counties', municipality: 'All municipalities', tract: 'All tracts', block_group: 'All block groups' },
     chooseFirst: 'Choose the larger area first',
     address: 'Address',

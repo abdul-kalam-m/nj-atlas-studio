@@ -34,6 +34,8 @@ export const BASEMAP_STYLES = {
 };
 export const BASEMAP_NAMES = Object.keys(BASEMAP_STYLES);
 export const BASEMAP_MODES = ['on', 'dim', 'off'];
+// Outside the area (D-082): shown, dimmed, or hidden (the map cut at the area's edge).
+export const OUTSIDE_MODES = ['show', 'dim', 'hide'];
 
 // What Studio draws around the basemap: the veil (Dim, and the plain page when Off), the dimmed world outside
 // the area, and the area's outline, each readable on that basemap.
@@ -70,6 +72,16 @@ export function modeOperations(layers, mode, saved) {
     }
     return operation;
   });
+}
+
+// The mask over everything outside the area: { visible, color, opacity }. Hide covers it in the page's color, so
+// the map ends at the area's edge. With the basemap off, Dim hides too: there is no basemap left to dim, and faded
+// pieces of shapes that cross the edge would read as mistakes.
+export function maskPaint(name, basemapMode, outside) {
+  const theme = THEMES[name] ?? THEMES.positron;
+  if (outside === 'show') return { visible: false, color: theme.mask, opacity: 0 };
+  if (outside === 'hide' || basemapMode === 'off') return { visible: true, color: theme.veil, opacity: 1 };
+  return { visible: true, color: theme.mask, opacity: theme.maskOpacity };
 }
 
 // The veil's paint in a mode: hidden when On, a see-through veil when Dim, the plain page when Off.

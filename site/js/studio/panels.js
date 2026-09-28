@@ -169,12 +169,14 @@ export function renderArea(app) {
     select.addEventListener('change', () => app.actions.pick(level, select.value || null));
     return el('div', { class: 'field' }, [el('label', { for: id, text: T.levels[level] }), select]);
   });
-  const mask = el('input', { type: 'checkbox', id: 'area-mask', checked: doc.mask });
-  mask.addEventListener('change', () => app.actions.setMask(mask.checked));
+  const outside = el('div', { class: 'field inline' }, [el('span', { class: 'label', id: 'area-outside', text: T.area.outside }),
+    el('div', { class: 'segmented small', role: 'group', 'aria-labelledby': 'area-outside' }, ['show', 'dim', 'hide'].map((mode) =>
+      el('button', { type: 'button', 'aria-pressed': String(doc.mask === mode), text: T.area.outsideModes[mode],
+        title: mode === 'dim' && doc.basemap_mode === 'off' ? T.area.dimOff : null, onclick: () => app.actions.setMask(mode) })))]);
   $('panel-area').replaceChildren(
     el('div', { class: 'field' }, [el('label', { for: 'area-level', text: T.area.level }), levelSelect]),
     ...pickers,
-    el('label', { class: 'check', for: 'area-mask' }, [mask, el('span', { text: T.area.mask })]),
+    outside,
     ...addressForm(app, false),
   );
 }

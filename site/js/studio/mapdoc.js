@@ -3,7 +3,7 @@
 // `buffers`) and buffer layers under `buffers`.
 // Imports pure modules only. Problems are codes with details; site/js/studio/text.js turns them into words.
 import { MAX_PICKED, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, defaultStyle, validDistance } from './buffer.js';
-import { BASEMAP_MODES, BASEMAP_NAMES } from './basemaps.js';
+import { BASEMAP_MODES, BASEMAP_NAMES, OUTSIDE_MODES } from './basemaps.js';
 
 export const SCHEMA_VERSION = 2;
 export const MAX_LAYERS = 8;
@@ -33,7 +33,7 @@ export function createDoc(now = new Date()) {
     subtitle: '',
     created_at: now.toISOString().replace(/\.\d{3}Z$/, 'Z'),
     area: emptyArea(),
-    mask: true,
+    mask: 'dim',
     basemap: 'positron',
     basemap_mode: 'on',
     view: null,
@@ -118,7 +118,8 @@ export function validate(input, known = null, bufferable = null) {
     if (!pattern.test(String(value))) problems.push({ code: 'badArea', detail: `${key}=${value}` });
     else doc.area[key] = String(value);
   }
-  doc.mask = raw.mask !== false;
+  // D-082: what lies outside the area, 'show', 'dim' or 'hide'. Older files said true (dim) or false (show).
+  doc.mask = OUTSIDE_MODES.includes(raw.mask) ? raw.mask : raw.mask === false ? 'show' : 'dim';
   doc.basemap = BASEMAPS.includes(raw.basemap) ? raw.basemap : 'positron';
   // D-080: on, dim or off. The old basemap 'none' is Light, off.
   doc.basemap_mode = raw.basemap === 'none' ? 'off' : BASEMAP_MODES.includes(raw.basemap_mode) ? raw.basemap_mode : 'on';

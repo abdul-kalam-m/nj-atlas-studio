@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BASEMAP_MODES, BASEMAP_NAMES, BASEMAP_STYLES, THEMES, basemapCredit, modeOperations, veilPaint } from '../../site/js/studio/basemaps.js';
+import { BASEMAP_MODES, BASEMAP_NAMES, BASEMAP_STYLES, THEMES, basemapCredit, maskPaint, modeOperations, veilPaint } from '../../site/js/studio/basemaps.js';
 import { validate } from '../../site/js/studio/mapdoc.js';
 import { TEXT } from '../../site/js/studio/text.js';
 
@@ -54,3 +54,18 @@ test('map files keep the basemap and its mode; the old basemap "none" opens as L
   const unknown = validate({ ...base, basemap: 'terrain', basemap_mode: 'half' }).doc;
   assert.deepEqual([unknown.basemap, unknown.basemap_mode], ['positron', 'on']);
 });
+
+test('outside the area: Show, Dim or Hide; with the basemap off, Dim hides too (D-082)', () => {
+  assert.equal(maskPaint('positron', 'on', 'show').visible, false);
+  assert.deepEqual(maskPaint('positron', 'on', 'dim'), { visible: true, color: '#ffffff', opacity: 0.6 });
+  assert.deepEqual(maskPaint('positron', 'on', 'hide'), { visible: true, color: '#ffffff', opacity: 1 });
+  assert.deepEqual(maskPaint('dark', 'on', 'hide'), { visible: true, color: '#0c0c0c', opacity: 1 }); // the dark page
+  assert.deepEqual(maskPaint('satellite', 'off', 'dim'), { visible: true, color: '#ffffff', opacity: 1 });
+  assert.equal(maskPaint('satellite', 'off', 'show').visible, false);
+  const base = { schema_version: 2, layers: [], buffers: [], screenings: [] };
+  assert.equal(validate({ ...base, mask: true }).doc.mask, 'dim'); // older files
+  assert.equal(validate({ ...base, mask: false }).doc.mask, 'show');
+  assert.equal(validate({ ...base, mask: 'hide' }).doc.mask, 'hide');
+  assert.equal(validate({ ...base }).doc.mask, 'dim');
+});
+

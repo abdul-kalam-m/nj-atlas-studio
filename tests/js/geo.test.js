@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { bboxOf, lngLatToTile, pointInPolygon, roundGeometry, scaleBar, tileBounds, tilesInBounds, toEsri, worldMinus }
   from '../../site/js/studio/geo.js';
-import { clipLine } from '../../site/js/studio/clip.js';
+import { clipAreaToBox, clipLine } from '../../site/js/studio/clip.js';
 
 const square = { type: 'Polygon', coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]], [[0.4, 0.4], [0.6, 0.4], [0.6, 0.6], [0.4, 0.6], [0.4, 0.4]]] };
 
@@ -30,10 +30,41 @@ test('point in polygon respects holes', () => {
   assert.equal(pointInPolygon([2, 2], square), false);
 });
 
-test('the mask is the world with the area as a hole', () => {
-  const mask = worldMinus(square);
-  assert.equal(mask.geometry.coordinates.length, 2);
+test('the mask is the world with the area as a hole, and the area\'s own holes masked too (D-082)', () => {
+  const mask = worldMinus(square); // the square has a hole: a town inside the township
+  assert.equal(mask.geometry.type, 'MultiPolygon');
+  assert.deepEqual(mask.geometry.coordinates[0][1], square.coordinates[0]);
+  assert.deepEqual(mask.geometry.coordinates[1], [square.coordinates[1]]);
+  const plain = worldMinus({ type: 'Polygon', coordinates: [square.coordinates[0]] });
+  assert.equal(plain.geometry.type, 'Polygon');
+  assert.equal(plain.geometry.coordinates.length, 2);
   assert.deepEqual(bboxOf(square), [0, 0, 1, 1]);
+});
+
+// A U-shaped area: the notch (0.3-0.7 wide, from 0.3 up) is outside it.
+const u = { type: 'Polygon', coordinates: [[[0, 0], [1, 0], [1, 1], [0.7, 1], [0.7, 0.3], [0.3, 0.3], [0.3, 1], [0, 1], [0, 0]]] };
+const areaOf = (geometry) => {
+  const rings = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+  return rings.reduce((total, [outer, ...holes]) => {
+    const ring = (r) => Math.abs(r.slice(0, -1).reduce((s, p, i) => s + p[0] * r[i + 1][1] - r[i + 1][0] * p[1], 0) / 2);
+    return total + ring(outer) - holes.reduce((s, h) => s + ring(h), 0);
+  }, 0);
+};
+
+test('a tile outside the area is never asked for; one inside asks for its box; one on the edge for the part inside', () => {
+  assert.deepEqual(clipAreaToBox(u, [2, 2, 3, 3]), { relation: 'outside' });
+  assert.deepEqual(clipAreaToBox(u, [0.4, 0.5, 0.6, 0.9]), { relation: 'outside' }); // inside the notch
+  assert.deepEqual(clipAreaToBox(u, [0.05, 0.05, 0.25, 0.25]), { relation: 'inside' });
+  const edge = clipAreaToBox(u, [0.2, 0.2, 0.8, 0.8]);
+  assert.equal(edge.relation, 'partial');
+  // 0.6 x 0.6 box less the notch's 0.4 x 0.5 part: 0.36 - 0.2
+  assert.ok(Math.abs(areaOf(edge.geometry) - 0.16) < 1e-12, String(areaOf(edge.geometry)));
+  // The square's hole: a box inside it is outside the area; a box across its edge is partial.
+  assert.deepEqual(clipAreaToBox(square, [0.45, 0.45, 0.55, 0.55]), { relation: 'outside' });
+  const across = clipAreaToBox(square, [0.3, 0.3, 0.5, 0.5]);
+  assert.ok(Math.abs(areaOf(across.geometry) - (0.04 - 0.01)) < 1e-12);
+  const islands = { type: 'MultiPolygon', coordinates: [[[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]], [[[2, 0], [3, 0], [3, 1], [2, 1], [2, 0]]]] };
+  assert.equal(clipAreaToBox(islands, [0.5, 0.2, 2.5, 0.8]).geometry.type, 'MultiPolygon');
 });
 
 test('scale bar: round feet near a town, miles farther out', () => {
