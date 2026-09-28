@@ -85,3 +85,14 @@ Every service answered on 2026-09-27 (`node tools/healthcheck.mjs`), and each la
 | `nj_waterbodies` | live | New Jersey Department of Environmental Protection (NJDEP) | NJDEP Data Distribution Agreement | NJDEP standard sentence |
 | `nj_wellhead_areas` | live | New Jersey Department of Environmental Protection (NJDEP) | NJDEP Data Distribution Agreement | NJDEP standard sentence |
 | `nj_wetlands` | hybrid | New Jersey Department of Environmental Protection (NJDEP) | NJDEP Data Distribution Agreement | NJDEP standard sentence |
+
+## Basemaps (2026-09-27, D-079)
+
+For the owner's review. Basemaps are not catalog layers, but prints and PNGs now credit them (D-080).
+
+| Basemap | Source | Terms, as found | Credit printed |
+| --- | --- | --- | --- |
+| Light, Streets, Dark | OpenFreeMap styles (Positron, Liberty, Dark) on OpenMapTiles vector tiles from OpenStreetMap | OpenFreeMap is free to use without a key; OpenStreetMap data is ODbL, which asks for "© OpenStreetMap contributors" on maps; OpenMapTiles asks for its own credit | Basemap: OpenFreeMap, © OpenMapTiles, © OpenStreetMap contributors |
+| Satellite (New Jersey) | NJ Office of GIS, 2020 natural color orthophotography, cached tile service `maps.nj.gov/.../Orthos_Natural_2020_NJ_WM` | NJOGIS public data, as for the NJOGIS layers above; the service's credit names NJOIT OGIS and its funding partners | Imagery: NJ Office of GIS (2020 aerial photography) |
+| Satellite (outside NJ) | USGS The National Map, USGSImageryOnly | USGS products are in the public domain; credit requested | USGS The National Map |
+

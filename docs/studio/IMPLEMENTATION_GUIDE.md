@@ -211,6 +211,7 @@ Keep today's modules: `places.js`, `filters.js`, `format.js`, `csv.js`, `data.js
 | `buffer.js`* | Buffer layers (D-076): the recipe's defaults, names, limits, map layer specs, legend rows and download |
 | `geoprocess.js`* | The buffer step: shapes onto State Plane, JSTS buffers, dissolve in chunks, back to longitude and latitude (D-075) |
 | `stateplane.js`* | New Jersey State Plane (Transverse Mercator, Krüger's series) and the grid's scale (D-075) |
+| `basemaps.js`* | The four basemaps, their colors for Studio's mask and outline, and what On, Dim and Off change (D-079, D-080) |
 | `buffer-worker.js` | Runs `geoprocess.js` in a module worker; Cancel ends the worker |
 | `clip.js` | Cut live-queried line and polygon features at the area's edge (turf) for exports |
 | `export.js` | PNG, the print layout, and CSV and GeoJSON downloads |
@@ -430,6 +431,12 @@ Each preset has a `label` (its name in the Style panel) and a `kind`. The schema
   - Caps: up to 5,000 results per layer. Above that, say so and offer the export only.
 - **Labels:** the §1.4 screening label appears on the panel, in file names (`screening_<site>_<date>.csv`) and in the first CSV line. Results that include parcels add the parcel line.
 - **Known answer:** §1.4. The distance-query results must equal the counts in §1.4 exactly.
+
+### Basemaps (as built, D-079, D-080)
+
+- Light, Streets, Dark (OpenFreeMap) and Satellite (NJOGIS 2020 photography over USGS imagery), chosen in the map's corner, with a three-way On / Dim / Off slider beneath. Both are saved in the map document (`basemap`, `basemap_mode`).
+- Dim: a veil in the basemap's background color at 60%, just beneath Studio's layers, and basemap labels at 45%. Off: every basemap layer hidden and the veil opaque. Each layer's own visibility and label opacity are kept, so On restores them. The mode carries over when the basemap changes.
+- The mask and area outline take the basemap's colors (`THEMES`). Prints and PNGs use the same basemap and mode, and add its credit.
 
 ### Buffer layers (as built, D-074 to D-078)
 

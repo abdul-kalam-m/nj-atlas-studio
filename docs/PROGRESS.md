@@ -630,3 +630,22 @@ Template (from OPERATING_GUIDE.md §4):
   - A browser that opened the site in the last 10 minutes keeps the old files until Pages' 10-minute cache expires.
 - Note: commit 544c888 also carries the rename of buffer.js to screening.js (staged earlier) without the matching import change, so Studio does not load at that commit; it does from 446733f on.
 
+### Basemaps, On / Dim / Off, and data further out (D-079 to D-081) · done · 2026-09-27
+- The owner's request in chat:
+  1. "Add Basemap Styles - Light (current), Dark and Satellite";
+  2. "Add ability to turn off basemap … like a 3 way slider. ON-DIM-OFF";
+  3. "Can the zoom out be more out to view the data".
+- Changed:
+  - site/js/studio/basemaps.js (new), mapview.js, mapdoc.js (`basemap_mode`), studio.js, export.js, text.js, tiles.js, studio.css;
+  - 13 recipes (`min_zoom`, `live_min_zoom`), layer.schema.json, pipeline/studio.py;
+  - tests: basemaps.test.js, screening.test.js, test_studio.py, fixtures/mapdocs/v2-buffers.json;
+  - DECISIONS.md, LICENSE_REVIEW.md, CATALOG.md.
+- Checks (browser):
+  - Light, Dim and Off in Pennsville: Dim fades roads and labels under the data; Off leaves the data on a plain page.
+  - Dark (black mask, light outline) and Satellite (NJ 2020 photography inside the state, USGS outside).
+  - Changing the basemap keeps the mode and all Studio layers.
+  - Print preview on Satellite, Dim renders the imagery (no cross-origin block) and credits it.
+  - Statewide at zoom 7.3: schools (3,736), bridges (7,878) and contaminated sites (12,609, in 3 s) all draw.
+- Bug found and fixed: when the area changed while another update was running, a count could use the old area's outline but be stored under the new area. Studio then kept the wrong count and, below 2,000, drew only the first 2,001 shapes. Seen: Salem County wetlands shown as Pennsville's 1,052 instead of 10,924. Queries now take the outline of the exact area they are keyed by. After the fix, the same sequence gave Cumberland County's 10,929, matching the source.
+- Assumptions: Streets stays as a fourth basemap. Dense layers come out one zoom, not four; the rest needs the map copies hosted (O-6, D-064).
+

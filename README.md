@@ -1,6 +1,6 @@
 # NJ Atlas Studio
 
-Maps of New Jersey open data for planners, built on the NJ-Atlas engine. Four tabs: **Area** (state to block group), **Layers** (up to 8 of 35 curated layers, styled and filtered), **Analysis** (buffer layers: features of a layer, all, filtered or selected, buffered by up to 6 distances in feet or meters, each styled, dissolved or not, measured on NJ State Plane; and site screening, which lists what lies near a site) and **Export** (a print-ready PDF, a PNG, a link, a map file, an embed or the data cut to the area).
+Maps of New Jersey open data for planners, built on the NJ-Atlas engine. Four tabs: **Area** (state to block group), **Layers** (up to 8 of 35 curated layers, styled and filtered, over a Light, Streets, Dark or Satellite basemap that can be on, dimmed or off), **Analysis** (buffer layers: features of a layer, all, filtered or selected, buffered by up to 6 distances in feet or meters, each styled, dissolved or not, measured on NJ State Plane; and site screening, which lists what lies near a site) and **Export** (a print-ready PDF, a PNG, a link, a map file, an embed or the data cut to the area).
 
 - **Layers:** boundaries (state to block group), parcels, land use, wetlands, flood zones, streams, Category 1 waters, roads, schools, hospitals, districts and more ([docs/studio/CATALOG.md](docs/studio/CATALOG.md)). Most are read live from the NJOGIS, NJDEP and Census services; the boundaries are our copies, and five large layers draw from our map copies.
 - **Site screening:** select a parcel, an address or a drawn footprint; the ring is measured from its edge; wetlands, flood zones and Category 1 waters inside it are listed and exported. Every output says *screening, not a regulatory determination*; parcel lists say they are *not a certified list of property owners*.
@@ -16,7 +16,7 @@ Studio is built (stages S0 to S5, and the S6 export counter), with every automat
 - the pilot (S6): five municipalities and three non-GIS testers;
 - written confirmation from NJOGIS that its terms cover the layers it hosts for other agencies (O-3, [docs/LICENSE_REVIEW.md](docs/LICENSE_REVIEW.md)).
 
-Checks: 192 Python tests, 204 JavaScript tests (run `npm ci` once first), the data checks, the plain-language lint, `node tools/healthcheck.mjs` (every live source, nightly in CI) and `node tools/trial.mjs` (live performance, [docs/studio/TRIAL.md](docs/studio/TRIAL.md)).
+Checks: 192 Python tests, 209 JavaScript tests (run `npm ci` once first), the data checks, the plain-language lint, `node tools/healthcheck.mjs` (every live source, nightly in CI) and `node tools/trial.mjs` (live performance, [docs/studio/TRIAL.md](docs/studio/TRIAL.md)).
 
 Run it locally:
 
