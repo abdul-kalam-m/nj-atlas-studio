@@ -59,7 +59,8 @@ export const TEXT = {
   categories: {
     boundaries: 'Boundaries', property: 'Property and land', environment: 'Environment', hazards: 'Hazards',
     water: 'Water', transportation: 'Transportation', community: 'Community', government: 'Government',
-    planning: 'Planning',
+    planning: 'Planning and regulation',
+    history: 'History and culture',
   },
 
   layers: {
