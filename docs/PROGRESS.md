@@ -698,3 +698,4 @@ Template (from OPERATING_GUIDE.md §4):
   - Browser, Jersey City: 827 bus stops, 590 air-permitted facilities, 82 brownfields, 65 tidelands areas, 18 combined sewer overflows, 4 High Injury Network segments, 1 electric territory. Vacant land shows 0, which the source confirms (Pennsville has 291).
 - Assumptions: the High Injury Network starts with state roads only; soils show map units without properties.
 
+- Released as gh-pages 9b40936d; the live catalog lists 75 layers, including the 23 new ones.
