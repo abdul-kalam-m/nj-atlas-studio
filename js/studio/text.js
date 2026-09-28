@@ -23,7 +23,19 @@ export const TEXT = {
     screening: (feet) => `${feet} ft screening`,
   },
   analysis: { tools: 'Tool', buffer: 'Buffer', screening: 'Site screening' },
-  basemaps: { label: 'Basemap', positron: 'Light', liberty: 'Streets', none: 'None' },
+  basemaps: {
+    label: 'Basemap',
+    positron: 'Light',
+    liberty: 'Streets',
+    dark: 'Dark',
+    satellite: 'Satellite',
+    mode: 'Basemap: on, dim or off',
+    modes: { on: 'On', dim: 'Dim', off: 'Off' },
+    credits: {
+      openfreemap: 'Basemap: OpenFreeMap, © OpenMapTiles, © OpenStreetMap contributors',
+      satellite: 'Imagery: NJ Office of GIS (2020 aerial photography); USGS The National Map',
+    },
+  },
   templates: { start: 'Start from template', heading: 'Templates' },
 
   area: {

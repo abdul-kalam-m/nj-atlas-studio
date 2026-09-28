@@ -3,17 +3,13 @@
 // outline, basemap labels, rings, results, the selection, the site, the drawing in progress (D-042).
 import { Protocol } from 'https://cdn.jsdelivr.net/npm/pmtiles@4.5.0/+esm';
 import { worldMinus } from './geo.js';
+import { BASEMAP_MODES, BASEMAP_NAMES, BASEMAP_STYLES, THEMES, modeOperations, veilPaint } from './basemaps.js';
 
 const MAPLIBRE_URL = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
-// Basemaps (D-071). 'none' keeps OpenFreeMap's fonts so Studio's own labels still draw.
-export const BASEMAPS = {
-  positron: 'https://tiles.openfreemap.org/styles/positron',
-  liberty: 'https://tiles.openfreemap.org/styles/liberty',
-  none: { version: 8, glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf', sources: {},
-    layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }] },
-};
 const STUDIO_SOURCES = ['mask', 'area', 'rings', 'hits', 'selected', 'sites', 'draft'];
+const VEIL = 'basemap-veil'; // D-080: between the basemap and Studio's layers
 const isStudioSource = (id) => STUDIO_SOURCES.includes(id) || String(id).startsWith('L:');
+const isStudioLayer = (layer) => layer.id === VEIL || isStudioSource(layer.source);
 const NJ_BOUNDS = [[-75.6, 38.9], [-73.9, 41.4]];
 const EMPTY = { type: 'FeatureCollection', features: [] };
 const PREFIX = 'L:';
@@ -53,18 +49,18 @@ const OVERLAYS = [
 ];
 
 export async function createStudioMap(container, { interactive = true, preserveDrawingBuffer = false, pixelRatio, bounds, basemap = 'positron',
-  onBasemap = null, text = null } = {}) {
+  basemapMode = 'on', onBasemap = null, onBasemapMode = null, text = null } = {}) {
   const maplibregl = await loadLibrary();
   let basemapControl = null;
   const map = new maplibregl.Map({
-    container, style: BASEMAPS[basemap] ?? BASEMAPS.positron, bounds: bounds ?? NJ_BOUNDS, fitBoundsOptions: { padding: 20 },
+    container, style: BASEMAP_STYLES[basemap] ?? BASEMAP_STYLES.positron, bounds: bounds ?? NJ_BOUNDS, fitBoundsOptions: { padding: 20 },
     attributionControl: false, interactive, preserveDrawingBuffer, ...(pixelRatio ? { pixelRatio } : {}),
     canvasContextAttributes: preserveDrawingBuffer ? { preserveDrawingBuffer: true } : undefined,
   });
   if (interactive) {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     if (onBasemap) {
-      basemapControl = new BasemapControl(basemap, onBasemap, text);
+      basemapControl = new BasemapControl({ basemap, mode: basemapMode, onBasemap, onMode: onBasemapMode, text });
       map.addControl(basemapControl, 'top-right');
     }
     map.addControl(new maplibregl.ScaleControl({ unit: 'imperial' }), 'bottom-right');
@@ -75,40 +71,72 @@ export async function createStudioMap(container, { interactive = true, preserveD
     map.once('error', (event) => { if (!map.loaded()) reject(event.error ?? new Error('map failed to load')); });
   });
   const studioMap = new StudioMap(maplibregl, map);
-  studioMap.basemap = basemap;
+  studioMap.basemap = BASEMAP_STYLES[basemap] ? basemap : 'positron';
   studioMap.basemapControl = basemapControl;
+  studioMap.setBasemapMode(basemapMode);
   return studioMap;
 }
 
-// A small select in the map's corner: the basemap is a view setting, saved in the map document (D-071).
+// The basemap control in the map's corner (D-071, D-080): which basemap, and a three-way slider for On, Dim and
+// Off. Both are view settings saved in the map document.
 class BasemapControl {
-  constructor(current, onChange, text) {
-    this.current = current;
-    this.onChange = onChange;
-    this.text = text;
+  constructor({ basemap, mode, onBasemap, onMode, text }) {
+    Object.assign(this, { basemap, mode, onBasemap, onMode, text: text ?? {} });
   }
 
   onAdd() {
+    const T = this.text;
     const select = document.createElement('select');
     select.className = 'basemap-select';
-    select.setAttribute('aria-label', this.text?.label ?? 'Basemap');
-    for (const key of Object.keys(BASEMAPS)) {
+    select.setAttribute('aria-label', T.label ?? 'Basemap');
+    for (const key of BASEMAP_NAMES) {
       const option = document.createElement('option');
       option.value = key;
-      option.textContent = this.text?.[key] ?? key;
+      option.textContent = T[key] ?? key;
       select.append(option);
     }
-    select.value = this.current;
-    select.addEventListener('change', () => this.onChange(select.value));
+    select.addEventListener('change', () => this.onBasemap(select.value));
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = '0';
+    slider.max = String(BASEMAP_MODES.length - 1);
+    slider.step = '1';
+    slider.className = 'basemap-slider';
+    slider.setAttribute('aria-label', T.mode ?? 'Basemap display');
+    slider.addEventListener('input', () => this.onMode?.(BASEMAP_MODES[Number(slider.value)]));
+    const stops = document.createElement('div');
+    stops.className = 'basemap-stops';
+    stops.setAttribute('aria-hidden', 'true');
+    for (const [index, mode] of BASEMAP_MODES.entries()) {
+      const stop = document.createElement('button');
+      stop.type = 'button';
+      stop.tabIndex = -1; // the slider is the keyboard control
+      stop.textContent = T.modes?.[mode] ?? mode;
+      stop.addEventListener('click', () => { slider.value = String(index); this.onMode?.(mode); });
+      stops.append(stop);
+    }
+    const strength = document.createElement('div');
+    strength.className = 'basemap-strength';
+    strength.append(stops, slider);
     this.select = select;
+    this.slider = slider;
+    this.stops = stops;
     this.container = document.createElement('div');
     this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group basemap-control';
-    this.container.append(select);
+    this.container.append(select, strength);
+    this.set(this.basemap, this.mode);
     return this.container;
   }
 
-  set(value) {
-    if (this.select) this.select.value = value;
+  set(basemap, mode) {
+    this.basemap = basemap;
+    this.mode = mode;
+    if (!this.select) return;
+    this.select.value = basemap;
+    const index = Math.max(0, BASEMAP_MODES.indexOf(mode));
+    this.slider.value = String(index);
+    this.slider.setAttribute('aria-valuetext', this.text.modes?.[mode] ?? mode);
+    [...this.stops.children].forEach((stop, i) => stop.classList.toggle('on', i === index));
   }
 
   onRemove() {
@@ -123,6 +151,9 @@ export class StudioMap {
     this.dataLayers = []; // [{ key, sourceId, layerIds }]
     this.sources = new Map(); // sourceId -> signature
     const firstLabel = map.getStyle().layers.find((layer) => layer.type === 'symbol')?.id;
+    this.basemapMode = 'on';
+    this.saved = new Map(); // the basemap layers' own visibility and label opacity (D-080)
+    map.addLayer({ id: VEIL, type: 'background', layout: { visibility: 'none' }, paint: { 'background-color': '#ffffff', 'background-opacity': 0 } }, firstLabel);
     map.addSource('mask', { type: 'geojson', data: EMPTY });
     map.addLayer({ id: 'mask-fill', type: 'fill', source: 'mask', paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.6 } }, firstLabel);
     map.addSource('area', { type: 'geojson', data: EMPTY });
@@ -165,21 +196,24 @@ export class StudioMap {
     this.map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
   }
 
-  // Change the basemap, carrying Studio's sources and layers (with their data) into the new style: data, mask
-  // and outline go below the new basemap's labels, the overlays above everything.
+  // Change the basemap, carrying Studio's sources and layers (with their data) into the new style: the veil, data,
+  // mask and outline go below the new basemap's labels, the overlays above everything. The current mode carries
+  // over (D-080).
   setBasemap(name) {
-    if (!BASEMAPS[name] || name === this.basemap) return Promise.resolve();
+    if (!BASEMAP_STYLES[name] || name === this.basemap) return Promise.resolve();
     this.basemap = name;
     return new Promise((resolve) => {
       this.map.once('style.load', () => {
         this.map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
+        this.saved = new Map();
+        this.setBasemapMode(this.basemapMode);
         resolve();
       });
-      this.map.setStyle(BASEMAPS[name], {
+      this.map.setStyle(BASEMAP_STYLES[name], {
         transformStyle: (previous, next) => {
           const sources = Object.fromEntries(Object.entries(previous.sources).filter(([id]) => isStudioSource(id)));
-          const ours = previous.layers.filter((layer) => isStudioSource(layer.source));
-          const below = ours.filter((layer) => layer.source.startsWith('L:') || layer.source === 'mask' || layer.source === 'area');
+          const ours = previous.layers.filter(isStudioLayer);
+          const below = ours.filter((layer) => layer.id === VEIL || layer.source.startsWith('L:') || layer.source === 'mask' || layer.source === 'area');
           const above = ours.filter((layer) => !below.includes(layer));
           const firstLabel = next.layers.findIndex((layer) => layer.type === 'symbol');
           const layers = firstLabel < 0 ? [...next.layers, ...below, ...above]
@@ -188,6 +222,25 @@ export class StudioMap {
         },
       });
     });
+  }
+
+  // On, Dim or Off (D-080), and Studio's mask and outline colors for this basemap.
+  setBasemapMode(mode) {
+    this.basemapMode = BASEMAP_MODES.includes(mode) ? mode : 'on';
+    const map = this.map;
+    const base = map.getStyle().layers.filter((layer) => !isStudioLayer(layer));
+    for (const operation of modeOperations(base, this.basemapMode, this.saved)) {
+      map.setLayoutProperty(operation.id, 'visibility', operation.visibility);
+      for (const [property, value] of Object.entries(operation.paint ?? {})) map.setPaintProperty(operation.id, property, value);
+    }
+    const veil = veilPaint(this.basemap, this.basemapMode);
+    map.setLayoutProperty(VEIL, 'visibility', veil.visibility);
+    map.setPaintProperty(VEIL, 'background-color', veil.color);
+    map.setPaintProperty(VEIL, 'background-opacity', veil.opacity);
+    const theme = THEMES[this.basemap] ?? THEMES.positron;
+    map.setPaintProperty('mask-fill', 'fill-color', theme.mask);
+    map.setPaintProperty('mask-fill', 'fill-opacity', theme.maskOpacity);
+    map.setPaintProperty('area-line', 'line-color', theme.outline);
   }
 
   setData(key, featureCollection) {

@@ -5,6 +5,7 @@ import { createRegistry, drawsFromTiles, displayFields, isSource, isTarget, outF
 import { createClient } from './live.js';
 import { LiveLayer } from './tiles.js';
 import { createStudioMap } from './mapview.js';
+import { basemapCredit } from './basemaps.js';
 import { DrawTool } from './draw.js';
 import { createDoc, layerDoc, LEVEL_KEY, MAX_BUFFERS, MAX_LAYERS, nextBufferId, nextScreeningId, validate } from './mapdoc.js';
 import { decodeHash, embedSnippet, encodeDoc, isLong, linkFor } from './share.js';
@@ -98,11 +99,6 @@ export function effectiveArea(area) {
   return { level: 'state', code: '34' };
 }
 
-function areaForQuery() {
-  const { level } = effectiveArea(app.doc.area);
-  return { ...app.doc.area, level };
-}
-
 function unitName(level, code) {
   return app.unitsReady?.[level]?.find((unit) => unit.code === code)?.name ?? null;
 }
@@ -142,16 +138,29 @@ async function typesFor(rt) {
   return rt.types;
 }
 
-// { whereArea, where, geometry }: the area as a where clause or an outline, plus the layer's filters.
+// The outline of an area ({ level, code }), from the cached request for that very area. app.areaGeometry is what the
+// map shows, and can still be the previous area's while a new one loads; queries must not use it.
+async function outlineOf(area) {
+  try {
+    return await outlineFor(area.level, area.code);
+  } catch {
+    return null;
+  }
+}
+
+// { whereArea, where, geometry, area }: the area as a where clause or an outline, plus the layer's filters. `area`
+// is the area both were made for, read once at the start.
 async function queryFor(rt, layer) {
+  const docArea = app.doc.area;
+  const area = effectiveArea(docArea);
   const types = await typesFor(rt);
-  const area = areaForQuery();
-  const county = area.county_fips ? unitName('county', area.county_fips) : null;
-  const slice = areaWhere(rt.entry, area, { county });
-  const geometry = slice.outline ? app.areaGeometry : null;
+  const query = { ...docArea, level: area.level };
+  const county = query.county_fips ? unitName('county', query.county_fips) : null;
+  const slice = areaWhere(rt.entry, query, { county });
+  const geometry = slice.outline ? await outlineOf(area) : null;
   const whereArea = joinWhere(rt.entry.source.where, slice.where);
   const where = joinWhere(whereArea, conditionsWhere(rt.entry, layer.filters, types));
-  return { whereArea, where, geometry };
+  return { whereArea, where, geometry, area };
 }
 
 function copyFile(entry) {
@@ -173,7 +182,7 @@ async function refreshLayer(id) {
       rt.status = 'ready';
     } else {
       const q = await queryFor(rt, layer);
-      const key = JSON.stringify([q.where, q.whereArea, Boolean(q.geometry), effectiveArea(app.doc.area)]);
+      const key = JSON.stringify([q.where, q.whereArea, Boolean(q.geometry), q.area]);
       if (key !== rt.queryKey) {
         rt.queryKey = key;
         rt.status = 'loading';
@@ -401,9 +410,11 @@ export async function setDoc(next, { render = true, fit = false } = {}) {
   const areaChanged = !before || JSON.stringify(before.area) !== JSON.stringify(next.area);
   const maskChanged = !before || before.mask !== next.mask;
   if (areaChanged || maskChanged) await syncArea();
-  if (app.map && app.map.basemap !== next.basemap) {
-    await app.map.setBasemap(next.basemap); // Studio's layers come along (D-071)
-    app.map.basemapControl?.set(next.basemap);
+  if (app.map && (app.map.basemap !== next.basemap || app.map.basemapMode !== next.basemap_mode)) {
+    app.map.basemapMode = next.basemap_mode; // setBasemap applies it to the new style
+    if (app.map.basemap !== next.basemap) await app.map.setBasemap(next.basemap); // Studio's layers come along (D-071)
+    else app.map.setBasemapMode(next.basemap_mode);
+    app.map.basemapControl?.set(next.basemap, next.basemap_mode);
   }
   if (areaChanged && fit) fitArea();
   ensureLoaders(); // layer runtimes exist before the panels draw them
@@ -447,6 +458,9 @@ export const actions = {
   },
   setBasemap(name) {
     update((doc) => { doc.basemap = name; });
+  },
+  setBasemapMode(mode) {
+    update((doc) => { doc.basemap_mode = mode; });
   },
   async setLevel(level) {
     const area = { ...app.doc.area, level };
@@ -971,8 +985,9 @@ async function bufferQuery(buffer) {
   const filters = buffer.select === 'filter' ? buffer.filters : [];
   // Copy layers are sliced by place tags on screen; their sources are asked for the same area by its outline.
   if (entry.access === 'copy') {
+    const area = effectiveArea(app.doc.area);
     return { where: joinWhere(entry.source.where, conditionsWhere(entry, filters, types)),
-      geometry: effectiveArea(app.doc.area).level === 'state' ? null : app.areaGeometry };
+      geometry: area.level === 'state' ? null : await outlineOf(area) };
   }
   const q = await queryFor(rt, { filters });
   return { where: q.where, geometry: q.geometry };
@@ -1225,8 +1240,10 @@ function failedLayers() {
 function imageContext(failed = failedLayers()) {
   const screening = app.doc.screenings[0];
   const doc = docForSave();
+  const basemap = basemapCredit(doc.basemap, doc.basemap_mode);
   return {
-    doc, text: TEXT, bounds: app.map.bounds(), legend: legendGroups(), credits: doc.credits, dates: dataDates(), leftOut: failed,
+    doc, text: TEXT, bounds: app.map.bounds(), legend: legendGroups(), dates: dataDates(), leftOut: failed,
+    credits: [...doc.credits, ...(basemap ? [TEXT.basemaps.credits[basemap]] : [])],
     label: screening ? TEXT.screeningLabel(dataDates()) : null,
     notes: [...new Set([...(screening && app.results ? resultNotes(app.results) : []),
       ...doc.layers.filter((l) => l.visible).flatMap((l) => notesOf(app.registry.get(l.id), 'print'))])],
@@ -1275,10 +1292,11 @@ async function layerData(id) {
   const { entry } = rt;
   const q = await queryFor(rt, layer);
   // Copy layers are sliced by their place tags on screen; their exports ask the source for the same area.
-  const geometry = entry.access === 'copy' && effectiveArea(app.doc.area).level !== 'state' ? app.areaGeometry : q.geometry;
+  const area = q.area;
+  const geometry = entry.access === 'copy' && area.level !== 'state' ? await outlineOf(area) : q.geometry;
   const where = entry.access === 'copy' ? joinWhere(entry.source.where, conditionsWhere(entry, layer.filters, await typesFor(rt))) : q.where;
   const turf = entry.clip_mode === 'cut' ? await loadTurf() : null;
-  const clipTo = effectiveArea(app.doc.area).level === 'state' ? null : app.areaGeometry;
+  const clipTo = area.level === 'state' ? null : await outlineOf(area);
   return fetchLayerData({ client: app.client, entry, where, geometry, areaGeometry: clipTo, turf });
 }
 
@@ -1409,7 +1427,8 @@ async function boot() {
   await Promise.all(['county', 'municipality'].map((level) => unitsNow(level).catch(() => [])));
   app.health = await loadHealth(dataUrl('health.json'));
   app.areaName = areaName;
-  app.map = await createStudioMap($('map'), { basemap: app.doc.basemap, onBasemap: (name) => actions.setBasemap(name), text: TEXT.basemaps });
+  app.map = await createStudioMap($('map'), { basemap: app.doc.basemap, basemapMode: app.doc.basemap_mode, text: TEXT.basemaps,
+    onBasemap: (name) => actions.setBasemap(name), onBasemapMode: (mode) => actions.setBasemapMode(mode) });
   app.draw = new DrawTool(app.map, {
     onDone: (shape) => setSite({ kind: 'drawn', geometry: shape }, TEXT.screening.drawnSite),
     onCancel: () => panels.renderAnalysis(app),

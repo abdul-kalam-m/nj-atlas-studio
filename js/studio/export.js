@@ -84,7 +84,8 @@ async function renderMap(ctx, size, pixelRatio) {
   document.body.append(holder);
   let studioMap = null;
   try {
-    studioMap = await createStudioMap(holder, { interactive: false, preserveDrawingBuffer: true, pixelRatio, bounds: ctx.bounds, basemap: ctx.doc.basemap });
+    studioMap = await createStudioMap(holder, { interactive: false, preserveDrawingBuffer: true, pixelRatio, bounds: ctx.bounds,
+      basemap: ctx.doc.basemap, basemapMode: ctx.doc.basemap_mode });
     studioMap.map.fitBounds([[ctx.bounds[0], ctx.bounds[1]], [ctx.bounds[2], ctx.bounds[3]]], { duration: 0, padding: 0 });
     ctx.fill(studioMap);
     const complete = await studioMap.idle(20000);

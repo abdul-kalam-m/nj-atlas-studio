@@ -1,6 +1,6 @@
 // Drawing a live layer (IMPLEMENTATION_GUIDE.md §4.6). Two modes:
-// - whole: 2,000 or fewer matches in the area are fetched at once, generalized to about a pixel, and fetched again
-//   with more detail after zooming in 3 levels;
+// - whole: 2,000 or fewer matches in the area (15,000 for points, D-081) are fetched at once, in pages, generalized
+//   to about a pixel, and fetched again with more detail after zooming in 3 levels (points need no more detail);
 // - tiled: above that, features load per web-mercator tile from the layer's min_zoom (zoom 14 for points, 15 for
 //   lines and areas at most), a tile that hits the service's page limit splits into four, and at most 50,000
 //   features stay cached.
@@ -9,6 +9,8 @@ import { bboxOf, pixelDegrees, tileBounds, tilesInBounds } from './geo.js';
 import { toRow } from './transform.js';
 
 export const WHOLE_LIMIT = 2000;
+// Points are light: every point layer in the catalog (up to about 13,000 statewide) draws whole at any zoom (D-081).
+export const WHOLE_LIMIT_POINTS = 15000;
 const CACHE_LIMIT = 50000;
 const MAX_SPLIT_DEPTH = 3; // D-053: a full tile splits into four, at most three times
 const EMPTY = { type: 'FeatureCollection', features: [] };
@@ -64,19 +66,21 @@ export class LiveLayer {
     if (!this.query) return;
     const generation = ++this.generation;
     const current = () => generation === this.generation;
-    const whole = this.query.total !== null && this.query.total <= WHOLE_LIMIT;
+    const points = this.entry.geometry === 'point';
+    const limit = points ? WHOLE_LIMIT_POINTS : WHOLE_LIMIT;
+    const whole = this.query.total !== null && this.query.total <= limit;
     try {
       if (whole) {
         const detail = Math.max(Math.floor(zoom), this.entry.min_zoom ?? 0, 8);
-        if (this.wholeZoom !== null && detail <= this.wholeZoom + 2 && this.cache.has('whole')) {
+        if (this.wholeZoom !== null && (points || detail <= this.wholeZoom + 2) && this.cache.has('whole')) {
           this.onStatus({ state: 'ready' });
           return;
         }
         this.onStatus({ state: 'loading' });
         const page = await this.client.allFeatures(this.entry.source.url, {
           where: this.query.where, geometry: this.query.geometry, outFields: this.outFields,
-          maxAllowableOffset: this.entry.geometry === 'point' ? undefined : pixelDegrees(Math.min(detail + 1, 18)), precision: 6,
-        }, WHOLE_LIMIT + 1);
+          maxAllowableOffset: points ? undefined : pixelDegrees(Math.min(detail + 1, 18)), precision: 6,
+        }, limit + 1);
         if (!current()) return;
         this.cache.set('whole', this.convert(page.features));
         this.wholeZoom = detail;
