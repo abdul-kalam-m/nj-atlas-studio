@@ -9,6 +9,7 @@ export const PALETTES = {
   greens: ['#EDF8E9', '#C7E9C0', '#A1D99B', '#74C476', '#41AB5D', '#238B45', '#005A32'],
   oranges: ['#FEEDDE', '#FDD0A2', '#FDAE6B', '#FD8D3C', '#F16913', '#D94801', '#8C2D04'],
   purples: ['#F2F0F7', '#DADAEB', '#BCBDDC', '#9E9AC8', '#807DBA', '#6A51A3', '#4A1486'],
+  reds: ['#FEE5D9', '#FCBBA1', '#FC9272', '#FB6A4A', '#EF3B2C', '#CB181D', '#99000D'],
 };
 // Fixed palettes name their values: Anderson Level I land use classes and FEMA flood zones.
 const NAMED = {
@@ -180,5 +181,5 @@ export function legendFor(entry, style, { text = { other: 'Other' }, values = nu
     else if (high === null) label = `${formatBreak(low)}${suffix} or more`;
     else label = `${formatBreak(low)} – ${formatBreak(high)}${suffix}`;
     return { swatch: swatch(color), label };
-  });
+  }).concat(text.blank ? [{ swatch: swatch(OTHER_COLOR), label: text.blank }] : []); // blanks draw gray (D-086)
 }

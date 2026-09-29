@@ -34,6 +34,13 @@ def load_hosting(root: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"r2_base_url": None}
 
 
+def atlas_color(recipe: dict) -> str:
+    """The default style's color, or the first single style's when the default is a choropleth (D-086)."""
+    styles = recipe["styles"]
+    default = styles[recipe["default_style"]]
+    return default["color"] if default["kind"] == "single" else next(s["color"] for s in styles.values() if s["kind"] == "single")
+
+
 def layer_entry(recipe: dict, meta: dict, base_url: str | None = None) -> dict:
     """One catalog layer. Partitioned layers (§6.9) name their partitions file instead of files, and base_url says
     where their files live (null: next to the site, under data_base_url)."""
@@ -54,7 +61,7 @@ def layer_entry(recipe: dict, meta: dict, base_url: str | None = None) -> dict:
         "fields": [{key: field[key] for key in PUBLIC_FIELD_KEYS if key in field} for field in recipe["fields"]],
         "label_field": recipe["label_field"],
         "place_tags": recipe["place_tags"],
-        "style": {"color": recipe["styles"][recipe["default_style"]]["color"]},  # the atlas draws one color
+        "style": {"color": atlas_color(recipe)},  # the atlas draws one color
         "tiles": recipe["tiles"],
         "examples": recipe["examples"],
         "table_columns": table_columns(recipe),

@@ -126,8 +126,19 @@ def keep_kind(geometry, kind: str):
     return shapely.union_all(parts) if parts else shapely.GeometryCollection()
 
 
-def normalize(recipe: dict, raw: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    """Keep, rename and convert recipe fields; add atlas_id, lon and lat. No network access."""
+def joined(series: pd.Series, mapping: dict, field: dict) -> pd.Series:
+    """A lookup column (D-086): each source key's value from the table. A key the table lacks stops the build."""
+    keys = [as_text(v) for v in series]
+    missing = sorted({k for k in keys if k is not None and k not in mapping})
+    if missing:
+        raise ValueError(f"lookup {field['lookup']['table']} lacks {len(missing)} key(s) for {field['name']}, e.g. {missing[:3]}")
+    values = pd.Series([mapping.get(k) if k is not None else None for k in keys], index=series.index, dtype="object")
+    return convert(values, field)
+
+
+def normalize(recipe: dict, raw: gpd.GeoDataFrame, lookups: dict | None = None) -> gpd.GeoDataFrame:
+    """Keep, rename and convert recipe fields; add atlas_id, lon and lat. No network access. `lookups` maps a lookup
+    field's name to {key: value} (pipeline.lookups.field_lookups)."""
     source = recipe["source"]
     wanted = [source["id_field"]] + [field["source"] for field in recipe["fields"]]
     missing = sorted(set(wanted) - set(raw.columns))
@@ -144,7 +155,10 @@ def normalize(recipe: dict, raw: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
     columns = {"atlas_id": pd.Series([as_text(v) for v in raw[source["id_field"]]], index=raw.index, dtype="string")}
     for field in recipe["fields"]:
-        columns[field["name"]] = convert(raw[field["source"]], field)
+        if "lookup" in field:
+            columns[field["name"]] = joined(raw[field["source"]], (lookups or {})[field["name"]], field)
+        else:
+            columns[field["name"]] = convert(raw[field["source"]], field)
     frame = gpd.GeoDataFrame(columns, geometry=geometry, crs=raw.crs or "EPSG:4326")
     frame = frame.loc[~empty].copy()
     if frame.crs.to_epsg() != 4326:

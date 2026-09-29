@@ -318,7 +318,7 @@ All load from jsDelivr with exact versions (OPERATING_GUIDE.md §5). Add the tur
 | `known_answers` | `[{"label", "where", "expected": {"min", "max"}}]` | optional; `live` and `hybrid` only | `where` uses source field names; checked nightly (§4.11) |
 | `coverage` | `{"note"}` | optional | Only for a layer that does not cover the state. Badge, panel note, legend title, and a line in every list, download and print (D-085) |
 | `buffer_presets` | 1–3 `{"key", "label", "distances_ft", "note"}` | optional; buffer sources only | One-click rule buffers, such as a riparian zone (D-085) |
-| field `lookup` | `{"table", "column"}` | optional; `live` and `hybrid`, text and category fields | A join from `catalog/lookups/<table>.json`, keyed by the field's source. Not with `value_labels`; lookup fields may share a source (D-085) |
+| field `lookup` | `{"table", "column"}` | optional | A join from `catalog/lookups/<table>.json`, keyed by the field's source. `copy` layers join at build time (any type but date); `live` and `hybrid` layers join in the browser (text and category only). Not with `value_labels`; lookup fields may share a source (D-085, D-086) |
 
 - **Derived, not stored:** a layer's query source (the publisher for `live` and `hybrid`, our files for `copy`) and its tile file (`<id>/<id>.pmtiles`, under `site/data/` for copies and under the tile host for hybrid layers).
 - **Requests:** `outFields` is always the recipe's field list. Studio never requests `*`.

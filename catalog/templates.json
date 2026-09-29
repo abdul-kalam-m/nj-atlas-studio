@@ -32,5 +32,35 @@
       "paper": "letter",
       "orientation": "landscape"
     }
+  },
+  "equity_screening": {
+    "title": "Equity screening",
+    "summary": "Overburdened Communities over tract poverty rates, with contaminated sites, flood zones and wetlands.",
+    "layers": [
+      {
+        "id": "nj_contaminated_sites",
+        "preset": "by_status"
+      },
+      {
+        "id": "nj_overburdened_communities",
+        "preset": "by_criteria"
+      },
+      {
+        "id": "nj_flood_zones",
+        "preset": "by_zone"
+      },
+      {
+        "id": "nj_wetlands",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_acs_tracts",
+        "preset": "poverty"
+      }
+    ],
+    "layout": {
+      "paper": "letter",
+      "orientation": "landscape"
+    }
   }
 }

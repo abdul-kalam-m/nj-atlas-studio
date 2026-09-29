@@ -17,7 +17,7 @@ Every layer was probed on 2026-09-26 or 2026-09-27. Every non-boundary service s
 - **Buffer:** S means it can be a buffer source (click to select); T means it can be a buffer target (listed inside rings). Since D-067 (2026-09-27) every layer except the state outline is both; the column keeps the original v1 plan.
 - **Min zoom:** for live layers, the zoom at which features start loading. *As built (D-081): point layers load whole at any zoom up to 15,000 in the area; several minimum zooms moved further out. The recipes in `catalog/layers/` are the record; the table below is the Rev C plan.*
 - **Buffer (as built, D-074):** boundary layers are `target` (listed in a screening, never buffered).
-- **Added after Rev C (D-083 to D-085):** 17 layers from Tier 1, 23 from Tier 2 and the 2 LOI layers of [CANDIDATES.md](CANDIDATES.md), with 3 more as drafts; the recipes are the record.
+- **Added after Rev C (D-083 to D-086):** 17 layers from Tier 1, 23 from Tier 2, the 2 LOI layers and the 2 Demographics layers of [CANDIDATES.md](CANDIDATES.md), with 3 more as drafts; the recipes are the record.
 
 ## Boundaries (copy, built)
 

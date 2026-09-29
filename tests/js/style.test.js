@@ -109,3 +109,11 @@ test('registry: roles, display fields and requested fields never include leave-o
   const registry = createRegistry({ categories: ['property'], layers: [parcels] });
   assert.deepEqual(registry.credits(['nj_parcels', 'nj_parcels']), [parcels.license.attribution]);
 });
+
+test('a choropleth legend ends with the blank row, labelled in the recipe unit (D-086)', () => {
+  const tracts = JSON.parse(readFileSync(new URL('../../catalog/layers/nj_acs_tracts.json', import.meta.url), 'utf8'));
+  const rows = legendFor(tracts, tracts.styles.poverty, { text: { other: 'Other', blank: 'No data' } });
+  assert.deepEqual(rows.map((row) => row.label), ['Under 5 %', '5 – 10 %', '10 – 20 %', '20 – 30 %', '30 % or more', 'No data']);
+  assert.equal(rows.at(-1).swatch.color, '#BDBDBD');
+  assert.equal(legendFor(tracts, tracts.styles.poverty).length, 5);
+});

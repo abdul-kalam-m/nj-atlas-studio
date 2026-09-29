@@ -5,7 +5,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from pipeline.levels import DATA_PLACE_TAGS, DISTRICT_FIELD, LEVEL_BY_LAYER, TAG_COLUMNS
+from pipeline.levels import DATA_PLACE_TAGS, DISTRICT_FIELD, LEVEL_BY_LAYER, TAG_COLUMNS, TWINS
 
 RESERVED = {"atlas_id", "lon", "lat", "geometry"}
 PLACE_COLUMNS = TAG_COLUMNS
@@ -19,7 +19,7 @@ STYLE_KEY_GEOMETRY = {"fill": "polygon", "radius": "point", "widths": "line"}
 # Boundary layers are not buffered (D-074): administrative, political, statistical and hydrologic units, the
 # designations drawn on them, and planning and regulatory areas (D-083). A screening can still list them.
 BOUNDARY_CATEGORIES = {"boundaries", "government", "planning"}
-BOUNDARY_LAYERS = {"nj_subwatersheds", "nj_overburdened_communities", "nj_tax_blocks"}
+BOUNDARY_LAYERS = {"nj_subwatersheds", "nj_overburdened_communities", "nj_tax_blocks", "nj_acs_tracts", "nj_acs_block_groups"}
 
 
 class RecipeError(ValueError):
@@ -68,11 +68,12 @@ def extra_rule_errors(recipe: dict, file_stem: str) -> list[str]:
     if recipe["label_field"] not in names:
         errors.append(f"label_field '{recipe['label_field']}' is not one of the output field names")
     level = LEVEL_BY_LAYER.get(recipe["id"])
+    twin = LEVEL_BY_LAYER.get(TWINS.get(recipe["id"]))
     if level and recipe["access"] != "copy":
         errors.append("a boundary layer must have access 'copy' (D-030)")
     if "place_tags" in recipe:  # copy layers only; the schema enforces that
-        errors.extend(place_tag_errors(recipe, names, level))
-    own = [level["name"], level["code"]] if level else []
+        errors.extend(place_tag_errors(recipe, names, level or twin))
+    own = [level["name"], level["code"]] if level else [twin["code"]] if twin else []
     missing_own = [column for column in own if column and column not in names]
     if missing_own:
         errors.append(f"a boundary layer must define its own field(s) {', '.join(missing_own)}")
@@ -91,8 +92,8 @@ def extra_rule_errors(recipe: dict, file_stem: str) -> list[str]:
     errors.extend(style_errors(recipe, by_name))
     errors.extend(list_field_errors(recipe, by_name))
     errors.extend(personal_data_errors(recipe))
-    if recipe["access"] == "copy" and any("lookup" in f for f in recipe["fields"]):
-        errors.append("lookup fields are joined in the browser, so only live and hybrid layers can use them (D-085)")
+    if recipe["access"] != "copy" and any("lookup" in f and f["type"] not in ("text", "category") for f in recipe["fields"]):
+        errors.append("live and hybrid layers join lookups in the browser as value labels: text and category fields only (D-085)")
     for index, answer in enumerate(recipe.get("known_answers", [])):
         if answer["expected"]["min"] > answer["expected"]["max"]:
             errors.append(f"known_answers/{index}: expected min is greater than max")
@@ -126,8 +127,8 @@ def style_errors(recipe: dict, fields_by_name: dict) -> list[str]:
     styles = recipe["styles"]
     if recipe["default_style"] not in styles:
         errors.append(f"default_style '{recipe['default_style']}' is not a key in styles")
-    elif recipe["access"] == "copy" and styles[recipe["default_style"]]["kind"] != "single":
-        errors.append("a copy layer's default style must be 'single' (the atlas draws one color per layer)")
+    elif recipe["access"] == "copy" and not any(style["kind"] == "single" for style in styles.values()):
+        errors.append("a copy layer needs a 'single' style (the atlas draws one color per layer, D-086)")
     for key, style in styles.items():
         where = f"styles/{key}"
         field = fields_by_name.get(style.get("field")) if "field" in style else None

@@ -37,9 +37,9 @@ def read_meta(root: Path, layer_id: str) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
-def studio_field(field: dict, root: Path | None) -> dict:
+def studio_field(field: dict, root: Path | None, access: str = "live") -> dict:
     out = {key: field[key] for key in STUDIO_FIELD_KEYS if key in field}
-    if "lookup" in field:
+    if "lookup" in field and access != "copy":  # copy layers were joined at build time (D-086)
         # A table join (D-085): the column becomes the field's value labels, which every part of Studio already
         # applies; `lookup` names the table so the browser knows every key is listed.
         out["value_labels"] = column_labels(load_lookup(root, field["lookup"]["table"]), field["lookup"]["column"])
@@ -52,7 +52,7 @@ def studio_entry(recipe: dict, meta: dict | None, hosting: dict, for_release: bo
     source = recipe["source"]
     entry["source"] = {key: source[key] for key in ("url", "where", "id_field", "publisher", "landing_page")}
     entry["license"] = {key: recipe["license"][key] for key in ("name", "url", "attribution")}
-    entry["fields"] = [studio_field(field, root) for field in recipe["fields"]]
+    entry["fields"] = [studio_field(field, root, recipe["access"]) for field in recipe["fields"]]
     if recipe["access"] == "copy":
         if meta is None:
             raise CatalogError(f"{recipe['id']} has no build output; run: python -m pipeline build {recipe['id']}")

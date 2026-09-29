@@ -207,10 +207,12 @@ def test_style_kinds_take_only_their_own_keys():
     assert problems_for(parcels)
 
 
-def test_copy_layers_default_to_one_color_for_the_atlas():
+def test_copy_layers_keep_one_color_for_the_atlas():
     trails = load("nj_trails")
     trails["default_style"] = "by_difficulty"
-    assert has(problems_for(trails), "default style must be 'single'")
+    assert not has(problems_for(trails), "'single' style")  # the atlas takes the single style's color (D-086)
+    trails["styles"] = {"by_difficulty": trails["styles"]["by_difficulty"]}
+    assert has(problems_for(trails), "needs a 'single' style")
 
 
 def test_points_are_never_cut():

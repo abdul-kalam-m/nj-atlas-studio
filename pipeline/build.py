@@ -8,6 +8,7 @@ import geopandas as gpd
 from pipeline.fetch import fetch, fetch_partitions, raw_dir
 from pipeline.hybrid import build_hybrid
 from pipeline.levels import BUILD_ORDER
+from pipeline.lookups import field_lookups
 from pipeline.normalize import normalize
 from pipeline.outputs import write_outputs, write_partitioned_meta
 from pipeline.partitions import check_code, is_partitioned, partition_codes
@@ -20,7 +21,7 @@ def build_frame(root: Path, recipe: dict, receipt: dict, boundaries: dict, parti
     source = raw_dir(root, recipe["id"], partition) / "source.geojson"
     collection = json.loads(source.read_text(encoding="utf-8"))
     raw = gpd.GeoDataFrame.from_features(collection["features"], crs="EPSG:4326")
-    frame = normalize(recipe, raw)
+    frame = normalize(recipe, raw, field_lookups(root, recipe))
     stats = dict(frame.attrs)
     frame = tag_places(frame, recipe["place_tags"], boundaries)
     stats["tagged_by_nearest"] = frame.attrs.get("tagged_by_nearest", 0)

@@ -39,6 +39,17 @@ def load_lookup(root: Path, table: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def field_lookups(root: Path, recipe: dict) -> dict:
+    """{field name: {key: value}} for a recipe's lookup fields, read once per table (build-time joins, D-086)."""
+    tables, out = {}, {}
+    for field in recipe["fields"]:
+        if "lookup" in field:
+            name = field["lookup"]["table"]
+            tables.setdefault(name, load_lookup(root, name))
+            out[field["name"]] = column_labels(tables[name], field["lookup"]["column"])
+    return out
+
+
 def column_labels(table: dict, column: str) -> dict:
     """{source key: displayed value} for one column; blank values map to null."""
     index = table["columns"].index(column)

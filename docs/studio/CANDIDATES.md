@@ -92,7 +92,6 @@ All are live. Twenty are NJDEP layers under the agreement already accepted; the 
 
 | Layer | Why |
 | --- | --- |
-| ACS demographics on tracts and block groups | Needs a Census API join step in the pipeline. Probably the most valuable next addition. |
 | Landscape Project habitat, plus vernal pools | Six regional services to merge into one map copy |
 | State Plan critical environmental and historic sites; transit villages | OPA's permission (O-10) |
 | High Injury Network (county, municipal and Turnpike roads) | A merge step, so the four road owners are one layer |
@@ -109,6 +108,15 @@ All are live. Twenty are NJDEP layers under the agreement already accepted; the 
 | Wetland lines (LOI); Transition areas (LOI) | NJDEP, 3,657 and 2,044 polygons: the lines NJDEP approved in Letters of Interpretation, from surveyed plans. The only published transition areas; no statewide layer exists, because NJDEP sets each width in an LOI |
 
 Not done from that review, and why: the High Injury Network merge, the Landscape Project merge, the shorter catalog with topic templates, and the other candidates it named, all waiting for the owner's direction.
+
+## ACS Demographics (2026-09-29, D-086)
+
+| Layer | Source | Records | Notes |
+| --- | --- | --- | --- |
+| Demographics (tracts) | U.S. Census Bureau, 2020–2024 ACS 5-year summary file | 2,181 | 22 variables, with margins and reliability for income, poverty and rent burden |
+| Demographics (block groups) | the same | 6,599 | 21 variables (no disability); most block group estimates rate low reliability |
+
+Next (v1.1): ring demographics as a list of the block groups a ring touches, with their published values.
 
 ## Tier 3: needs new work or a source decision
 

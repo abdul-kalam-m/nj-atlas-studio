@@ -23,6 +23,9 @@ LEVELS = [
      "place_tags": "county_overlap_tract"},
 ]
 LEVEL_BY_LAYER = {level["layer"]: level for level in LEVELS}
+# Data layers drawn on a level's own units (D-086) take that level's place tags, so an area lists every unit that
+# overlaps it, as the boundary layer does. They must define the level's code field.
+TWINS = {"nj_acs_tracts": TRACT_LAYER, "nj_acs_block_groups": BLOCK_GROUP_LAYER}
 DATA_PLACE_TAGS = ("all", "all_by_district")  # every layer that is not a boundary level (D-023, D-026)
 DISTRICT_FIELD = "district_code"  # all_by_district: the layer's own 4-digit municipal code
 

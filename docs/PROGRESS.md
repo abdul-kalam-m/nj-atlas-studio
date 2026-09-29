@@ -718,3 +718,18 @@ Template (from OPERATING_GUIDE.md §4):
     - The catalog shows six "Partial coverage" badges. A 300 ft screening at an LOI site lists 1 transition area and 4 wetland areas; stormwater inlets find none and the coverage line is still listed.
   - Fixed on the way: the Add layer dialog printed "null" under its search box.
 - Assumptions: water-table bands in feet (under 1, 1 to 2, 2 to 4, 4 to 6.5, deeper); a map unit whose largest component is a miscellaneous area (water, urban land) is "Not rated" for water table.
+
+### ACS Demographics, v1 (D-086) · done · 2026-09-29
+- The owner's request in chat: build the choropleth layers first, from the summary files, with 30 fields, 8 presets and a reds palette; ring demographics wait for v1.1. Then "continue and release it".
+- Changed:
+  - catalog/acs_variables.json (new), pipeline/acs.py (new) and `python -m pipeline acs`; catalog/lookups/acs_2024_tract.json and acs_2024_block_group.json (new);
+  - schema (30 fields, 8 presets, reds, lookups for copy layers); pipeline/{recipes,levels,normalize,build,lookups,catalog,studio}.py;
+  - recipes nj_acs_tracts and nj_acs_block_groups (new); catalog/templates.json (Equity screening);
+  - site/js/studio/{style,studio}.js (reds; the legend names the measure and has a "No data" row);
+  - tests: test_acs.py (new), test_recipes.py, style.test.js.
+- Checks:
+  - The ACS state total, 9,343,809, equals the summary file's New Jersey row; all 2,181 tracts and 6,599 block groups join.
+  - `pipeline validate` and `pipeline check` pass for both layers. 211 Python and 218 JavaScript tests pass, and the lint passes.
+  - Browser, Newark: the Equity screening template adds its five layers; 88 tracts draw by poverty rate, with the legend "Demographics (tracts): Poverty rate" and its "No data" row. Tract 23 reads 6,132 people, median household income $112,882 (± $44,230, medium reliability), poverty 8.9%.
+- Assumptions: fixed class breaks, so colors mean the same in every area; reliability thresholds of 12% and 40% (coefficient of variation).
+- Size: the two layers add about 110 MB to the release.

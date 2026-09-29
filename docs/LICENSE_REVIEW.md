@@ -134,3 +134,9 @@ Recorded as in D-083, for the owner's review.
 | NJDEP | Wetland lines (LOI), Transition areas (LOI) | NJDEP Data Distribution Agreement (O-3) | Published |
 
 **Personal data checked.** The LOI layers' `FIRM_NAME`, `SURVEYOR` and `LIC_NUM` are in `leave_out`, and so is `LOG_CON_RP`, a free-text note that sometimes names the surveyor.
+
+## ACS Demographics (2026-09-29, D-086)
+
+| Publisher | Data | Terms, as found | Applied |
+| --- | --- | --- | --- |
+| U.S. Census Bureau | ACS 2020–2024 5-year summary file tables; TIGERweb 2020 units | A US federal work, in the public domain (17 U.S.C. § 105). The summary files need no key, so the Data API's terms and credit line do not apply | Published, credited "U.S. Census Bureau, 2020–2024 American Community Survey 5-Year Estimates" |

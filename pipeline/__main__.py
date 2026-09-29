@@ -71,13 +71,19 @@ def cmd_lookup(args):
     return 0
 
 
+def cmd_acs(args):
+    from pipeline.acs import build_acs
+    build_acs(ROOT, refresh=args.refresh)
+    return 0
+
+
 def cmd_check(args):
     from pipeline.check import run_checks
     return 0 if run_checks(ROOT, args.layer, catalog_only=args.catalog) else 1
 
 
 EXPECTED_ERRORS = ("RecipeError", "FetchError", "MissingBoundaryError", "CatalogError", "PartitionError",
-                   "ValueError", "LookupTableError")
+                   "ValueError", "LookupTableError", "AcsError")
 
 
 def parser():
@@ -104,6 +110,8 @@ def parser():
                          help="Point R2-hosted layers at catalog/hosting.json (used by tools/release.py)")
     lookup = commands.add_parser("lookup", help="Rebuild a lookup table in catalog/lookups (D-085)")
     lookup.add_argument("table")
+    acs = commands.add_parser("acs", help="Rebuild the ACS lookup tables from the Census summary files (D-086)")
+    acs.add_argument("--refresh", action="store_true", help="Download the summary files again")
     check = commands.add_parser("check", help="Run the G1 data checks on built layers")
     check.add_argument("layer", nargs="?")
     check.add_argument("--catalog", action="store_true", help="Check only the layers in site/data/catalog.json")
@@ -113,7 +121,7 @@ def parser():
 def main(argv=None):
     args = parser().parse_args(argv)
     handler = {"validate": cmd_validate, "inspect": cmd_inspect, "fetch": cmd_fetch,
-               "build": cmd_build, "catalog": cmd_catalog, "check": cmd_check, "lookup": cmd_lookup}[args.command]
+               "build": cmd_build, "catalog": cmd_catalog, "check": cmd_check, "lookup": cmd_lookup, "acs": cmd_acs}[args.command]
     try:
         return handler(args)
     except Exception as error:  # show expected problems as one clear line, not a traceback

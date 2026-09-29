@@ -69,7 +69,7 @@
     },
     "fields": {
       "description": "Source fields to keep, in display order. Everything else is dropped.",
-      "type": "array", "minItems": 1, "maxItems": 20,
+      "type": "array", "minItems": 1, "maxItems": 30,
       "items": {
         "type": "object", "additionalProperties": false,
         "required": ["source", "name", "label", "type", "filter", "popup"],
@@ -87,7 +87,7 @@
             "enum": ["last3", "zfill3", "zfill4", "titlecase", "upper", "sq_m_to_sq_mi", "zero_is_blank", "yymmdd"]
           },
           "lookup": {
-            "description": "Live and hybrid layers, text and category fields only (D-085): the displayed value comes from a column of catalog/lookups/<table>.json, keyed by this field's source value, as a table join. Studio's catalog turns the column into value_labels, so filters, styles and downloads use the joined values. Not with value_labels.",
+            "description": "A table join (D-085, D-086): the value comes from a column of catalog/lookups/<table>.json, keyed by this field's source value. Copy layers join at build time, and any field type but date may use it. Live and hybrid layers join in the browser: Studio's catalog turns the column into value_labels, so there it is for text and category fields only. Not with value_labels or transform.",
             "type": "object", "additionalProperties": false, "required": ["table", "column"],
             "properties": {"table": {"type": "string", "pattern": "^[a-z][a-z0-9_]{2,40}$"}, "column": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,30}$"}}
           },
@@ -101,8 +101,8 @@
         "allOf": [
           {"if": {"properties": {"type": {"const": "text"}}}, "then": {"properties": {"filter": {"enum": ["search", "none"]}}}},
           {"if": {"properties": {"type": {"const": "category"}}}, "then": {"properties": {"filter": {"enum": ["checklist", "none"]}}}},
-          {"if": {"properties": {"type": {"const": "number"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}, "not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["lookup"]}]}}},
-          {"if": {"required": ["lookup"]}, "then": {"properties": {"type": {"enum": ["text", "category"]}}, "not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["transform"]}]}}},
+          {"if": {"properties": {"type": {"const": "number"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}, "not": {"required": ["value_labels"]}}},
+          {"if": {"required": ["lookup"]}, "then": {"not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["transform"]}]}}},
           {"if": {"properties": {"type": {"const": "date"}}}, "then": {"not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["lookup"]}]}}},
           {"if": {"properties": {"type": {"const": "date"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}}},
           {"if": {"required": ["transform"], "properties": {"transform": {"enum": ["sq_m_to_sq_mi", "zero_is_blank"]}}}, "then": {"properties": {"type": {"const": "number"}}}},
@@ -142,8 +142,8 @@
       "type": "integer", "minimum": 0, "maximum": 16
     },
     "styles": {
-      "description": "Style presets keyed by a short ID, 1 to 5 (IMPLEMENTATION_GUIDE.md §4.3). Style fields are output field names.",
-      "type": "object", "minProperties": 1, "maxProperties": 5,
+      "description": "Style presets keyed by a short ID, 1 to 8 (IMPLEMENTATION_GUIDE.md §4.3, D-086). Style fields are output field names.",
+      "type": "object", "minProperties": 1, "maxProperties": 8,
       "propertyNames": {"pattern": "^[a-z][a-z0-9_]{0,24}$"},
       "additionalProperties": {"$ref": "#/$defs/style"}
     },
@@ -338,7 +338,7 @@
         "field": {"description": "categories and graduated: the output field styled.", "type": "string"},
         "colors": {"description": "categories: a color per displayed value (after transforms and value_labels).", "type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/color"}},
         "widths": {"description": "categories, lines: a width in pixels per displayed value.", "type": "object", "minProperties": 1, "additionalProperties": {"type": "number", "minimum": 0.5, "maximum": 8}},
-        "palette": {"description": "A fixed palette defined in site/js/studio/style.js. okabe_ito, anderson_level1 and flood are for categories; blues, greens, oranges and purples for graduated.", "enum": ["okabe_ito", "anderson_level1", "flood", "blues", "greens", "oranges", "purples"]},
+        "palette": {"description": "A fixed palette defined in site/js/studio/style.js. okabe_ito, anderson_level1 and flood are for categories; blues, greens, oranges, purples and reds for graduated.", "enum": ["okabe_ito", "anderson_level1", "flood", "blues", "greens", "oranges", "purples", "reds"]},
         "other": {"description": "categories: the color of values not listed. Default #BDBDBD.", "$ref": "#/$defs/color"},
         "classes": {"type": "integer", "minimum": 3, "maximum": 7},
         "method": {"enum": ["quantile", "equal"]},
@@ -370,7 +370,7 @@
           "if": {"properties": {"kind": {"const": "graduated"}}},
           "then": {
             "required": ["field", "classes", "method", "palette"],
-            "properties": {"palette": {"enum": ["blues", "greens", "oranges", "purples"]}},
+            "properties": {"palette": {"enum": ["blues", "greens", "oranges", "purples", "reds"]}},
             "not": {"anyOf": [{"required": ["color"]}, {"required": ["fill"]}, {"required": ["colors"]}, {"required": ["widths"]}, {"required": ["other"]}]}
           }
         }
