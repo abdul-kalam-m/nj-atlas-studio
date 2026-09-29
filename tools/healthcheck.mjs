@@ -91,6 +91,22 @@ async function tilesProblem(recipe) {
   return response.headers.get('access-control-allow-origin') ? null : 'map tiles lack Access-Control-Allow-Origin';
 }
 
+// A joined field (D-085) needs every key the source holds to be in its lookup table; a new key would show as a
+// raw code. Rebuild the table with: python -m pipeline lookup <table>.
+async function lookupProblems(recipe) {
+  const problems = [];
+  const joins = new Map(recipe.fields.filter((field) => field.lookup).map((field) => [field.lookup.table, field.source]));
+  for (const [table, key] of joins) {
+    const { rows } = JSON.parse(readFileSync(new URL(`catalog/lookups/${table}.json`, ROOT), 'utf8'));
+    const json = await client.request(`${recipe.source.url}/query`, { where: recipe.source.where, outFields: key,
+      returnDistinctValues: 'true', returnGeometry: 'false' });
+    if (json.exceededTransferLimit) { problems.push(`${table}: too many ${key} values to check in one page`); continue; }
+    const missing = (json.features ?? []).map((feature) => String(feature.attributes?.[key] ?? '')).filter((value) => value && !(value in rows));
+    if (missing.length) problems.push(`${table} lacks ${missing.length} ${key} value(s) the source has (${missing.slice(0, 3).join(', ')}); rebuild it`);
+  }
+  return problems;
+}
+
 async function check(recipe) {
   const started = Date.now();
   const problems = [];
@@ -109,6 +125,7 @@ async function check(recipe) {
     if (n < answer.expected.min || n > answer.expected.max) problems.push(`${answer.label}: ${n}, expected ${answer.expected.min}-${answer.expected.max}`);
   }
   problems.push(...await codeProblems(recipe));
+  problems.push(...await lookupProblems(recipe));
   const cors = await corsProblem(url);
   if (cors) problems.push(cors);
   const tiles = await tilesProblem(recipe);

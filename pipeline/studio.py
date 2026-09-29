@@ -14,6 +14,7 @@ import shapely
 
 from pipeline.catalog import CatalogError, layer_entry, load_hosting
 from pipeline.levels import LEVELS
+from pipeline.lookups import column_labels, load_lookup
 from pipeline.outputs import data_dir
 from pipeline.places import boundary_path
 from pipeline.recipes import get_recipe, load_recipes, load_schema
@@ -23,7 +24,8 @@ STUDIO_FIELD_KEYS = ("source", "name", "label", "type", "filter", "popup", "unit
                      "value_labels")
 SHARED_KEYS = ("id", "title", "category", "status", "geometry", "noun", "summary", "label_field", "access",
                "area_mode", "area_codes", "min_zoom", "styles", "default_style", "legend", "buffer_role",
-               "distance_query", "list_fields", "clip_mode", "refresh_cadence", "export_notes", "examples")
+               "distance_query", "list_fields", "clip_mode", "refresh_cadence", "coverage", "buffer_presets",
+               "export_notes", "examples")
 # About 10 m in degrees. The trial (docs/studio/TRIAL.md) found query time follows outline detail: a 961-point
 # outline took 3.8 s against NJDEP flood zones, a 318-point one 1.3 s, with counts within 1%.
 OUTLINE_TOLERANCE = 0.0001
@@ -35,12 +37,22 @@ def read_meta(root: Path, layer_id: str) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
-def studio_entry(recipe: dict, meta: dict | None, hosting: dict, for_release: bool) -> dict:
+def studio_field(field: dict, root: Path | None) -> dict:
+    out = {key: field[key] for key in STUDIO_FIELD_KEYS if key in field}
+    if "lookup" in field:
+        # A table join (D-085): the column becomes the field's value labels, which every part of Studio already
+        # applies; `lookup` names the table so the browser knows every key is listed.
+        out["value_labels"] = column_labels(load_lookup(root, field["lookup"]["table"]), field["lookup"]["column"])
+        out["lookup"] = field["lookup"]["table"]
+    return out
+
+
+def studio_entry(recipe: dict, meta: dict | None, hosting: dict, for_release: bool, root: Path | None = None) -> dict:
     entry = {key: recipe[key] for key in SHARED_KEYS if key in recipe}
     source = recipe["source"]
     entry["source"] = {key: source[key] for key in ("url", "where", "id_field", "publisher", "landing_page")}
     entry["license"] = {key: recipe["license"][key] for key in ("name", "url", "attribution")}
-    entry["fields"] = [{key: field[key] for key in STUDIO_FIELD_KEYS if key in field} for field in recipe["fields"]]
+    entry["fields"] = [studio_field(field, root) for field in recipe["fields"]]
     if recipe["access"] == "copy":
         if meta is None:
             raise CatalogError(f"{recipe['id']} has no build output; run: python -m pipeline build {recipe['id']}")
@@ -78,7 +90,7 @@ def build_studio_catalog(root: Path, include_drafts: bool, for_release: bool = F
         if recipe.get("partition"):
             notes.append(f"{recipe['id']} left out of Studio: split layers are parked (D-031)")
             continue
-        entry = studio_entry(recipe, read_meta(root, recipe["id"]), hosting, for_release)
+        entry = studio_entry(recipe, read_meta(root, recipe["id"]), hosting, for_release, root)
         if recipe["access"] == "hybrid" and entry["tiles"] is None:
             notes.append(f"{recipe['id']}: no map tiles in this build, so Studio draws it live")
         layers.append(entry)

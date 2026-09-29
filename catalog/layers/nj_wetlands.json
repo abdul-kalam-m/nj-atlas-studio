@@ -38,6 +38,11 @@
   "default_style": "fill",
   "legend": {"title": "Wetlands, 2012"},
   "buffer_role": "both",
+  "buffer_presets": [
+    {"key": "transition_150", "label": "Transition area, 150 ft", "distances_ft": [150], "note": "Wetland transition areas, N.J.A.C. 7:7A: 150 ft for exceptional resource value wetlands, 50 ft for intermediate, none for ordinary. NJDEP sets the value in a Letter of Interpretation; the LOI layers show approved lines where one exists. Screening only."},
+    {"key": "transition_50", "label": "Transition area, 50 ft", "distances_ft": [50], "note": "Wetland transition areas, N.J.A.C. 7:7A: 150 ft for exceptional resource value wetlands, 50 ft for intermediate, none for ordinary. NJDEP sets the value in a Letter of Interpretation; the LOI layers show approved lines where one exists. Screening only."},
+    {"key": "transition_both", "label": "Transition areas, 50 and 150 ft", "distances_ft": [50, 150], "note": "Wetland transition areas, N.J.A.C. 7:7A: 150 ft for exceptional resource value wetlands, 50 ft for intermediate, none for ordinary. NJDEP sets the value in a Letter of Interpretation; the LOI layers show approved lines where one exists. Screening only."}
+  ],
   "live_min_zoom": 11,
   "distance_query": true,
   "list_fields": ["acres"],

@@ -6,7 +6,7 @@
   "status": "published",
   "geometry": "point",
   "noun": {"singular": "inlet", "plural": "inlets"},
-  "summary": "Storm drain inlets mapped by municipalities and agencies under their MS4 stormwater permits. Coverage depends on each permittee's mapping.",
+  "summary": "Storm drain inlets mapped by municipalities and agencies under their MS4 stormwater permits.",
   "source": {
     "type": "arcgis",
     "url": "https://mapsdep.nj.gov/arcgis/rest/services/Applications/MS4_Map/MapServer/3",
@@ -44,6 +44,7 @@
   "list_fields": ["road", "permittee"],
   "clip_mode": "mask",
   "refresh_cadence": "live",
+  "coverage": {"note": "Only inlets that MS4 permittees have mapped and submitted to NJDEP; many towns have none here yet."},
   "leave_out": ["CREATED_USER", "LAST_EDITED_USER", "AGOL_CREATED_USER", "AGOL_LAST_EDITOR"],
   "examples": []
 }

@@ -77,11 +77,11 @@ All are live. Twenty are NJDEP layers under the agreement already accepted; the 
 | Tidelands claims | NJDEP | 28,697 | Drawn from zoom 12 |
 | Natural Heritage Priority Sites | NJDEP | 343 | Biodiversity rank B1 to B5 |
 | Wetland mitigation banks; mitigation bank service areas | NJDEP | 23; 22 | The site parcels layer (owner names) is not used |
-| Soils (SSURGO) | NJDEP, from USDA NRCS | 116,800 | Map unit names; drawn from zoom 13. Soil properties still need a table join. |
+| Soils (SSURGO) | NJDEP, joined to USDA NRCS ratings | 116,800 | Septic suitability and its limits, drainage, depth to water table, flooding, hydric soils and hydrologic group, joined by map unit (D-085); drawn from zoom 13 |
 | Groundwater recharge | NJDEP, NJ Geological and Water Survey | 191,436 | Drawn from zoom 13 |
 | Surface water quality classifications | NJDEP | 284,763 lines | Drawn from zoom 12 |
 | Electric and gas utility territories | NJDEP, from BPU | 51; 33 | Listed in screenings, not buffered |
-| Stormwater inlets and outfalls (MS4) | NJDEP, MS4 permittees | 77,613; 73,793 | Drawn from zoom 15 and 14; coverage depends on each permittee |
+| Stormwater inlets and outfalls (MS4) | NJDEP, MS4 permittees | 77,613; 73,793 | Drawn from zoom 15 and 14; marked partial coverage (D-085) |
 | Combined sewer overflows | NJDEP | 211 | |
 | Air permitted facilities; NJPDES facilities; landfills; power plants | NJDEP | 17,010; 3,574; 412; 77 | Cumulative-impact screening |
 | Brownfield development areas; brownfield inventory | NJDEP | 39; 803 | Owners' names, phones and emails in the inventory are never requested |
@@ -98,6 +98,17 @@ All are live. Twenty are NJDEP layers under the agreement already accepted; the 
 | High Injury Network (county, municipal and Turnpike roads) | A merge step, so the four road owners are one layer |
 | Urban land with future flooding | The source has only a census ID and acres |
 | Underground storage tank facilities (45,955) | Mostly residential heating-oil tanks, with the responsible party's name |
+
+## Added after the second review (2026-09-29, D-085)
+
+| Change | Detail |
+| --- | --- |
+| Partial coverage marked | MS4 inlets and outfalls, fourth-round vacant land, the state-road High Injury Network and the LOI layers carry a "Partial coverage" badge and a note in every list, download and print, even when a screening finds nothing |
+| Soil ratings joined | USDA NRCS ratings by map unit (see Tier 2) |
+| Riparian and transition presets | One-click buffers: Category 1 waters 300 ft; streams 50 and 150 ft; wetlands 50 ft, 150 ft or both. Each states the rule and what a ring around a mapped line misses |
+| Wetland lines (LOI); Transition areas (LOI) | NJDEP, 3,657 and 2,044 polygons: the lines NJDEP approved in Letters of Interpretation, from surveyed plans. The only published transition areas; no statewide layer exists, because NJDEP sets each width in an LOI |
+
+Not done from that review, and why: the High Injury Network merge, the Landscape Project merge, the shorter catalog with topic templates, and the other candidates it named, all waiting for the owner's direction.
 
 ## Tier 3: needs new work or a source decision
 

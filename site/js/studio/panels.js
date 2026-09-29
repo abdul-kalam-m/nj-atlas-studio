@@ -5,7 +5,7 @@ import { isTarget, isSource } from './registry.js';
 import { presetStyle } from './style.js';
 import { combinedRows, resultNotes } from './screening.js';
 import { BUFFER_PRESETS_FT, MAX_BUFFERS, MAX_LAYERS } from './mapdoc.js';
-import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, bufferName, formatDistance } from './buffer.js';
+import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, bufferName, formatDistance, presetOf } from './buffer.js';
 import { legendNode, ringSwatchStyle } from './export.js';
 import { formatCount, formatValue } from '../format.js';
 import { pickerLevels, unitsFor, LEVEL_KEYS, pickerNeeds } from '../places.js';
@@ -360,6 +360,7 @@ function aboutSection(app, rt) {
     [T.about.license, entry.license.name ?? '—'],
     [T.about.credit, entry.license.attribution],
     [T.about.refresh, T.about.cadence[entry.refresh_cadence]],
+    ...(entry.coverage ? [[T.about.coverage, entry.coverage.note]] : []),
   ];
   const list = el('dl', { class: 'about' }, rows.flatMap(([label, value]) => [el('dt', { text: label }), el('dd', { text: value })]));
   const nodes = [el('p', { class: 'hint', text: entry.summary }), list];
@@ -433,6 +434,7 @@ export function renderProperties(app) {
       el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => app.actions.selectLayer(null) }),
     ]),
     el('p', { class: 'hint', text: rt.entry.summary }),
+    ...(rt.entry.coverage ? [el('p', { class: 'coverage-note' }, [el('strong', { text: `${T.layers.partial}. ` }), rt.entry.coverage.note])] : []),
     ...sections,
   );
 }
@@ -460,7 +462,9 @@ export function openCatalog(app) {
           const added = app.doc.layers.some((l) => l.id === entry.id);
           return el('button', { type: 'button', class: 'catalog-item', disabled: added || full, title: entry.summary,
             onclick: () => { dialog.close(); app.actions.addLayer(entry.id); } }, [
-            el('span', { text: entry.title }), el('span', { class: 'badge', text: added ? T.layers.added : T.layers.access[entry.access] })]);
+            el('span', { text: entry.title }),
+            entry.coverage ? el('span', { class: 'badge partial', title: entry.coverage.note, text: T.layers.partial }) : null,
+            el('span', { class: 'badge', text: added ? T.layers.added : T.layers.access[entry.access] })].filter(Boolean));
         })]);
     }).filter(Boolean));
   };
@@ -469,7 +473,7 @@ export function openCatalog(app) {
   dialog.replaceChildren(
     el('div', { class: 'dialog-head' }, [el('h2', { id: 'catalog-title', text: T.layers.add }),
       el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => dialog.close() })]),
-    search, full ? el('p', { class: 'hint', text: T.layers.limit }) : null, list,
+    ...[search, full ? el('p', { class: 'hint', text: T.layers.limit }) : null, list].filter(Boolean),
   );
   if (!dialog.open) dialog.showModal();
   search.focus();
@@ -696,6 +700,14 @@ function bufferEditor(app, buffer, sources) {
   layerSelect.value = buffer.layer;
   layerSelect.addEventListener('change', () => app.actions.setBufferLayer(id, layerSelect.value));
   nodes.push(el('div', { class: 'field' }, [el('label', { for: layerSelect.id, text: B.input }), layerSelect]));
+  if (entry.buffer_presets?.length) {
+    const active = presetOf(buffer, entry);
+    nodes.push(el('fieldset', { class: 'filter' }, [el('legend', { text: B.presets }),
+      el('div', { class: 'preset-row' }, entry.buffer_presets.map((preset) => el('button', { type: 'button',
+        class: `secondary${active?.key === preset.key ? ' on' : ''}`, 'aria-pressed': String(active?.key === preset.key), text: preset.label,
+        onclick: () => app.actions.applyPreset(id, preset.key) }))),
+      active ? el('p', { class: 'hint', text: active.note }) : null].filter(Boolean)));
+  }
 
   const radios = SELECTS.map((key) => {
     const radio = el('input', { type: 'radio', name: `bs-${id}`, id: `bs-${id}-${key}`, value: key, checked: buffer.select === key });

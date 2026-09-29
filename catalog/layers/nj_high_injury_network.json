@@ -46,6 +46,7 @@
   "list_fields": ["rank", "fatal_crashes"],
   "clip_mode": "cut",
   "refresh_cadence": "live",
+  "coverage": {"note": "State highways only; county, municipal and Turnpike roads are published separately and not yet included."},
   "leave_out": [],
   "examples": [
     {"label": "The 25 highest-ranked segments", "conditions": [{"field": "rank", "op": "range", "max": 25}]}

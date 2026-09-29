@@ -59,7 +59,8 @@ def extra_rule_errors(recipe: dict, file_stem: str) -> list[str]:
     if recipe["id"] != file_stem:
         errors.append(f"id '{recipe['id']}' must equal the file name '{file_stem}'")
     names = [f["name"] for f in recipe["fields"]]
-    sources = [f["source"] for f in recipe["fields"]]
+    # Lookup fields share their key field (D-085): several columns joined on one MUKEY.
+    sources = [f["source"] for f in recipe["fields"] if "lookup" not in f]
     for label, values in (("output name", names), ("source field", sources)):
         duplicates = sorted({v for v in values if values.count(v) > 1})
         if duplicates:
@@ -90,6 +91,8 @@ def extra_rule_errors(recipe: dict, file_stem: str) -> list[str]:
     errors.extend(style_errors(recipe, by_name))
     errors.extend(list_field_errors(recipe, by_name))
     errors.extend(personal_data_errors(recipe))
+    if recipe["access"] == "copy" and any("lookup" in f for f in recipe["fields"]):
+        errors.append("lookup fields are joined in the browser, so only live and hybrid layers can use them (D-085)")
     for index, answer in enumerate(recipe.get("known_answers", [])):
         if answer["expected"]["min"] > answer["expected"]["max"]:
             errors.append(f"known_answers/{index}: expected min is greater than max")
@@ -202,6 +205,25 @@ def condition_errors(condition: dict, fields_by_name: dict) -> list[str]:
     return []
 
 
+def lookup_errors(root: Path, recipe: dict) -> list[str]:
+    """Every lookup names a table in catalog/lookups and one of its columns, keyed by the field's source (D-085)."""
+    errors = []
+    for field in recipe["fields"]:
+        lookup = field.get("lookup")
+        if not lookup:
+            continue
+        path = root / "catalog" / "lookups" / f"{lookup['table']}.json"
+        if not path.exists():
+            errors.append(f"field '{field['name']}': lookup table {lookup['table']} is missing ({path.relative_to(root)})")
+            continue
+        table = json.loads(path.read_text(encoding="utf-8"))
+        if lookup["column"] not in table["columns"]:
+            errors.append(f"field '{field['name']}': lookup table {lookup['table']} has no column '{lookup['column']}'")
+        if table["key"] != field["source"]:
+            errors.append(f"field '{field['name']}': lookup table {lookup['table']} is keyed by {table['key']}, not {field['source']}")
+    return errors
+
+
 def validate_all(root: Path) -> dict[str, list[str]]:
     schema = load_schema(root)
     results = {}
@@ -212,6 +234,8 @@ def validate_all(root: Path) -> dict[str, list[str]]:
             results[path.stem] = [f"not valid JSON: {error}"]
             continue
         results[path.stem] = validate(recipe, schema, path.stem)
+        if not results[path.stem]:
+            results[path.stem] = lookup_errors(root, recipe)
     return results
 
 
@@ -221,7 +245,7 @@ def get_recipe(root: Path, layer_id: str) -> dict:
     if not path.exists():
         raise RecipeError(f"No recipe named {layer_id}: expected {path.relative_to(root)}")
     recipe = json.loads(path.read_text(encoding="utf-8"))
-    problems = validate(recipe, load_schema(root), path.stem)
+    problems = validate(recipe, load_schema(root), path.stem) or lookup_errors(root, recipe)
     if problems:
         raise RecipeError(f"Recipe {layer_id} is invalid:\n  " + "\n  ".join(problems))
     return recipe

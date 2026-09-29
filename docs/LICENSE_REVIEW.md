@@ -124,3 +124,13 @@ Recorded as in D-083 (`reviewed_by: abdul-kalam-m`, `reviewed_on: 2026-09-28`), 
 
 **Personal data checked.** The brownfield inventory's `owner_name`, `owner_phone` and `owner_email` are left out. The MS4 layers' edit-tracking usernames are left out. The underground storage tank layer is not used (residential tanks, with names).
 
+## Joined soil ratings and LOI layers (2026-09-29, D-085)
+
+Recorded as in D-083, for the owner's review.
+
+| Publisher | Data | Terms, as found | Applied |
+| --- | --- | --- | --- |
+| USDA NRCS | Soil ratings in `catalog/lookups/nj_soils_ssurgo.json`, from Soil Data Access | A US federal work, in the public domain; NRCS asks that the Soil Survey Geographic Database be cited | Published; the soils layer's note names the source |
+| NJDEP | Wetland lines (LOI), Transition areas (LOI) | NJDEP Data Distribution Agreement (O-3) | Published |
+
+**Personal data checked.** The LOI layers' `FIRM_NAME`, `SURVEYOR` and `LIC_NUM` are in `leave_out`, and so is `LOG_CON_RP`, a free-text note that sometimes names the surveyor.

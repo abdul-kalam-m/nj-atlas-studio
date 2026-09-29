@@ -32,10 +32,15 @@
   "access": "live",
   "area_mode": "intersects",
   "min_zoom": 11,
-  "styles": {"line": {"label": "Dark blue line", "kind": "single", "color": "#0B3C8C", "width": 2.5}},
+  "styles": {
+    "line": {"label": "Dark blue line", "kind": "single", "color": "#0B3C8C", "width": 2.5}
+  },
   "default_style": "line",
   "legend": {"title": "Category 1 waters"},
   "buffer_role": "both",
+  "buffer_presets": [
+    {"key": "riparian_300", "label": "Riparian zone, 300 ft", "distances_ft": [300], "note": "Riparian zone of Category One waters, N.J.A.C. 7:13-4.1: 300 ft. Measured here from the mapped line; the rule measures from the top of bank and also covers upstream tributaries in the same HUC 14, which this layer may not show. Screening only."}
+  ],
   "distance_query": true,
   "list_fields": ["classification"],
   "clip_mode": "cut",

@@ -15,6 +15,7 @@ import { toRow } from './transform.js';
 import { loadJsts, loadTurf } from './turf.js';
 import { bufferFeatures } from './geoprocess.js';
 import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_PICKED, MAX_RINGS, bufferDownload, bufferLegend, bufferName, bufferSpecs,
+  dropPreset, presetOf, presetPatch,
   defaultStyle, newBuffer, nextDistance, outputKey, toMeters, validDistance } from './buffer.js';
 import { notesOf, resultNotes, ringFor, resultsCsv, resultsGeojson, runScreening, screeningFileName } from './screening.js';
 import { dataCsv, dataGeojson, fetchLayerData, pngMap, printMap, printRoot, renderPrintRoot } from './export.js';
@@ -242,10 +243,16 @@ export async function loadStats(id) {
   rt.statsProgress = null;
   const onProgress = (read) => { rt.statsProgress = read; panels.renderStatsProgress(app, id); };
   const scope = { where: q.whereArea, geometry: q.geometry, signal: controller.signal, onProgress };
+  // Joined fields (D-085) share one key field: count its values once.
+  const grouped = new Map();
+  const groupCounts = (source) => {
+    if (!grouped.has(source)) grouped.set(source, app.client.groupCounts(entry.source.url, source, scope));
+    return grouped.get(source);
+  };
   await Promise.all(entry.fields.filter((field) => field.filter !== 'none').map(async (field) => {
     try {
       if (field.filter === 'checklist') {
-        const counts = await app.client.groupCounts(entry.source.url, field.source, scope);
+        const counts = await groupCounts(field.source);
         const merged = new Map();
         for (const item of counts) {
           const value = toRow({ [field.source]: item.value }, { source: { id_field: '_' }, fields: [field] })[field.name];
@@ -590,7 +597,18 @@ export const actions = {
   setBufferLayer(id, layer) {
     if (app.ui.pickFor === id) actions.cancelMode();
     app.pickShapes.clear();
-    actions.setBuffer(id, { layer, select: 'all', filters: [], picked: [] });
+    update((doc) => {
+      const buffer = doc.buffers.find((b) => b.id === id);
+      dropPreset(buffer, app.registry.get(buffer.layer));
+      Object.assign(buffer, { layer, select: 'all', filters: [], picked: [] });
+    });
+  },
+  // A rule's buffer from the layer's recipe (D-085), such as a riparian zone.
+  applyPreset(id, key) {
+    const index = app.doc.buffers.findIndex((b) => b.id === id);
+    const preset = app.registry.get(app.doc.buffers[index]?.layer)?.buffer_presets?.find((p) => p.key === key);
+    if (!preset) return;
+    update((doc) => Object.assign(doc.buffers[index], presetPatch(preset, index)));
   },
   // All in the area, a filter (starting from the layer's own), or features picked on the map.
   setBufferSelect(id, select) {
@@ -625,6 +643,7 @@ export const actions = {
   setBufferUnit(id, unit) {
     update((doc) => {
       const buffer = doc.buffers.find((b) => b.id === id);
+      if (buffer.unit !== unit) dropPreset(buffer, app.registry.get(buffer.layer));
       buffer.unit = unit;
       for (const ring of buffer.distances) ring.value = Math.min(ring.value, MAX_DISTANCE[unit]);
     });
@@ -634,6 +653,7 @@ export const actions = {
       const index = doc.buffers.findIndex((b) => b.id === id);
       const buffer = doc.buffers[index];
       if (buffer.distances.length >= MAX_RINGS) return;
+      dropPreset(buffer, app.registry.get(buffer.layer));
       buffer.distances.push({ value: nextDistance(buffer), style: defaultStyle(index, buffer.distances.length) });
     });
   },
@@ -641,7 +661,11 @@ export const actions = {
   setRing(id, index, value) {
     const buffer = bufferById(id);
     if (!validDistance(value, buffer.unit)) return false;
-    update((doc) => { doc.buffers.find((b) => b.id === id).distances[index].value = value; });
+    update((doc) => {
+      const target = doc.buffers.find((b) => b.id === id);
+      if (target.distances[index].value !== value) dropPreset(target, app.registry.get(target.layer));
+      target.distances[index].value = value;
+    });
     return true;
   },
   setRingStyle(id, index, patch) {
@@ -651,7 +675,10 @@ export const actions = {
     if (app.ui.ringStyle === `${id}:${index}`) app.ui.ringStyle = null;
     update((doc) => {
       const buffer = doc.buffers.find((b) => b.id === id);
-      if (buffer.distances.length > 1) buffer.distances.splice(index, 1);
+      if (buffer.distances.length > 1) {
+        dropPreset(buffer, app.registry.get(buffer.layer));
+        buffer.distances.splice(index, 1);
+      }
     });
   },
   toggleRingStyle(id, index) {
@@ -686,7 +713,8 @@ export const actions = {
     if (!buffer || !output) return;
     const entry = app.registry.get(buffer.layer);
     const name = bufferName(buffer, entry, TEXT.buffer);
-    const notes = [TEXT.buffer.measured, entry.license.attribution, `${TEXT.export.dataDates}: ${dataDates()}`];
+    const notes = [presetOf(buffer, entry)?.note, ...notesOf(entry, 'export'), TEXT.buffer.measured, entry.license.attribution,
+      `${TEXT.export.dataDates}: ${dataDates()}`].filter(Boolean);
     download(`${slug(name)}_${new Date().toISOString().slice(0, 10)}.geojson`, JSON.stringify(bufferDownload(output, { name, notes })), 'application/geo+json');
     countExport(app.registry.catalog.counter_url, 'geojson', true, app.pilot);
   },
@@ -1214,7 +1242,8 @@ function legendGroups() {
     if (layer.visible) {
       const { style } = presetStyle(entry, layer.style);
       const values = runtime(layer.id).stats.values?.[style.field]?.map((v) => v.value) ?? null;
-      groups.push({ title: entry.legend.title, rows: legendFor(entry, style, { text: { other: TEXT.style.other }, values }) });
+      const title = entry.coverage ? TEXT.layers.partialTitle(entry.legend.title) : entry.legend.title;
+      groups.push({ title, rows: legendFor(entry, style, { text: { other: TEXT.style.other }, values }) });
     }
     // Buffer layers follow the layer they were made from, as on the map (D-077).
     for (const buffer of app.doc.buffers) {
@@ -1246,7 +1275,9 @@ function imageContext(failed = failedLayers()) {
     credits: [...doc.credits, ...(basemap ? [TEXT.basemaps.credits[basemap]] : [])],
     label: screening ? TEXT.screeningLabel(dataDates()) : null,
     notes: [...new Set([...(screening && app.results ? resultNotes(app.results) : []),
-      ...doc.layers.filter((l) => l.visible).flatMap((l) => notesOf(app.registry.get(l.id), 'print'))])],
+      ...doc.layers.filter((l) => l.visible).flatMap((l) => notesOf(app.registry.get(l.id), 'print')),
+      ...app.doc.buffers.filter((b) => b.visible && app.outputs.has(b.id)).map((b) => presetOf(b, app.registry.get(b.layer))?.note)
+        .filter(Boolean)])],
     fill: (printMap) => {
       printMap.syncLayers(stack().filter((item) => !failed.includes(app.registry.get(item.key)?.title)));
       for (const layer of app.doc.layers) {

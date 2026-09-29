@@ -1,0 +1,53 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_wetland_loi_lines",
+  "title": "Wetland lines (LOI)",
+  "category": "water",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "wetland area", "plural": "wetland areas"},
+  "summary": "Freshwater wetland boundaries NJDEP approved in Letters of Interpretation, from the applicants' surveyed plans.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://mapsdep.nj.gov/arcgis/rest/services/Applications/LOI_Service_RO/MapServer/0",
+    "where": "(HPOS_AC_RP IS NULL OR HPOS_AC_RP <> 'TEST') AND (HPOS_AC_V IS NULL OR HPOS_AC_V <> 'TEST') AND (LOG_CON_RP IS NULL OR LOG_CON_RP <> 'TEST')",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP), Division of Land Resource Protection",
+    "landing_page": "https://dep.nj.gov/wlm/lrp/",
+    "expected_count": {"min": 3400, "max": 4600}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d4df5d8bb5e042debd4b5194bfa408a7",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-09-29"
+  },
+  "fields": [
+    {"source": "ACTIVITY_NUM", "name": "activity", "label": "NJDEP activity number", "type": "text", "filter": "search", "popup": true},
+    {"source": "PI_ID", "name": "program_interest", "label": "NJDEP program interest ID", "type": "text", "filter": "search", "popup": true},
+    {"source": "PLAN_DATE", "name": "plan_date", "label": "Plan date", "type": "date", "filter": "range", "popup": true},
+    {"source": "REV_DATE", "name": "revised", "label": "Plan revised", "type": "date", "filter": "none", "popup": true},
+    {"source": "AREA_ACRES", "name": "acres", "label": "Area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 2}
+  ],
+  "label_field": "activity",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 10,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#1B7837", "opacity": 0.35, "outline": "#0B4D22", "width": 1.5}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Wetland lines (LOI)"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["plan_date"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "coverage": {"note": "Only sites with an NJDEP Letter of Interpretation whose surveyed lines were filed digitally; elsewhere wetland lines are unverified."},
+  "export_notes": [
+    {"text": "A Letter of Interpretation is valid for five years unless NJDEP extends it. Confirm its status with NJDEP's Division of Land Resource Protection before relying on these lines.", "on": ["list", "export", "print"]}
+  ],
+  "leave_out": ["FIRM_NAME", "SURVEYOR", "LIC_NUM", "LOG_CON_RP"],
+  "examples": []
+}

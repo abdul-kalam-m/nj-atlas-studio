@@ -6,7 +6,7 @@
   "status": "published",
   "geometry": "polygon",
   "noun": {"singular": "soil map unit", "plural": "soil map units"},
-  "summary": "USDA soil survey map units (SSURGO): the soil series and slope, the basis for septic suitability, drainage and farmland class.",
+  "summary": "USDA soil survey (SSURGO) map units with NRCS ratings joined by map unit: septic suitability and its limits, drainage, depth to water table, flooding, hydric soils and hydrologic group.",
   "source": {
     "type": "arcgis",
     "url": "https://mapsdep.nj.gov/arcgis/rest/services/Features/Geology/MapServer/11",
@@ -26,22 +26,36 @@
   "fields": [
     {"source": "MUNAME", "name": "name", "label": "Map unit", "type": "text", "filter": "search", "popup": true},
     {"source": "MUSYM", "name": "symbol", "label": "Symbol", "type": "text", "filter": "search", "popup": true},
-    {"source": "MUKIND", "name": "kind", "label": "Kind", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Undifferentiated gro": "Undifferentiated group"}}
+    {"source": "MUKEY", "name": "septic", "label": "Septic absorption fields", "type": "category", "filter": "checklist", "popup": true, "lookup": {"table": "nj_soils_ssurgo", "column": "septic"}},
+    {"source": "MUKEY", "name": "septic_limit", "label": "Septic limitations", "type": "text", "filter": "search", "popup": true, "lookup": {"table": "nj_soils_ssurgo", "column": "septic_limit"}},
+    {"source": "MUKEY", "name": "drainage", "label": "Drainage class", "type": "category", "filter": "checklist", "popup": true, "lookup": {"table": "nj_soils_ssurgo", "column": "drainage"}},
+    {"source": "MUKEY", "name": "water_table", "label": "Depth to water table", "type": "category", "filter": "checklist", "popup": true, "lookup": {"table": "nj_soils_ssurgo", "column": "water_table"}},
+    {"source": "MUKEY", "name": "flooding", "label": "Flooding frequency", "type": "category", "filter": "checklist", "popup": true, "lookup": {"table": "nj_soils_ssurgo", "column": "flooding"}},
+    {"source": "MUKEY", "name": "hydric", "label": "Hydric soils", "type": "category", "filter": "checklist", "popup": true, "lookup": {"table": "nj_soils_ssurgo", "column": "hydric"}},
+    {"source": "MUKEY", "name": "hydrologic_group", "label": "Hydrologic soil group", "type": "category", "filter": "checklist", "popup": true, "lookup": {"table": "nj_soils_ssurgo", "column": "hydrologic_group"}},
+    {"source": "MUKIND", "name": "kind", "label": "Kind", "type": "category", "filter": "none", "popup": true, "value_labels": {"Undifferentiated gro": "Undifferentiated group"}}
   ],
   "label_field": "name",
   "access": "live",
   "area_mode": "intersects",
   "min_zoom": 13,
   "styles": {
-    "outline": {"label": "Outline", "kind": "single", "color": "#8A5A44", "fill": false, "width": 1, "labels": {"field": "symbol", "size": 11, "halo": true}}
+    "outline": {"label": "Outline", "kind": "single", "color": "#8A5A44", "fill": false, "width": 1, "labels": {"field": "symbol", "size": 11, "halo": true}},
+    "septic": {"label": "By septic suitability", "kind": "categories", "field": "septic", "opacity": 0.55, "outline": "#FFFFFF", "width": 0.5, "colors": {"Very limited": "#D55E00", "Somewhat limited": "#E69F00", "Not limited": "#009E73", "Not rated": "#BDBDBD"}},
+    "drainage": {"label": "By drainage class", "kind": "categories", "field": "drainage", "opacity": 0.6, "outline": "#FFFFFF", "width": 0.5, "colors": {"Excessively drained": "#A6611A", "Somewhat excessively drained": "#D8B365", "Well drained": "#F6E8C3", "Moderately well drained": "#C7EAE5", "Somewhat poorly drained": "#5AB4AC", "Poorly drained": "#01665E", "Very poorly drained": "#003C30", "Subaqueous": "#6BAED6"}},
+    "water_table": {"label": "By depth to water table", "kind": "categories", "field": "water_table", "opacity": 0.6, "outline": "#FFFFFF", "width": 0.5, "colors": {"Under 1 ft": "#08519C", "1 to 2 ft": "#3182BD", "2 to 4 ft": "#6BAED6", "4 to 6.5 ft": "#BDD7E7", "Deeper than 6.5 ft": "#F2EFE6", "Not rated": "#BDBDBD"}},
+    "hydric": {"label": "By hydric soils", "kind": "categories", "field": "hydric", "opacity": 0.6, "outline": "#FFFFFF", "width": 0.5, "colors": {"All hydric": "#1B7837", "Partly hydric": "#A6DBA0", "Not hydric": "#F2EFE6"}}
   },
   "default_style": "outline",
   "legend": {"title": "Soils"},
   "buffer_role": "target",
   "distance_query": true,
-  "list_fields": ["symbol"],
+  "list_fields": ["symbol", "septic"],
   "clip_mode": "cut",
   "refresh_cadence": "live",
+  "export_notes": [
+    {"text": "Soil ratings are USDA NRCS map-unit interpretations for screening (Soil Survey Staff, NRCS, Soil Survey Geographic Database), not site tests. New Jersey's septic rules (N.J.A.C. 7:9A) require soil logs and permeability tests on the site.", "on": ["list", "export", "print"]}
+  ],
   "leave_out": [],
   "examples": []
 }

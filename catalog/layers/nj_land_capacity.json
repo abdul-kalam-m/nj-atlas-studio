@@ -47,6 +47,7 @@
   "list_fields": ["vacant_acres", "housing_region"],
   "clip_mode": "cut",
   "refresh_cadence": "live",
+  "coverage": {"note": "Only the municipalities DCA's fourth-round analysis includes; towns outside it show none."},
   "leave_out": [],
   "examples": [
     {"label": "Areas of an acre or more", "conditions": [{"field": "vacant_acres", "op": "range", "min": 1}]}

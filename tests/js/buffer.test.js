@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import jsts from '@turf/jsts';
-import { bufferDownload, bufferLegend, bufferName, bufferSpecs, drawingOrder, formatDistance, newBuffer, nextDistance, outputKey,
+import { bufferDownload, bufferLegend, bufferName, bufferSpecs, drawingOrder, dropPreset, formatDistance, newBuffer, nextDistance, outputKey,
+  presetOf, presetPatch,
   toMeters, validDistance } from '../../site/js/studio/buffer.js';
 import { bufferFeatures, quadrantSegments } from '../../site/js/studio/geoprocess.js';
 import { projectGeometry } from '../../site/js/studio/stateplane.js';
@@ -157,4 +158,30 @@ test('lines and areas buffer too; a damaged shape is skipped and counted', () =>
   const expected = 2 * 100 * length + Math.PI * 100 * 100; // a round-capped line: a band plus two half circles
   const lineArea = gridArea(features.find((f) => f.geometry.coordinates[0].length > 20 && gridArea(f.geometry) > 300000).geometry);
   assert.ok(Math.abs(lineArea - expected) / expected < 0.002, `${lineArea} vs ${expected}`);
+});
+
+test('a rule preset sets feet, dissolves and names the buffer; changing it drops the preset and its name (D-085)', () => {
+  const c1 = recipe('nj_c1_waters');
+  const [preset] = c1.buffer_presets;
+  const buffer = { ...newBuffer('b1', 'nj_c1_waters', 0, { unit: 'm', distance: 10 }), ...presetPatch(preset, 0) };
+  assert.equal(buffer.unit, 'ft');
+  assert.deepEqual(buffer.distances.map((ring) => ring.value), [300]);
+  assert.equal(buffer.dissolve, true);
+  assert.equal(bufferName(buffer, c1, TEXT.buffer), 'Riparian zone, 300 ft');
+  assert.equal(presetOf(buffer, c1), preset);
+  const renamed = { ...buffer, name: 'Creek buffer' };
+  dropPreset(renamed, c1);
+  assert.equal(renamed.name, 'Creek buffer');
+  assert.equal(presetOf(renamed, c1), null);
+  dropPreset(buffer, c1);
+  assert.equal(buffer.name, '');
+  assert.equal('preset' in buffer, false);
+});
+
+test('every preset in the catalog is on a layer that can be buffered, within the distance limit', () => {
+  for (const id of ['nj_c1_waters', 'nj_streams', 'nj_wetlands']) {
+    const entry = recipe(id);
+    assert.ok(['source', 'both'].includes(entry.buffer_role));
+    for (const preset of entry.buffer_presets) assert.ok(preset.distances_ft.every((d) => validDistance(d, 'ft')));
+  }
 });

@@ -100,3 +100,13 @@ test('a tile that stays full after three splits is drawn as it came and marked d
   assert.equal(tile.dense, true);
   assert.equal(requests, 1 + 4 + 16 + 64);
 });
+
+test('a partial-coverage layer says so everywhere, and in a list even when it finds nothing (D-085)', () => {
+  const ms4 = recipe('nj_ms4_inlets');
+  const line = `Stormwater inlets (MS4), partial coverage: ${ms4.coverage.note}`;
+  assert.deepEqual(notesOf(ms4, 'list'), [line]);
+  assert.deepEqual(notesOf(ms4, 'print'), [line]);
+  const empty = { ...results, targets: [...results.targets, { id: ms4.id, entry: ms4, count: 0, features: [] }] };
+  assert.deepEqual(resultNotes(empty), [line, PARCEL_LINE]);
+  assert.deepEqual(resultNotes(results), [PARCEL_LINE]);
+});

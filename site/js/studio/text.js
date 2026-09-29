@@ -85,6 +85,8 @@ export const TEXT = {
     inArea: (countText) => `${countText} in the area`,
     matching: (countText, totalText) => `${countText} of ${totalText}`,
     access: { live: 'Live', hybrid: 'Copy + live', copy: 'Copy' },
+    partial: 'Partial coverage',
+    partialTitle: (title) => `${title} (partial coverage)`,
     drawnLive: 'Drawn live until our map copy is published.',
   },
 
@@ -120,6 +122,7 @@ export const TEXT = {
     new: 'New buffer',
     limit: 'Up to 4 buffers.',
     input: 'Input layer',
+    presets: 'Rule presets',
     noInput: 'Add a layer to buffer, such as schools, parcels or streams. Boundary layers are not buffered.',
     selectLabel: 'Buffer',
     select: { all: (plural) => `All ${plural} in the area`, filter: 'Filtered', picked: 'Selected on the map' },

@@ -699,3 +699,22 @@ Template (from OPERATING_GUIDE.md §4):
 - Assumptions: the High Injury Network starts with state roads only; soils show map units without properties.
 
 - Released as gh-pages 9b40936d; the live catalog lists 75 layers, including the 23 new ones.
+
+### Coverage, soil ratings, rule presets and LOI lines (D-085) · done · 2026-09-29
+- The owner's request in chat: "complete 1 to 4", meaning items 1 to 4 of the reply to the second pasted review.
+- Changed:
+  - schema (`coverage`, `buffer_presets`, field `lookup`); pipeline/lookups.py (new) and `python -m pipeline lookup`; pipeline/recipes.py and studio.py; catalog/lookups/nj_soils_ssurgo.json (new);
+  - recipes: nj_soils, nj_ms4_inlets, nj_ms4_outfalls, nj_land_capacity, nj_high_injury_network, nj_c1_waters, nj_streams, nj_wetlands; new nj_wetland_loi_lines and nj_transition_areas_loi;
+  - site/js/studio/{sql,screening,buffer,mapdoc,panels,studio,text}.js, studio.css; tools/healthcheck.mjs (joined keys);
+  - tests: test_lookups.py (new), buffer, mapdoc, screening and sql tests;
+  - DECISIONS.md, IMPLEMENTATION_GUIDE.md §4.1, CANDIDATES.md, LICENSE_REVIEW.md.
+- Checks:
+  - `pipeline validate` passes. `node tools/healthcheck.mjs` passes for the 10 changed layers, including the joined-key check (all 1,972 soil keys are in the table).
+  - 202 Python and 217 JavaScript tests pass, and the lint passes.
+  - Browser, Pennsville:
+    - 173 soil map units load with their joined ratings (Othello and Fallsington: very limited for septic, poorly drained, water table under 1 ft, all hydric).
+    - A search for "flooding" in the septic limitations returns the 47 map units that have it; "Under 1 ft" returns 93; the water-table style draws.
+    - The riparian preset on Category 1 waters makes a dissolved 300 ft buffer named "Riparian zone, 300 ft"; the note shows in the editor and the print notes. Editing its distance drops the preset and its name. A share link reloads it.
+    - The catalog shows six "Partial coverage" badges. A 300 ft screening at an LOI site lists 1 transition area and 4 wetland areas; stormwater inlets find none and the coverage line is still listed.
+  - Fixed on the way: the Add layer dialog printed "null" under its search box.
+- Assumptions: water-table bands in feet (under 1, 1 to 2, 2 to 4, 4 to 6.5, deeper); a map unit whose largest component is a miscellaneous area (water, urban land) is "Not rated" for water table.

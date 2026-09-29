@@ -41,3 +41,13 @@ test('joinWhere drops empty parts and brackets the rest', () => {
 test('a number condition never quotes a non-number', () => {
   assert.throws(() => conditionsWhere(fixture.entry, [{ field: 'acres', op: 'range', min: 'x; DROP', max: null }], fixture.types));
 });
+
+test('a joined field filters by the keys whose joined value matches (D-085)', () => {
+  const entry = { fields: [
+    { source: 'MUKEY', name: 'septic', type: 'category', filter: 'checklist', lookup: 'soils', value_labels: { 1: 'Very limited', 2: 'Not limited', 3: null } },
+    { source: 'MUKEY', name: 'limit', type: 'text', filter: 'search', lookup: 'soils', value_labels: { 1: 'Depth to bedrock; Slope', 2: 'Slope', 3: null } }] };
+  const types = { MUKEY: 'string' };
+  assert.equal(conditionsWhere(entry, [{ field: 'septic', op: 'in', values: ['Very limited'] }], types), "MUKEY IN ('1')");
+  assert.equal(conditionsWhere(entry, [{ field: 'limit', op: 'contains', value: 'slope' }], types), "MUKEY IN ('1', '2')");
+  assert.equal(conditionsWhere(entry, [{ field: 'limit', op: 'contains', value: 'flooding' }], types), '1=0');
+});

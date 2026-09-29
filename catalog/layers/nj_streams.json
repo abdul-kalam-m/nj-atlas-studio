@@ -39,6 +39,10 @@
   "default_style": "by_order",
   "legend": {"title": "Streams"},
   "buffer_role": "both",
+  "buffer_presets": [
+    {"key": "riparian_50", "label": "Riparian zone, 50 ft", "distances_ft": [50], "note": "Every regulated water has a riparian zone of at least 50 ft (N.J.A.C. 7:13-4.1); 150 ft applies to trout waters and streams through acid-producing soils, 300 ft to Category One waters. Measured here from the mapped line, not the top of bank. Screening only."},
+    {"key": "riparian_150", "label": "Riparian zone, 150 ft", "distances_ft": [150], "note": "150 ft riparian zone (N.J.A.C. 7:13-4.1): trout production and maintenance waters, their tributaries within one mile, and streams through acid-producing soils. This layer does not say which streams those are. Measured from the mapped line. Screening only."}
+  ],
   "distance_query": true,
   "list_fields": ["stream_type"],
   "clip_mode": "cut",

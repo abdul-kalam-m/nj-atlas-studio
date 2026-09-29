@@ -129,3 +129,12 @@ test('a new document and layer start from the defaults', () => {
   assert.equal(nextScreeningId({ screenings: [{ id: 's1' }] }), 's2');
   assert.deepEqual([doc.screenings, doc.buffers], [[], []]);
 });
+
+test('a buffer keeps its rule preset key (D-085); a document without one is unchanged', () => {
+  const input = fixture();
+  input.buffers[0].preset = 'riparian_300';
+  const { doc } = validate(input, known);
+  assert.equal(doc.buffers[0].preset, 'riparian_300');
+  input.buffers[0].preset = 42;
+  assert.equal('preset' in validate(input, known).doc.buffers[0], false);
+});

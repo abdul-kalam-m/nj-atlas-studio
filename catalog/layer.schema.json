@@ -86,6 +86,11 @@
             "description": "Optional clean-up. last3 keeps the last 3 characters; zfill3/zfill4 left-pad with zeros; titlecase turns 'CAPE MAY' into 'Cape May' (all applied before type conversion). sq_m_to_sq_mi turns square meters into square miles and zero_is_blank blanks zeros (number fields only, D-022, D-028). yymmdd reads dates like '941008' as 1994-10-08, with years 00-29 in the 2000s (date fields only, D-028).",
             "enum": ["last3", "zfill3", "zfill4", "titlecase", "upper", "sq_m_to_sq_mi", "zero_is_blank", "yymmdd"]
           },
+          "lookup": {
+            "description": "Live and hybrid layers, text and category fields only (D-085): the displayed value comes from a column of catalog/lookups/<table>.json, keyed by this field's source value, as a table join. Studio's catalog turns the column into value_labels, so filters, styles and downloads use the joined values. Not with value_labels.",
+            "type": "object", "additionalProperties": false, "required": ["table", "column"],
+            "properties": {"table": {"type": "string", "pattern": "^[a-z][a-z0-9_]{2,40}$"}, "column": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,30}$"}}
+          },
           "value_labels": {
             "description": "Text and category fields only (DECISIONS.md D-017). Replaces coded source values with plain words after any transform, e.g. {\"Y\": \"Yes\", \"N\": \"No\"}. Mapping a value to null makes it blank. Values not listed are kept as they are.",
             "type": "object",
@@ -96,8 +101,9 @@
         "allOf": [
           {"if": {"properties": {"type": {"const": "text"}}}, "then": {"properties": {"filter": {"enum": ["search", "none"]}}}},
           {"if": {"properties": {"type": {"const": "category"}}}, "then": {"properties": {"filter": {"enum": ["checklist", "none"]}}}},
-          {"if": {"properties": {"type": {"const": "number"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}, "not": {"required": ["value_labels"]}}},
-          {"if": {"properties": {"type": {"const": "date"}}}, "then": {"not": {"required": ["value_labels"]}}},
+          {"if": {"properties": {"type": {"const": "number"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}, "not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["lookup"]}]}}},
+          {"if": {"required": ["lookup"]}, "then": {"properties": {"type": {"enum": ["text", "category"]}}, "not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["transform"]}]}}},
+          {"if": {"properties": {"type": {"const": "date"}}}, "then": {"not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["lookup"]}]}}},
           {"if": {"properties": {"type": {"const": "date"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}}},
           {"if": {"required": ["transform"], "properties": {"transform": {"enum": ["sq_m_to_sq_mi", "zero_is_blank"]}}}, "then": {"properties": {"type": {"const": "number"}}}},
           {"if": {"required": ["transform"], "properties": {"transform": {"const": "yymmdd"}}}, "then": {"properties": {"type": {"const": "date"}}}}
@@ -169,6 +175,24 @@
     "leave_out": {
       "description": "Source fields that must never be requested, shown or exported, usually personal data (CATALOG.md 'Leave out'). Required, even when empty.",
       "type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}
+    },
+    "coverage": {
+      "description": "Set only when the layer does not cover the whole state (D-085). Studio marks the layer 'Partial coverage' in the catalog, the layer panel and the legend, and the note travels with screenings (even those that find nothing), buffer lists, downloads and prints, so an empty result is not read as an absence.",
+      "type": "object", "additionalProperties": false, "required": ["note"],
+      "properties": {"note": {"description": "What is covered, in one sentence.", "type": "string", "minLength": 10, "maxLength": 200}}
+    },
+    "buffer_presets": {
+      "description": "Buffer sources only (D-085): one-click buffers a rule defines, such as a riparian zone. Choosing one sets the distances in feet, dissolves, names the buffer and carries the note into its legend, download and print. Changing its distances drops the preset.",
+      "type": "array", "minItems": 1, "maxItems": 3,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["key", "label", "distances_ft", "note"],
+        "properties": {
+          "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{1,30}$"},
+          "label": {"description": "The button and the buffer's name, e.g. 'Riparian zone, 300 ft'.", "type": "string", "minLength": 3, "maxLength": 50},
+          "distances_ft": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"type": "number", "exclusiveMinimum": 0, "maximum": 5280}},
+          "note": {"description": "The rule and what the buffer does not capture.", "type": "string", "minLength": 20, "maxLength": 300}
+        }
+      }
     },
     "export_notes": {
       "description": "Lines that travel with this layer's data (D-041, D-073). on: list (buffer result lists), export (data downloads), print (PDF and PNG). Mandatory wording, such as the parcel line, changes only with the owner's approval.",
@@ -280,6 +304,11 @@
       "if": {"properties": {"area_mode": {"const": "code"}}},
       "then": {"required": ["area_codes"]},
       "else": {"not": {"required": ["area_codes"]}}
+    },
+    {
+      "description": "buffer_presets go with buffer sources.",
+      "if": {"required": ["buffer_presets"]},
+      "then": {"properties": {"buffer_role": {"enum": ["source", "both"]}}}
     },
     {
       "description": "list_fields goes with buffer targets, and only with them.",

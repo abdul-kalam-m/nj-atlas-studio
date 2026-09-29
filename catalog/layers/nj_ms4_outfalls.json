@@ -6,7 +6,7 @@
   "status": "published",
   "geometry": "point",
   "noun": {"singular": "outfall", "plural": "outfalls"},
-  "summary": "Stormwater outfalls mapped by MS4 permittees, with the kind of water they discharge to. Coverage depends on each permittee's mapping.",
+  "summary": "Stormwater outfalls mapped by MS4 permittees, with the kind of water they discharge to.",
   "source": {
     "type": "arcgis",
     "url": "https://mapsdep.nj.gov/arcgis/rest/services/Applications/MS4_Map/MapServer/5",
@@ -44,6 +44,7 @@
   "list_fields": ["receiving", "permittee"],
   "clip_mode": "mask",
   "refresh_cadence": "live",
+  "coverage": {"note": "Only outfalls that MS4 permittees have mapped and submitted to NJDEP; many towns have none here yet."},
   "leave_out": ["CREATED_USER", "LAST_EDITED_USER", "AGOL_CREATED_USER", "AGOL_LAST_EDITOR"],
   "examples": []
 }
