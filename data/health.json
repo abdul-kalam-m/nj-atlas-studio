@@ -1,427 +1,177 @@
 {
-  "checked_at": "2026-09-28T13:54:20Z",
+  "checked_at": "2026-09-27T19:58:27Z",
   "rate_limited": 0,
   "layers": {
-    "nj_air_permits": {
-      "ok": true,
-      "problem": null,
-      "count": 17010,
-      "ms": 450
-    },
-    "nj_archaeological_grid": {
-      "ok": true,
-      "problem": null,
-      "count": 5793,
-      "ms": 140
-    },
     "nj_bridges": {
       "ok": true,
       "problem": null,
       "count": 7878,
-      "ms": 2299
-    },
-    "nj_brownfield_areas": {
-      "ok": true,
-      "problem": null,
-      "count": 39,
-      "ms": 1085
-    },
-    "nj_brownfield_inventory": {
-      "ok": true,
-      "problem": null,
-      "count": 803,
-      "ms": 228
-    },
-    "nj_bus_lines": {
-      "ok": true,
-      "problem": null,
-      "count": 264,
-      "ms": 295
-    },
-    "nj_bus_stops": {
-      "ok": true,
-      "problem": null,
-      "count": 19739,
-      "ms": 389
+      "ms": 1059
     },
     "nj_c1_waters": {
       "ok": true,
       "problem": null,
       "count": 100059,
-      "ms": 302
-    },
-    "nj_cafra_zone": {
-      "ok": true,
-      "problem": null,
-      "count": 158,
-      "ms": 265
+      "ms": 405
     },
     "nj_child_care": {
       "ok": true,
       "problem": null,
       "count": 4083,
-      "ms": 486
+      "ms": 958
     },
     "nj_colleges": {
       "ok": true,
       "problem": null,
       "count": 78,
-      "ms": 8387
+      "ms": 2012
     },
     "nj_congressional_districts": {
       "ok": true,
       "problem": null,
       "count": 12,
-      "ms": 2020
+      "ms": 554
     },
     "nj_contaminated_sites": {
       "ok": true,
       "problem": null,
-      "count": 12607,
-      "ms": 719
-    },
-    "nj_cso_outfalls": {
-      "ok": true,
-      "problem": null,
-      "count": 211,
-      "ms": 276
-    },
-    "nj_deed_notices": {
-      "ok": true,
-      "problem": null,
-      "count": 4322,
-      "ms": 305
+      "count": 12609,
+      "ms": 692
     },
     "nj_election_districts": {
       "ok": true,
       "problem": null,
       "count": 6348,
-      "ms": 5859
-    },
-    "nj_electric_utilities": {
-      "ok": true,
-      "problem": null,
-      "count": 51,
-      "ms": 275
+      "ms": 1517
     },
     "nj_flood_zones": {
       "ok": true,
       "problem": null,
       "count": 109075,
-      "ms": 849
+      "ms": 701
     },
     "nj_fuel_stations": {
       "ok": true,
       "problem": null,
       "count": 1773,
-      "ms": 145
-    },
-    "nj_gas_utilities": {
-      "ok": true,
-      "problem": null,
-      "count": 33,
-      "ms": 267
-    },
-    "nj_groundwater_cea": {
-      "ok": true,
-      "problem": null,
-      "count": 6939,
-      "ms": 354
-    },
-    "nj_groundwater_cke": {
-      "ok": true,
-      "problem": null,
-      "count": 240,
-      "ms": 168
-    },
-    "nj_groundwater_recharge": {
-      "ok": true,
-      "problem": null,
-      "count": 191436,
-      "ms": 528
-    },
-    "nj_high_injury_network": {
-      "ok": true,
-      "problem": null,
-      "count": 156,
-      "ms": 612
-    },
-    "nj_highlands_areas": {
-      "ok": true,
-      "problem": null,
-      "count": 7,
-      "ms": 156
-    },
-    "nj_historic_districts": {
-      "ok": true,
-      "problem": null,
-      "count": 2070,
-      "ms": 406
-    },
-    "nj_historic_properties": {
-      "ok": true,
-      "problem": null,
-      "count": 148056,
-      "ms": 547
+      "ms": 227
     },
     "nj_hospitals": {
       "ok": true,
       "problem": null,
       "count": 71,
-      "ms": 7400
-    },
-    "nj_land_capacity": {
-      "ok": true,
-      "problem": null,
-      "count": 26707,
-      "ms": 1985
+      "ms": 1121
     },
     "nj_land_use": {
       "ok": true,
       "problem": null,
       "count": 590537,
-      "ms": 1573
-    },
-    "nj_landfills": {
-      "ok": true,
-      "problem": null,
-      "count": 412,
-      "ms": 172
+      "ms": 1576
     },
     "nj_legislative_districts": {
       "ok": true,
       "problem": null,
       "count": 40,
-      "ms": 1141
-    },
-    "nj_libraries": {
-      "ok": true,
-      "problem": null,
-      "count": 447,
-      "ms": 473
+      "ms": 485
     },
     "nj_long_term_care": {
       "ok": true,
       "problem": null,
       "count": 730,
-      "ms": 777
-    },
-    "nj_meadowlands_district": {
-      "ok": true,
-      "problem": null,
-      "count": 1,
-      "ms": 172
-    },
-    "nj_mitigation_banks": {
-      "ok": true,
-      "problem": null,
-      "count": 23,
-      "ms": 129
-    },
-    "nj_mitigation_service_areas": {
-      "ok": true,
-      "problem": null,
-      "count": 22,
-      "ms": 246
-    },
-    "nj_ms4_inlets": {
-      "ok": true,
-      "problem": null,
-      "count": 77613,
-      "ms": 712
-    },
-    "nj_ms4_outfalls": {
-      "ok": true,
-      "problem": null,
-      "count": 73793,
-      "ms": 981
-    },
-    "nj_natural_heritage_sites": {
-      "ok": true,
-      "problem": null,
-      "count": 343,
-      "ms": 139
-    },
-    "nj_njpdes_facilities": {
-      "ok": true,
-      "problem": null,
-      "count": 3574,
-      "ms": 167
+      "ms": 610
     },
     "nj_overburdened_communities": {
       "ok": true,
       "problem": null,
       "count": 3180,
-      "ms": 1044
+      "ms": 874
     },
     "nj_parcels": {
-      "ok": true,
-      "problem": null,
-      "count": 3481240,
-      "ms": 7754
-    },
-    "nj_pinelands_area": {
-      "ok": true,
-      "problem": null,
-      "count": 1,
-      "ms": 1968
-    },
-    "nj_power_plants": {
-      "ok": true,
-      "problem": null,
-      "count": 77,
-      "ms": 161
-    },
-    "nj_preserved_farmland": {
-      "ok": true,
-      "problem": null,
-      "count": 8983,
-      "ms": 344
-    },
-    "nj_rail_lines": {
-      "ok": true,
-      "problem": null,
-      "count": 13,
-      "ms": 575
-    },
-    "nj_rail_stations": {
-      "ok": true,
-      "problem": null,
-      "count": 234,
-      "ms": 692
-    },
-    "nj_redevelopment_areas": {
-      "ok": true,
-      "problem": null,
-      "count": 757,
-      "ms": 177
+      "ok": false,
+      "problem": "https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Parcels_Composite_NJ_WM/FeatureServer/0/query: This operation was aborted",
+      "count": null,
+      "ms": null
     },
     "nj_roads": {
       "ok": true,
       "problem": null,
       "count": 489277,
-      "ms": 3577
-    },
-    "nj_school_districts_elementary": {
-      "ok": true,
-      "problem": null,
-      "count": 171,
-      "ms": 841
-    },
-    "nj_school_districts_secondary": {
-      "ok": true,
-      "problem": null,
-      "count": 46,
-      "ms": 796
-    },
-    "nj_school_districts_unified": {
-      "ok": true,
-      "problem": null,
-      "count": 339,
-      "ms": 1159
+      "ms": 2371
     },
     "nj_schools": {
       "ok": true,
       "problem": null,
       "count": 3736,
-      "ms": 575
+      "ms": 426
     },
-    "nj_sewer_service_areas": {
+    "nj_school_districts_elementary": {
       "ok": true,
       "problem": null,
-      "count": 1285,
-      "ms": 187
+      "count": 171,
+      "ms": 671
     },
-    "nj_soils": {
+    "nj_school_districts_secondary": {
       "ok": true,
       "problem": null,
-      "count": 116800,
-      "ms": 342
+      "count": 46,
+      "ms": 366
+    },
+    "nj_school_districts_unified": {
+      "ok": true,
+      "problem": null,
+      "count": 339,
+      "ms": 339
     },
     "nj_streams": {
       "ok": true,
       "problem": null,
       "count": 269525,
-      "ms": 741
+      "ms": 838
     },
     "nj_subwatersheds": {
       "ok": true,
       "problem": null,
       "count": 970,
-      "ms": 142
+      "ms": 245
     },
     "nj_tax_blocks": {
       "ok": true,
       "problem": null,
       "count": 165961,
-      "ms": 1452
+      "ms": 1094
     },
     "nj_tidal_flood_elevation": {
       "ok": true,
       "problem": null,
       "count": 54571,
-      "ms": 3858
-    },
-    "nj_tidelands_claims": {
-      "ok": true,
-      "problem": null,
-      "count": 28697,
-      "ms": 345
-    },
-    "nj_urban_enterprise_zones": {
-      "ok": true,
-      "problem": null,
-      "count": 37,
-      "ms": 749
+      "ms": 4498
     },
     "nj_wards": {
       "ok": true,
       "problem": null,
       "count": 829,
-      "ms": 7186
-    },
-    "nj_water_purveyors": {
-      "ok": true,
-      "problem": null,
-      "count": 566,
-      "ms": 307
-    },
-    "nj_water_quality_classes": {
-      "ok": true,
-      "problem": null,
-      "count": 284763,
-      "ms": 505
+      "ms": 1838
     },
     "nj_waterbodies": {
       "ok": true,
       "problem": null,
       "count": 39774,
-      "ms": 461
+      "ms": 1049
     },
     "nj_wellhead_areas": {
       "ok": true,
       "problem": null,
       "count": 6288,
-      "ms": 273
+      "ms": 228
     },
     "nj_wetlands": {
       "ok": true,
       "problem": null,
       "count": 143206,
-      "ms": 2723
+      "ms": 2180
     }
   },
   "code_counts": {
-    "nj_brownfield_areas/Pennsville": {
-      "by_code": 0,
-      "by_outline": 0,
-      "code_in_outline": 0
-    },
-    "nj_brownfield_areas/Salem County": {
-      "by_code": 3,
-      "by_outline": 3,
-      "code_in_outline": 3
-    },
     "nj_child_care/Salem County": {
       "by_code": 22,
       "by_outline": 22,
@@ -462,16 +212,6 @@
       "by_outline": 2,
       "code_in_outline": 2
     },
-    "nj_land_capacity/Pennsville": {
-      "by_code": 291,
-      "by_outline": 292,
-      "code_in_outline": 291
-    },
-    "nj_land_capacity/Salem County": {
-      "by_code": 799,
-      "by_outline": 803,
-      "code_in_outline": 799
-    },
     "nj_overburdened_communities/Pennsville": {
       "by_code": 1,
       "by_outline": 3,
@@ -487,10 +227,6 @@
       "by_outline": 6587,
       "code_in_outline": 6558
     },
-    "nj_parcels/Salem County": {
-      "by_code": 32624,
-      "skipped": "too large"
-    },
     "nj_tax_blocks/Pennsville": {
       "by_code": 522,
       "by_outline": 537,
@@ -505,16 +241,6 @@
       "by_code": 4259,
       "by_outline": 4267,
       "code_in_outline": 4243
-    },
-    "nj_urban_enterprise_zones/Pennsville": {
-      "by_code": 0,
-      "by_outline": 0,
-      "code_in_outline": 0
-    },
-    "nj_urban_enterprise_zones/Salem County": {
-      "by_code": 0,
-      "by_outline": 0,
-      "code_in_outline": 0
     },
     "nj_wards/Pennsville": {
       "by_code": 1,

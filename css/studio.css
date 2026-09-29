@@ -72,6 +72,11 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
 .catalog-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; text-align: left;
   border: 1px solid transparent; background: none; padding: 5px 6px; min-height: 32px; }
 .catalog-item:hover:not(:disabled) { border-color: var(--line); background: var(--panel); }
+.catalog-item > span:first-child { flex: 1; }
+.badge.partial { color: var(--draft); border-color: var(--draft); background: var(--draft-soft); }
+.coverage-note { font-size: 0.84rem; color: var(--draft); background: var(--draft-soft); border-radius: var(--radius); padding: 6px 8px; margin: 0; }
+.preset-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.preset-row .secondary { padding: 3px 10px; font-size: 0.82rem; }
 .layer-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .layer { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px; display: grid; gap: 2px; }
 .layer.selected { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }

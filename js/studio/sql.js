@@ -94,6 +94,14 @@ function rangeClause(column, field, condition, type) {
   return parts.length ? parts.join(' AND ') : '1=1';
 }
 
+// A joined field (D-085) lists every key, so a search is the keys whose joined value contains the text.
+function containsClause(column, field, value, type) {
+  if (!field.lookup) return `UPPER(${column}) LIKE '%${likePattern(value)}%' ESCAPE '\\'`;
+  const needle = String(value).toLowerCase();
+  const keys = Object.keys(field.value_labels ?? {}).filter((key) => (field.value_labels[key] ?? '').toLowerCase().includes(needle));
+  return keys.length ? `${column} IN (${keys.map((key) => literal(key, type)).join(', ')})` : '1=0';
+}
+
 // Conditions (output names) -> where clause (source names); null when there are none.
 export function conditionsWhere(entry, conditions, types = {}) {
   const byName = new Map(entry.fields.map((field) => [field.name, field]));
@@ -104,7 +112,7 @@ export function conditionsWhere(entry, conditions, types = {}) {
     const column = field.source;
     const type = types[column] ?? (field.type === 'number' ? 'number' : 'string');
     if (condition.op === 'in') clauses.push(inClause(column, field, condition, type));
-    else if (condition.op === 'contains') clauses.push(`UPPER(${column}) LIKE '%${likePattern(condition.value)}%' ESCAPE '\\'`);
+    else if (condition.op === 'contains') clauses.push(containsClause(column, field, condition.value, type));
     else if (condition.op === 'range') clauses.push(rangeClause(column, field, condition, type));
   }
   return clauses.length ? clauses.join(' AND ') : null; // every OR clause above is already in parentheses

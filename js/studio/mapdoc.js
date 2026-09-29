@@ -203,6 +203,7 @@ export function validate(input, known = null, bufferable = null) {
       dissolve: buffer.dissolve === true,
       visible: buffer.visible !== false,
       distances: rings.map((ring, i) => ({ value: ring.value, style: cleanRingStyle(ring.style, defaultStyle(index, i)) })),
+      ...(isText(buffer.preset) ? { preset: buffer.preset.slice(0, 40) } : {}),
     });
   }
 

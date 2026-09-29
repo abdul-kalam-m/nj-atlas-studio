@@ -47,14 +47,22 @@ export async function runScreening({ client, turf, buffer, entries, layerDocs })
   return { bufferId: buffer.id, site, ring, targets, ranAt: new Date() };
 }
 
-// The lines a layer carries into this kind of output (D-073): 'list', 'export' or 'print'.
-export function notesOf(entry, on) {
-  return (entry.export_notes ?? []).filter((note) => note.on.includes(on)).map((note) => note.text);
+// "<Layer>, partial coverage: <note>" for a layer that does not cover the whole state (D-085), or null.
+export function coverageNote(entry) {
+  return entry.coverage ? `${entry.title}, partial coverage: ${entry.coverage.note}` : null;
 }
 
-// Unique notes of the target layers that have results, for a buffer list.
+// The lines a layer carries into this kind of output (D-073): 'list', 'export' or 'print'. The coverage note goes
+// everywhere (D-085).
+export function notesOf(entry, on) {
+  return [coverageNote(entry), ...(entry.export_notes ?? []).filter((note) => note.on.includes(on)).map((note) => note.text)].filter(Boolean);
+}
+
+// Unique notes for a buffer list: those of the target layers that have results, and the coverage of every target,
+// since an empty result from a partial layer is not an absence (D-085).
 export function resultNotes(results) {
-  return [...new Set(results.targets.filter((target) => target.features.length).flatMap((target) => notesOf(target.entry, 'list')))];
+  return [...new Set([...results.targets.map((target) => coverageNote(target.entry)).filter(Boolean),
+    ...results.targets.filter((target) => target.features.length).flatMap((target) => notesOf(target.entry, 'list'))])];
 }
 
 // Rows for the combined list: Layer, Name, Type, ID, Site, Details.

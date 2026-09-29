@@ -46,6 +46,24 @@ export function newBuffer(id, layer, bufferIndex, { unit = 'ft', distance = 500 
     distances: [{ value: distance, style: defaultStyle(bufferIndex, 0) }] };
 }
 
+// A buffer a rule defines (D-085), from the layer's recipe: its distances in feet, dissolved, named after it.
+export function presetPatch(preset, bufferIndex) {
+  return { preset: preset.key, name: preset.label, unit: 'ft', dissolve: true,
+    distances: preset.distances_ft.map((value, index) => ({ value, style: defaultStyle(bufferIndex, index) })) };
+}
+
+// The preset a buffer still follows, or null.
+export function presetOf(buffer, entry) {
+  return buffer.preset ? (entry?.buffer_presets ?? []).find((preset) => preset.key === buffer.preset) ?? null : null;
+}
+
+// Changing the distances, unit or layer leaves the rule: drop the preset, and its name if it was not changed.
+export function dropPreset(buffer, entry) {
+  if (!buffer.preset) return;
+  if (buffer.name === presetOf(buffer, entry)?.label) buffer.name = '';
+  delete buffer.preset;
+}
+
 // The next ring's distance: double the largest, within the limit.
 export function nextDistance(buffer) {
   const largest = Math.max(0, ...buffer.distances.map((ring) => ring.value));
