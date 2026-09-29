@@ -1,6 +1,6 @@
 {
   "date": "2026-09-29",
-  "commit": "cd617f2",
+  "commit": "cb3264e",
   "rehearsal": false,
   "layers": [
     {
@@ -36,6 +36,16 @@
     {
       "id": "nj_trails",
       "rows": 12761,
+      "status": "published"
+    },
+    {
+      "id": "nj_acs_block_groups",
+      "rows": 6599,
+      "status": "published"
+    },
+    {
+      "id": "nj_acs_tracts",
+      "rows": 2181,
       "status": "published"
     }
   ]

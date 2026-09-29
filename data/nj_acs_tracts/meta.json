@@ -1,0 +1,234 @@
+{
+  "id": "nj_acs_tracts",
+  "rows": 2181,
+  "source_count": 2181,
+  "fetched_at": "2026-09-29T06:17:28Z",
+  "bounds": [
+    -75.563586,
+    38.788657,
+    -73.88506,
+    41.357607
+  ],
+  "files": {
+    "parquet": {
+      "path": "nj_acs_tracts/nj_acs_tracts.parquet",
+      "bytes": 11492056
+    },
+    "pmtiles": {
+      "path": "nj_acs_tracts/nj_acs_tracts.pmtiles",
+      "bytes": 10681446
+    },
+    "csv": {
+      "path": "nj_acs_tracts/nj_acs_tracts.csv",
+      "bytes": 509485
+    },
+    "geojson": {
+      "path": "nj_acs_tracts/nj_acs_tracts.geojson",
+      "bytes": 21128878
+    }
+  },
+  "repaired_shapes": 0,
+  "dropped_empty_shapes": 0,
+  "tagged_by_nearest": 0,
+  "place_tag_coverage": 1.0,
+  "values": {
+    "median_hh_income_reliability": [
+      {
+        "value": "High",
+        "count": 953
+      },
+      {
+        "value": "Low",
+        "count": 33
+      },
+      {
+        "value": "Medium",
+        "count": 1123
+      },
+      {
+        "value": null,
+        "count": 72
+      }
+    ],
+    "poverty_pct_reliability": [
+      {
+        "value": "High",
+        "count": 2
+      },
+      {
+        "value": "Low",
+        "count": 942
+      },
+      {
+        "value": "Medium",
+        "count": 1224
+      },
+      {
+        "value": null,
+        "count": 13
+      }
+    ],
+    "rent_burden_pct_reliability": [
+      {
+        "value": "High",
+        "count": 210
+      },
+      {
+        "value": "Low",
+        "count": 474
+      },
+      {
+        "value": "Medium",
+        "count": 1461
+      },
+      {
+        "value": null,
+        "count": 36
+      }
+    ]
+  },
+  "ranges": {
+    "population": {
+      "min": 0.0,
+      "max": 15448.0
+    },
+    "density": {
+      "min": 0.0,
+      "max": 122049.0
+    },
+    "age_65_plus_pct": {
+      "min": 0.0,
+      "max": 100.0
+    },
+    "median_hh_income": {
+      "min": 15943.0,
+      "max": 250000.0
+    },
+    "poverty_pct": {
+      "min": 0.0,
+      "max": 100.0
+    },
+    "median_home_value": {
+      "min": 55800.0,
+      "max": 2000000.0
+    },
+    "median_gross_rent": {
+      "min": 329.0,
+      "max": 3500.0
+    },
+    "renter_pct": {
+      "min": 0.0,
+      "max": 100.0
+    },
+    "rent_burden_pct": {
+      "min": 0.0,
+      "max": 100.0
+    },
+    "no_vehicle_pct": {
+      "min": 0.0,
+      "max": 100.0
+    },
+    "people_of_color_pct": {
+      "min": 0.0,
+      "max": 100.0
+    },
+    "bachelors_pct": {
+      "min": 0.0,
+      "max": 95.0
+    },
+    "limited_english_pct": {
+      "min": 0.0,
+      "max": 100.0
+    },
+    "disability_pct": {
+      "min": 0.0,
+      "max": 100.0
+    }
+  },
+  "selftest": [
+    {
+      "label": "Poverty rate of 20% or more",
+      "state": {
+        "layer": "nj_acs_tracts",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "poverty_pct",
+            "op": "range",
+            "min": 20,
+            "max": null
+          }
+        ]
+      },
+      "expected": 294
+    },
+    {
+      "label": "Median household income under $50,000",
+      "state": {
+        "layer": "nj_acs_tracts",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": [
+          {
+            "field": "median_hh_income",
+            "op": "range",
+            "min": null,
+            "max": 49999
+          }
+        ]
+      },
+      "expected": 151
+    },
+    {
+      "label": "All census tracts",
+      "expected": 2181,
+      "state": {
+        "layer": "nj_acs_tracts",
+        "place": {
+          "county_fips": null,
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      }
+    },
+    {
+      "label": "Place check: Atlantic County",
+      "state": {
+        "layer": "nj_acs_tracts",
+        "place": {
+          "county_fips": "001",
+          "mun_code": null,
+          "tract_geoid": null,
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 74
+    },
+    {
+      "label": "Area check: Atlantic City",
+      "state": {
+        "layer": "nj_acs_tracts",
+        "place": {
+          "county_fips": "001",
+          "mun_code": "0102",
+          "tract_geoid": "34001000100",
+          "bg_geoid": null
+        },
+        "conditions": []
+      },
+      "expected": 1
+    }
+  ]
+}

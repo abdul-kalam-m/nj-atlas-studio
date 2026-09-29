@@ -1242,8 +1242,11 @@ function legendGroups() {
     if (layer.visible) {
       const { style } = presetStyle(entry, layer.style);
       const values = runtime(layer.id).stats.values?.[style.field]?.map((v) => v.value) ?? null;
-      const title = entry.coverage ? TEXT.layers.partialTitle(entry.legend.title) : entry.legend.title;
-      groups.push({ title, rows: legendFor(entry, style, { text: { other: TEXT.style.other }, values }) });
+      // A layer with several measures (D-086) names the one on show.
+      const measures = Object.values(entry.styles).filter((s) => s.kind === 'graduated').length > 1 && style.kind === 'graduated';
+      const base = measures ? `${entry.legend.title}: ${style.label}` : entry.legend.title;
+      const title = entry.coverage ? TEXT.layers.partialTitle(base) : base;
+      groups.push({ title, rows: legendFor(entry, style, { text: { other: TEXT.style.other, blank: TEXT.style.noData }, values }) });
     }
     // Buffer layers follow the layer they were made from, as on the map (D-077).
     for (const buffer of app.doc.buffers) {
