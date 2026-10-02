@@ -6,6 +6,9 @@ import { presetStyle } from './style.js';
 import { combinedRows, resultNotes } from './screening.js';
 import { BUFFER_PRESETS_FT, MAX_BUFFERS, MAX_LAYERS } from './mapdoc.js';
 import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, bufferName, formatDistance, presetOf } from './buffer.js';
+import { CHART_TYPES, MAX_CHARTS, SCOPES, BARS } from './chartdata.js';
+import { chartFields, chartMeasures } from './chartspec.js';
+import { svgNode } from './charts.js';
 import { legendNode, ringSwatchStyle } from './export.js';
 import { formatCount, formatValue } from '../format.js';
 import { pickerLevels, unitsFor, LEVEL_KEYS, pickerNeeds } from '../places.js';
@@ -543,9 +546,112 @@ function bufferRow(app, buffer) {
 export function renderAnalysis(app) {
   const T = app.text;
   const tool = app.ui.tool;
-  const switcher = el('div', { class: 'segmented', role: 'group', 'aria-label': T.analysis.tools }, ['buffer', 'screening'].map((key) =>
+  const switcher = el('div', { class: 'segmented', role: 'group', 'aria-label': T.analysis.tools }, ['buffer', 'screening', 'charts'].map((key) =>
     el('button', { type: 'button', 'aria-pressed': String(tool === key), text: T.analysis[key], onclick: () => app.actions.setTool(key) })));
-  $('panel-analysis').replaceChildren(switcher, ...(tool === 'screening' ? screeningNodes(app) : bufferToolNodes(app)));
+  const nodes = tool === 'screening' ? screeningNodes(app) : tool === 'charts' ? chartToolNodes(app) : bufferToolNodes(app);
+  $('panel-analysis').replaceChildren(switcher, ...nodes);
+}
+
+// ---- Analysis: charts (D-088) ----
+
+export function renderCharts(app) {
+  if (app.ui.tab === 'analysis' && app.ui.tool === 'charts') renderAnalysis(app);
+}
+
+function chartToolNodes(app) {
+  const C = app.text.charts;
+  const nodes = [el('div', { class: 'button-row' }, [el('button', { type: 'button', class: 'primary', text: C.new,
+    disabled: !app.doc.layers.length || app.doc.charts.length >= MAX_CHARTS, onclick: () => app.actions.newChart() })])];
+  if (!app.doc.layers.length) nodes.push(el('p', { class: 'hint', text: C.noLayers }));
+  else if (app.doc.charts.length >= MAX_CHARTS) nodes.push(el('p', { class: 'hint', text: C.limit }));
+  app.doc.charts.forEach((chart, index) => nodes.push(chartCard(app, chart, index)));
+  return nodes;
+}
+
+function chartTable(spec, type, C) {
+  const total = spec.rows.reduce((sum, row) => sum + row.value, 0);
+  const share = type !== 'histogram' && total > 0;
+  const head = el('tr', {}, [el('th', { scope: 'col', text: type === 'histogram' ? C.table.range : C.table.category }),
+    el('th', { scope: 'col', class: 'num', text: C.table.value }), share ? el('th', { scope: 'col', class: 'num', text: C.table.share }) : null].filter(Boolean));
+  const rows = spec.rows.map((row) => el('tr', {}, [el('td', { text: row.label }), el('td', { class: 'num', text: row.display }),
+    share ? el('td', { class: 'num', text: `${Math.round((row.value / total) * 1000) / 10}%` }) : null].filter(Boolean)));
+  return el('table', { class: 'chart-table' }, [el('caption', { class: 'visually-hidden', text: spec.title }), el('thead', {}, head), el('tbody', {}, rows)]);
+}
+
+function chartCard(app, chart, index) {
+  const C = app.text.charts;
+  const entry = app.registry.get(chart.layer);
+  const state = app.chartData.get(chart.id);
+  // Drawn at the panel's own width, so the text stays at its size (the panel is hidden while another tab shows).
+  const width = Math.max(220, ($('panel-analysis')?.clientWidth || 320) - 44);
+  const view = state?.status === 'ready' ? app.chartView(chart, width) : null;
+  const editing = app.ui.chartEditing === chart.id;
+  const asTable = app.chartTables.has(chart.id);
+  const title = view?.spec.title ?? (chart.title || entry?.title || chart.layer);
+  // The chart carries its own title (for the print and PNG); the card names it only when the chart is not drawn.
+  const head = el('div', { class: 'chart-head' }, [el('strong', { class: view && !asTable ? 'visually-hidden' : '', text: title }),
+    el('div', { class: 'chart-actions' }, [
+      el('button', { type: 'button', class: 'link-button', 'aria-expanded': String(editing), text: editing ? C.done : C.edit, onclick: () => app.actions.editChart(chart.id) }),
+      view ? el('button', { type: 'button', class: 'link-button', 'aria-pressed': String(asTable), text: asTable ? C.asChart : C.asTable, onclick: () => app.actions.toggleChartTable(chart.id) }) : null,
+      el('button', { type: 'button', class: 'icon', 'aria-label': `${C.up}: ${title}`, text: '↑', disabled: index === 0, onclick: () => app.actions.moveChart(chart.id, -1) }),
+      el('button', { type: 'button', class: 'icon', 'aria-label': `${C.down}: ${title}`, text: '↓', disabled: index === app.doc.charts.length - 1, onclick: () => app.actions.moveChart(chart.id, 1) }),
+      el('button', { type: 'button', class: 'icon', 'aria-label': `${C.remove}: ${title}`, text: '×', onclick: () => app.actions.removeChart(chart.id) }),
+    ].filter(Boolean))]);
+  const body = [];
+  if (editing && entry) body.push(chartEditor(app, chart, entry));
+  if (!state || state.status === 'loading') body.push(el('p', { class: 'hint', text: C.loading }));
+  else if (state.status === 'error' || state.status === 'cancelled') {
+    const code = state.error?.code;
+    const message = code === 'tooMany' ? C.errors.tooMany(state.error.detail) : C.errors[code] ?? C.errors.failed;
+    body.push(el('p', { class: 'hint' }, [message, ' ', ['noField', 'needsRing', 'tooMany'].includes(code) ? null
+      : el('button', { type: 'button', class: 'link-button', text: C.retry, onclick: () => app.actions.retryChart(chart.id) })].filter(Boolean)));
+  } else if (view) {
+    body.push(asTable ? chartTable(view.spec, chart.type, C) : el('div', { class: 'chart-figure' }, [svgNode(view.tree)]));
+    for (const note of view.spec.notes) body.push(el('p', { class: 'hint', text: note }));
+    if (entry) body.push(el('p', { class: 'hint', text: C.source(entry.source.publisher) }));
+  }
+  return el('div', { class: `chart-card${editing ? ' editing' : ''}`, 'data-chart': chart.id }, [head, ...body]);
+}
+
+function chartEditor(app, chart, entry) {
+  const C = app.text.charts;
+  const { id } = chart;
+  const field = (key, label, control) => el('div', { class: 'field' }, [el('label', { for: control.id, text: label }), control]);
+  const select = (key, options, value, onChange) => {
+    const node = el('select', { id: `ch-${id}-${key}` }, options.map(([v, t]) => el('option', { value: v, text: t })));
+    node.value = value ?? '';
+    node.addEventListener('change', () => onChange(node.value));
+    return node;
+  };
+  const fields = chartFields(entry, chart);
+  const pool = chart.type === 'histogram' ? fields.number : fields.category;
+  const nodes = [
+    field('layer', C.layer, select('layer', app.doc.layers.map((l) => [l.id, app.registry.get(l.id)?.title ?? l.id]), chart.layer, (v) => app.actions.setChart(id, { layer: v }))),
+    field('type', C.type, select('type', CHART_TYPES.map((t) => [t, C.types[t]]), chart.type, (v) => app.actions.setChart(id, { type: v }))),
+    field('scope', C.scope, select('scope', SCOPES.map((s) => [s, C.scopes[s]]), chart.scope, (v) => app.actions.setChart(id, { scope: v }))),
+    pool.length ? field('field', chart.type === 'histogram' ? C.valueField : C.categoryField,
+      select('field', pool.map((f) => [f.name, f.label]), chart.field, (v) => app.actions.setChart(id, { field: v }))) : el('p', { class: 'hint', text: C.noFields }),
+  ];
+  if (chart.type !== 'histogram') {
+    nodes.push(field('measure', C.measure, select('measure', chartMeasures(entry, chart).map((m) => [m, C.measureNames[m]]), chart.measure,
+      (v) => app.actions.setChart(id, { measure: v }))));
+    if (chart.measure === 'sum') {
+      nodes.push(field('sum', C.sumField, select('sum', fields.summable.map((f) => [f.name, f.label]), chart.sum_field, (v) => app.actions.setChart(id, { sum_field: v }))));
+    }
+    if (chart.type === 'bar') {
+      const bars = el('input', { type: 'number', id: `ch-${id}-bars`, min: String(BARS.min), max: String(BARS.max), step: '1', value: String(chart.max_bars) });
+      bars.addEventListener('change', () => {
+        const value = Number(bars.value);
+        if (Number.isInteger(value) && value >= BARS.min && value <= BARS.max) app.actions.setChart(id, { max_bars: value });
+        else bars.value = String(chart.max_bars);
+      });
+      nodes.push(field('bars', C.maxBars, bars));
+    }
+  }
+  const title = el('input', { type: 'text', id: `ch-${id}-title`, value: chart.title, autocomplete: 'off', maxlength: '100' });
+  title.addEventListener('change', () => app.actions.setChart(id, { title: title.value.trim() }));
+  nodes.push(field('title', C.titleLabel, title));
+  return el('div', { class: 'chart-editor' }, nodes);
 }
 
 function bufferToolNodes(app) {

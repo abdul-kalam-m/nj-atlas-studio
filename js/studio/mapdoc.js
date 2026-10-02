@@ -1,9 +1,11 @@
 // The map document: one JSON object for the screen, the link, the .map.json file and the print (D-034,
 // IMPLEMENTATION_GUIDE.md §4.2). Version 2 (D-076) keeps site screenings under `screenings` (version 1 called them
-// `buffers`) and buffer layers under `buffers`.
+// `buffers`) and buffer layers under `buffers`. Charts (D-088) are an optional `charts` list: an addition, not a new
+// version, so documents made before charts open unchanged and older copies of Studio keep charts as an extension.
 // Imports pure modules only. Problems are codes with details; site/js/studio/text.js turns them into words.
 import { MAX_PICKED, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, defaultStyle, validDistance } from './buffer.js';
 import { BASEMAP_MODES, BASEMAP_NAMES, OUTSIDE_MODES } from './basemaps.js';
+import { BARS, CHART_TYPES, MAX_CHARTS, MEASURES, SCOPES } from './chartdata.js';
 
 export const SCHEMA_VERSION = 2;
 export const MAX_LAYERS = 8;
@@ -19,7 +21,7 @@ export const LEVEL_KEY = { county: 'county_fips', municipality: 'mun_code', trac
 const PAPERS = ['letter', 'tabloid'];
 const ORIENTATIONS = ['landscape', 'portrait'];
 const KNOWN_KEYS = ['schema_version', 'title', 'subtitle', 'created_at', 'area', 'mask', 'basemap', 'basemap_mode', 'view', 'layers', 'screenings',
-  'buffers', 'layout', 'credits', 'source_versions', 'extensions'];
+  'buffers', 'charts', 'layout', 'credits', 'source_versions', 'extensions'];
 const OPS = ['in', 'contains', 'range'];
 
 export function emptyArea() {
@@ -40,6 +42,7 @@ export function createDoc(now = new Date()) {
     layers: [],
     screenings: [],
     buffers: [],
+    charts: [],
     layout: { paper: 'letter', orientation: 'landscape', legend: true, scale_bar: true, north_arrow: true, notes: '' },
     credits: [],
     source_versions: {},
@@ -207,6 +210,27 @@ export function validate(input, known = null, bufferable = null) {
     });
   }
 
+  // Charts (D-088): the recipe only; Studio counts again when the document opens. A chart whose layer is not on the
+  // map is dropped with a notice, like a buffer's. An older Studio kept charts under extensions.
+  const charts = Array.isArray(raw.charts) ? raw.charts : Array.isArray(raw.extensions?.charts) ? raw.extensions.charts : [];
+  for (const chart of charts.slice(0, MAX_CHARTS)) {
+    if (!isObject(chart) || !isText(chart.layer) || !CHART_TYPES.includes(chart.type)) { notices.push({ code: 'badChart' }); continue; }
+    if (!doc.layers.some((layer) => layer.id === chart.layer)) { notices.push({ code: 'chartLayerMissing', detail: chart.layer }); continue; }
+    const scope = SCOPES.includes(chart.scope) ? chart.scope : 'area';
+    let measure = MEASURES.includes(chart.measure) && chart.type !== 'histogram' ? chart.measure : 'count';
+    if (measure === 'ring_area' && scope !== 'ring') measure = 'count';
+    if (measure === 'sum' && !isText(chart.sum_field)) measure = 'count';
+    const id = isText(chart.id) && !doc.charts.some((c) => c.id === chart.id) ? chart.id.slice(0, 12) : nextId(doc.charts, 'c');
+    doc.charts.push({
+      id, type: chart.type, layer: chart.layer, scope,
+      field: isText(chart.field) ? chart.field : null,
+      measure,
+      sum_field: measure === 'sum' ? chart.sum_field : null,
+      title: isText(chart.title) ? chart.title.slice(0, 100) : '',
+      max_bars: Number.isInteger(chart.max_bars) ? Math.min(BARS.max, Math.max(BARS.min, chart.max_bars)) : BARS.default,
+    });
+  }
+
   const layout = isObject(raw.layout) ? raw.layout : {};
   doc.layout = {
     paper: PAPERS.includes(layout.paper) ? layout.paper : 'letter',
@@ -221,6 +245,7 @@ export function validate(input, known = null, bufferable = null) {
   // Unknown keys are kept under extensions and never deleted (paid features plug in here, D-040).
   doc.extensions = isObject(raw.extensions) ? { ...raw.extensions } : {};
   for (const key of Object.keys(raw)) if (!KNOWN_KEYS.includes(key)) doc.extensions[key] = raw[key];
+  if (doc.charts.length) delete doc.extensions.charts;
   return { doc: problems.length ? null : doc, problems, notices };
 }
 
@@ -233,3 +258,4 @@ function nextId(items, prefix) {
 // The ID a new buffer gets: b1, b2, ... not already used; screenings get s1, s2, ...
 export const nextBufferId = (doc) => nextId(doc.buffers, 'b');
 export const nextScreeningId = (doc) => nextId(doc.screenings, 's');
+export const nextChartId = (doc) => nextId(doc.charts, 'c');
