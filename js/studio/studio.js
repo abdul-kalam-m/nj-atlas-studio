@@ -1333,9 +1333,17 @@ const syncCharts = debounce(() => {
   if (app.doc.charts.some((chart, i) => app.chartData.get(chart.id)?.key !== before[i])) panels.renderCharts(app);
 }, 200);
 
+// A chart's computed state, only when it was computed for the chart as it is now: a chart never draws numbers
+// computed for its earlier settings while the new ones are counted.
+function chartState(chart) {
+  const state = app.chartData.get(chart.id);
+  return state && state.key === chartKey(chart) ? state : null;
+}
+app.chartState = chartState;
+
 // What a chart draws, from its computed data: { spec, tree, height }, or null until the data is ready.
 function chartView(chart, width = 300) {
-  const state = app.chartData.get(chart.id);
+  const state = chartState(chart);
   if (state?.status !== 'ready') return null;
   const entry = app.registry.get(chart.layer);
   const layer = app.doc.layers.find((l) => l.id === chart.layer);
