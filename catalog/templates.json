@@ -33,6 +33,111 @@
       "orientation": "landscape"
     }
   },
+  "environmental_constraints": {
+    "title": "Environmental constraints",
+    "summary": "Wetlands and LOI lines, flood zones, Category 1 waters, Natural Heritage sites, groundwater contamination and historic districts within 300 ft of a site.",
+    "site_layer": "nj_parcels",
+    "layers": [
+      {
+        "id": "nj_parcels",
+        "preset": "outline"
+      },
+      {
+        "id": "nj_c1_waters",
+        "preset": "line"
+      },
+      {
+        "id": "nj_wetland_loi_lines",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_wetlands",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_flood_zones",
+        "preset": "by_zone"
+      },
+      {
+        "id": "nj_natural_heritage_sites",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_groundwater_cea",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_historic_districts",
+        "preset": "by_status"
+      }
+    ],
+    "targets": [
+      "nj_c1_waters",
+      "nj_wetland_loi_lines",
+      "nj_wetlands",
+      "nj_flood_zones",
+      "nj_natural_heritage_sites",
+      "nj_groundwater_cea",
+      "nj_historic_districts"
+    ],
+    "distance_ft": 300,
+    "layout": {
+      "paper": "letter",
+      "orientation": "landscape"
+    }
+  },
+  "site_feasibility": {
+    "title": "Site feasibility",
+    "summary": "Sewer and water service, soils rated for septic, flood zones, and redevelopment or rehabilitation designations at a site.",
+    "site_layer": "nj_parcels",
+    "layers": [
+      {
+        "id": "nj_parcels",
+        "preset": "outline"
+      },
+      {
+        "id": "nj_roads",
+        "preset": "gray"
+      },
+      {
+        "id": "nj_sewer_service_areas",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_water_purveyors",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_soils",
+        "preset": "septic"
+      },
+      {
+        "id": "nj_flood_zones",
+        "preset": "by_zone"
+      },
+      {
+        "id": "nj_redevelopment_areas",
+        "preset": "fill"
+      },
+      {
+        "id": "nj_rehabilitation_areas",
+        "preset": "fill"
+      }
+    ],
+    "targets": [
+      "nj_sewer_service_areas",
+      "nj_water_purveyors",
+      "nj_soils",
+      "nj_flood_zones",
+      "nj_redevelopment_areas",
+      "nj_rehabilitation_areas"
+    ],
+    "distance_ft": 50,
+    "layout": {
+      "paper": "letter",
+      "orientation": "landscape"
+    }
+  },
   "equity_screening": {
     "title": "Equity screening",
     "summary": "Overburdened Communities over tract poverty rates, with contaminated sites, flood zones and wetlands.",

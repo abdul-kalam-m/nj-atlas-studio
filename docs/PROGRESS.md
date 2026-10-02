@@ -733,3 +733,11 @@ Template (from OPERATING_GUIDE.md §4):
   - Browser, Newark: the Equity screening template adds its five layers; 88 tracts draw by poverty rate, with the legend "Demographics (tracts): Poverty rate" and its "No data" row. Tract 23 reads 6,132 people, median household income $112,882 (± $44,230, medium reliability), poverty 8.9%.
 - Assumptions: fixed class breaks, so colors mean the same in every area; reliability thresholds of 12% and 40% (coefficient of variation).
 - Size: the two layers add about 110 MB to the release.
+
+### Shorter layer list, templates, High Injury Network, candidates (D-087) · done · 2026-10-02
+- The owner's request in chat: "Complete only 1, 4 and 5."
+- Changed: catalog/core.json (new), catalog/templates.json, pipeline/studio.py, site/js/studio/{panels,text}.js, studio.css; recipes nj_high_injury_network (combined source), nj_rehabilitation_areas, nj_wild_scenic_rivers (new), nj_highlands_capability_zones and nj_agricultural_development_areas (new drafts); tests in test_studio.py; DECISIONS.md (D-087, O-12, O-13), CANDIDATES.md, LICENSE_REVIEW.md.
+- Checks:
+  - `pipeline validate` passes; `node tools/healthcheck.mjs` passes for the five changed or new layers. A Road owner filter of County returns NJDOT's 41 county segments.
+  - 213 Python and 218 JavaScript tests pass, and the lint passes.
+  - Browser: Add layer shows 16 core layers, then "More layers (65)", closed. Site feasibility and Environmental constraints each add 8 layers and open site selection; an Environmental constraints screening in Woodbridge queries all 7 targets and lists 5 flood zone areas.

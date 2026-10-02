@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_wild_scenic_rivers",
+  "title": "Wild and Scenic Rivers",
+  "category": "water",
+  "status": "published",
+  "geometry": "line",
+  "noun": {"singular": "river segment", "plural": "river segments"},
+  "summary": "Rivers designated under the federal Wild and Scenic Rivers Act: the Great Egg Harbor, Maurice, Musconetcong and the Lower and Middle Delaware.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/WildScenicRiversV2_AGOL/FeatureServer/1",
+    "where": "WSR_RIVER_NAME LIKE '%New Jersey%'",
+    "id_field": "OBJECTID",
+    "publisher": "National Park Service, for the Interagency Wild and Scenic Rivers Council",
+    "landing_page": "https://www.rivers.gov/",
+    "expected_count": {"min": 5, "max": 7}
+  },
+  "license": {
+    "name": "Public domain (U.S. Government work, 17 U.S.C. § 105)",
+    "url": "https://www.copyright.gov/title17/92chap1.html#105",
+    "attribution": "National Park Service, National Wild and Scenic Rivers System",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-10-02"
+  },
+  "fields": [
+    {"source": "WSR_RIVER_SHORTNAME", "name": "river", "label": "River", "type": "text", "filter": "search", "popup": true},
+    {"source": "RiverCategory", "name": "river_category", "label": "Category", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "MANAGING_ENTITIES", "name": "managed_by", "label": "Managed by", "type": "text", "filter": "none", "popup": true},
+    {"source": "ENACTED_DATE", "name": "designated", "label": "Designated", "type": "date", "filter": "none", "popup": true},
+    {"source": "WEBLINK", "name": "web_page", "label": "Web page", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "river",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 5,
+  "styles": {
+    "line": {"label": "Teal line", "kind": "single", "color": "#00838F", "width": 4}
+  },
+  "default_style": "line",
+  "legend": {"title": "Wild and Scenic Rivers"},
+  "buffer_role": "both",
+  "distance_query": true,
+  "list_fields": ["river_category"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

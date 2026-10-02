@@ -1,30 +1,31 @@
 {
   "$schema": "../layer.schema.json",
   "id": "nj_high_injury_network",
-  "title": "High Injury Network (state roads)",
+  "title": "High Injury Network",
   "category": "transportation",
   "status": "published",
   "geometry": "line",
   "noun": {"singular": "road segment", "plural": "road segments"},
-  "summary": "State highway segments with the most fatal and serious injury crashes, ranked (NJDOT, 2025).",
+  "summary": "Road segments with the most fatal and serious injury crashes on state, county, municipal and Turnpike roads, ranked (NJDOT for the Target Zero Commission, 2025).",
   "source": {
     "type": "arcgis",
-    "url": "https://services.arcgis.com/HggmsDF7UJsNN1FK/arcgis/rest/services/HIN_2025_Jurisdiction_Filter1/FeatureServer/1",
+    "url": "https://services.arcgis.com/HggmsDF7UJsNN1FK/arcgis/rest/services/HIN_2025_TZ/FeatureServer/0",
     "where": "1=1",
     "id_field": "OBJECTID",
-    "publisher": "New Jersey Department of Transportation (NJDOT)",
+    "publisher": "New Jersey Department of Transportation (NJDOT), for the New Jersey Target Zero Commission",
     "landing_page": "https://www.nj.gov/transportation/",
-    "expected_count": {"min": 148, "max": 165}
+    "expected_count": {"min": 138, "max": 152}
   },
   "license": {
     "name": "NJDOT public data (no license stated)",
     "url": "https://www.nj.gov/nj/legal.html",
     "attribution": "New Jersey Department of Transportation (NJDOT)",
     "reviewed_by": "abdul-kalam-m",
-    "reviewed_on": "2026-09-28"
+    "reviewed_on": "2026-10-02"
   },
   "fields": [
     {"source": "Road_Name", "name": "road", "label": "Road", "type": "text", "filter": "search", "popup": true},
+    {"source": "Jurisdiction", "name": "owner", "label": "Road owner", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"NJDOT": "State (NJDOT)", "NJTA": "Turnpike Authority", "County ": "County", "Municipal": "Municipal"}},
     {"source": "Rank", "name": "rank", "label": "Rank", "type": "number", "filter": "range", "popup": true, "decimals": 0},
     {"source": "K_Crashes", "name": "fatal_crashes", "label": "Fatal crashes", "type": "number", "filter": "range", "popup": true, "decimals": 0},
     {"source": "SI_Crashes", "name": "serious_injury_crashes", "label": "Serious injury crashes", "type": "number", "filter": "range", "popup": true, "decimals": 0},
@@ -37,16 +38,19 @@
   "area_mode": "intersects",
   "min_zoom": 5,
   "styles": {
-    "line": {"label": "Red line", "kind": "single", "color": "#C0392B", "width": 4}
+    "line": {"label": "Red line", "kind": "single", "color": "#C0392B", "width": 4},
+    "by_owner": {"label": "By road owner", "kind": "categories", "field": "owner", "width": 4, "colors": {"State (NJDOT)": "#C0392B", "County": "#E67E22", "Municipal": "#8E44AD", "Turnpike Authority": "#2C3E50"}}
   },
   "default_style": "line",
   "legend": {"title": "High Injury Network"},
   "buffer_role": "both",
   "distance_query": true,
-  "list_fields": ["rank", "fatal_crashes"],
+  "list_fields": ["rank", "owner"],
   "clip_mode": "cut",
   "refresh_cadence": "live",
-  "coverage": {"note": "State highways only; county, municipal and Turnpike roads are published separately and not yet included."},
+  "export_notes": [
+    {"text": "Crash data compiled for highway safety under 23 U.S.C. § 407 may not be admitted as evidence or used in an action for damages.", "on": ["list", "export", "print"]}
+  ],
   "leave_out": [],
   "examples": [
     {"label": "The 25 highest-ranked segments", "conditions": [{"field": "rank", "op": "range", "max": 25}]}

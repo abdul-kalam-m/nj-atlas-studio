@@ -1,0 +1,48 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_highlands_capability_zones",
+  "title": "Highlands Land Use Capability Zones",
+  "category": "planning",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "zone area", "plural": "zone areas"},
+  "summary": "The Highlands Regional Master Plan's zones and subzones (protection, conservation, existing community and their constrained subzones), which guide development in the Highlands.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services6.arcgis.com/ZrVlS0wslq8Nvq5I/arcgis/rest/services/Land_Use_Capability_Zones/FeatureServer/4",
+    "where": "LUCZ_ID <> 'NA'",
+    "id_field": "OBJECTID",
+    "publisher": "NJ Highlands Water Protection and Planning Council (Highlands Council)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=86d6caa1193845af91de0d4c815baa44",
+    "expected_count": {"min": 22000, "max": 24500}
+  },
+  "license": {
+    "name": "Highlands Council data terms (no redistribution without written permission)",
+    "url": "https://www.arcgis.com/home/item.html?id=86d6caa1193845af91de0d4c815baa44",
+    "attribution": "NJ Highlands Water Protection and Planning Council",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "LUCZ_DESC", "name": "zone", "label": "Zone", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "MUN_LABEL", "name": "municipality_name", "label": "Municipality", "type": "text", "filter": "search", "popup": true},
+    {"source": "ACRES", "name": "acres", "label": "Area", "type": "number", "filter": "range", "popup": true, "unit": "acres", "decimals": 1},
+    {"source": "MAPUPDDATE", "name": "map_update", "label": "Map update", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "zone",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 11,
+  "styles": {
+    "by_zone": {"label": "By zone", "kind": "categories", "field": "zone", "opacity": 0.45, "colors": {"Protection Zone": "#1B7837", "Wildlife Management Area": "#5AAE61", "Conservation Zone": "#C2A5CF", "Conservation Environmentally Constrained Subzone": "#9970AB", "Existing Community Zone": "#F4A582", "Existing Community Environmentally Constrained Subzone": "#D6604D", "Lake Community Subzone": "#4393C3"}}
+  },
+  "default_style": "by_zone",
+  "legend": {"title": "Highlands Land Use Capability Zones"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["municipality_name"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

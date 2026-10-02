@@ -1,0 +1,46 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_agricultural_development_areas",
+  "title": "Agricultural Development Areas",
+  "category": "planning",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "development area", "plural": "development areas"},
+  "summary": "County Agricultural Development Areas certified by SADC: where agriculture is the preferred land use and farms can seek farmland preservation and right-to-farm protection.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/gzSkSfQGxyX6dicF/arcgis/rest/services/New_Jersey_Agricultural_Development_Areas/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "FID",
+    "publisher": "State Agriculture Development Committee (SADC), from the county agriculture development boards",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=418dcb5bfed4428e9d6d430e3d856756",
+    "expected_count": {"min": 26, "max": 32}
+  },
+  "license": {
+    "name": "SADC Spatial Data Distribution Protocol (no redistribution without written permission)",
+    "url": "https://www.arcgis.com/home/item.html?id=418dcb5bfed4428e9d6d430e3d856756",
+    "attribution": "This map was developed, in part, using the State Agriculture Development Committee's (SADC's) Geographic Information System digital data but this secondary product has not been verified by the SADC and is not SADC authorized.",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "COUNTY_1", "name": "county_name", "label": "County", "type": "text", "filter": "search", "popup": true, "transform": "titlecase"},
+    {"source": "Acre", "name": "acres", "label": "Area", "type": "number", "filter": "none", "popup": true, "unit": "acres", "decimals": 0}
+  ],
+  "label_field": "county_name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 6,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#A6D96A", "opacity": 0.35, "outline": "#4D9221"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Agricultural Development Areas"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["acres"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

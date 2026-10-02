@@ -1,0 +1,21 @@
+{
+  "description": "The layers Studio's Add layer dialog shows first (D-087); the rest sit under More layers, by topic. Search always covers every layer. Layer IDs live here, not in site/.",
+  "core": [
+    "nj_parcels",
+    "nj_wetlands",
+    "nj_flood_zones",
+    "nj_c1_waters",
+    "nj_streams",
+    "nj_natural_heritage_sites",
+    "nj_preserved_open_space",
+    "nj_preserved_farmland",
+    "nj_contaminated_sites",
+    "nj_groundwater_cea",
+    "nj_historic_districts",
+    "nj_sewer_service_areas",
+    "nj_water_purveyors",
+    "nj_overburdened_communities",
+    "nj_acs_tracts",
+    "nj_roads"
+  ]
+}

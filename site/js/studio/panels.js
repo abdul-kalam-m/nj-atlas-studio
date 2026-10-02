@@ -451,22 +451,32 @@ export function openCatalog(app) {
     'aria-label': T.layers.search });
   const list = el('div', { class: 'catalog' });
   const full = app.doc.layers.length >= MAX_LAYERS;
+  const item = (entry) => {
+    const added = app.doc.layers.some((l) => l.id === entry.id);
+    return el('button', { type: 'button', class: 'catalog-item', disabled: added || full, title: entry.summary,
+      onclick: () => { dialog.close(); app.actions.addLayer(entry.id); } }, [
+      el('span', { text: entry.title }),
+      entry.coverage ? el('span', { class: 'badge partial', title: entry.coverage.note, text: T.layers.partial }) : null,
+      el('span', { class: 'badge', text: added ? T.layers.added : T.layers.access[entry.access] })].filter(Boolean));
+  };
+  const groupsOf = (keep) => app.registry.groups.map(({ category, layers }) => {
+    const shown = layers.filter(keep);
+    return shown.length ? el('div', { class: 'catalog-group' }, [el('h3', { text: T.categories[category] ?? category }), ...shown.map(item)]) : null;
+  }).filter(Boolean);
+  // Without a search: the core layers first, the rest by topic under More layers (D-087). A search covers all.
+  const core = app.registry.catalog.core ?? [];
   const draw = () => {
     const query = search.value.trim().toLowerCase();
     app.ui.addQuery = search.value;
-    list.replaceChildren(...app.registry.groups.map(({ category, layers }) => {
-      const shown = layers.filter((entry) => !query || `${entry.title} ${entry.summary}`.toLowerCase().includes(query));
-      if (!shown.length) return null;
-      return el('div', { class: 'catalog-group' }, [el('h3', { text: T.categories[category] ?? category }),
-        ...shown.map((entry) => {
-          const added = app.doc.layers.some((l) => l.id === entry.id);
-          return el('button', { type: 'button', class: 'catalog-item', disabled: added || full, title: entry.summary,
-            onclick: () => { dialog.close(); app.actions.addLayer(entry.id); } }, [
-            el('span', { text: entry.title }),
-            entry.coverage ? el('span', { class: 'badge partial', title: entry.coverage.note, text: T.layers.partial }) : null,
-            el('span', { class: 'badge', text: added ? T.layers.added : T.layers.access[entry.access] })].filter(Boolean));
-        })]);
-    }).filter(Boolean));
+    if (query || !core.length) {
+      list.replaceChildren(...groupsOf((entry) => !query || `${entry.title} ${entry.summary}`.toLowerCase().includes(query)));
+      return;
+    }
+    const more = el('details', { class: 'more-layers', open: app.ui.moreLayers === true },
+      [el('summary', { text: T.layers.more(app.registry.catalog.layers.length - core.length) }), ...groupsOf((entry) => !core.includes(entry.id))]);
+    more.addEventListener('toggle', () => { app.ui.moreLayers = more.open; });
+    list.replaceChildren(el('div', { class: 'catalog-group' }, [el('h3', { text: T.layers.core }),
+      ...core.map((id) => app.registry.get(id)).filter(Boolean).map(item)]), more);
   };
   search.addEventListener('input', draw);
   draw();

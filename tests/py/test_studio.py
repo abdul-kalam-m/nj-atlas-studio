@@ -80,3 +80,22 @@ def test_outlines_are_one_small_geometry_per_area(mini_atlas):
     assert counts == {"county": 2, "municipality": 3}
     geometry = json.loads((mini_atlas / "site" / "data" / "outlines" / "municipality" / "1709.json").read_text(encoding="utf-8"))
     assert geometry["type"] in ("Polygon", "MultiPolygon")
+
+
+def test_core_layers_lead_the_catalog_and_must_have_recipes(studio_atlas):
+    (studio_atlas / "catalog" / "core.json").write_text(json.dumps({"core": ["nj_wetlands", "nj_parcels"]}), encoding="utf-8")
+    assert build_studio_catalog(studio_atlas, include_drafts=True)["core"] == ["nj_wetlands", "nj_parcels"]
+    (studio_atlas / "catalog" / "core.json").write_text(json.dumps({"core": ["nj_nothing"]}), encoding="utf-8")
+    with pytest.raises(CatalogError, match="no recipe"):
+        build_studio_catalog(studio_atlas, include_drafts=True)
+
+
+def test_the_real_core_list_and_templates_name_published_layers():
+    core = json.loads((ROOT / "catalog" / "core.json").read_text(encoding="utf-8"))["core"]
+    templates = json.loads((ROOT / "catalog" / "templates.json").read_text(encoding="utf-8"))
+    status = {p.stem: json.loads(p.read_text(encoding="utf-8"))["status"] for p in (ROOT / "catalog" / "layers").glob("*.json")}
+    named = set(core) | {layer["id"] for key, t in templates.items() if key != "description" for layer in t["layers"]}
+    assert all(status[layer_id] == "published" for layer_id in named), named
+    for key, template in templates.items():
+        if key != "description":
+            assert len(template["layers"]) <= 8 and set(template.get("targets", [])) <= {layer["id"] for layer in template["layers"]}

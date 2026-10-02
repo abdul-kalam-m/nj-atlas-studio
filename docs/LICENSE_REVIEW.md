@@ -140,3 +140,13 @@ Recorded as in D-083, for the owner's review.
 | Publisher | Data | Terms, as found | Applied |
 | --- | --- | --- | --- |
 | U.S. Census Bureau | ACS 2020–2024 5-year summary file tables; TIGERweb 2020 units | A US federal work, in the public domain (17 U.S.C. § 105). The summary files need no key, so the Data API's terms and credit line do not apply | Published, credited "U.S. Census Bureau, 2020–2024 American Community Survey 5-Year Estimates" |
+
+## Layers added 2026-10-02 (D-087)
+
+| Publisher | Layers | Terms, as found | Applied |
+| --- | --- | --- | --- |
+| DCA | Areas in need of rehabilitation | Acknowledgement requested; the State's legal statement applies | Published |
+| National Park Service | Wild and Scenic Rivers | A US federal work, in the public domain; NPS disclaims liability | Published |
+| NJDOT | High Injury Network (now the combined layer) | The State's legal statement and 23 U.S.C. § 407 | Published, with a § 407 note on downloads |
+| Highlands Council | Land Use Capability Zones | "May not be reproduced or redistributed for use by anyone without first obtaining written permission"; printed maps allowed | **Draft** (O-13) |
+| SADC | Agricultural Development Areas | Spatial Data Distribution Protocol: internal use; no redistribution without written permission; printed maps allowed | **Draft** (O-12) |

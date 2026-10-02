@@ -103,6 +103,12 @@ def build_studio_catalog(root: Path, include_drafts: bool, for_release: bool = F
         missing = [layer["id"] for layer in template["layers"] if layer["id"] not in ids]
         if missing:
             raise CatalogError(f"template {name} names layers that are not in this build: {', '.join(missing)}")
+    # The Add layer dialog's first list (D-087); a core layer left out of this build (a draft) is skipped.
+    core_path = root / "catalog" / "core.json"
+    core = json.loads(core_path.read_text(encoding="utf-8"))["core"] if core_path.exists() else []
+    unknown = [layer_id for layer_id in core if not (root / "catalog" / "layers" / f"{layer_id}.json").exists()]
+    if unknown:
+        raise CatalogError(f"catalog/core.json names layers that have no recipe: {', '.join(unknown)}")
     return {
         "version": 2,
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -110,6 +116,7 @@ def build_studio_catalog(root: Path, include_drafts: bool, for_release: bool = F
         "counter_url": hosting.get("counter_url") if for_release else None,
         "search": {key: value for key, value in search.items() if key != "description"},
         "templates": {name: value for name, value in templates.items() if name != "description"},
+        "core": [layer_id for layer_id in core if layer_id in ids],
         "categories": [category for category in order if any(layer["category"] == category for layer in layers)],
         "layers": sorted(layers, key=lambda layer: (order.index(layer["category"]), layer["title"])),
     }

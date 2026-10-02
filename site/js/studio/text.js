@@ -86,6 +86,8 @@ export const TEXT = {
     matching: (countText, totalText) => `${countText} of ${totalText}`,
     access: { live: 'Live', hybrid: 'Copy + live', copy: 'Copy' },
     partial: 'Partial coverage',
+    core: 'Most used',
+    more: (n) => `More layers (${n})`,
     partialTitle: (title) => `${title} (partial coverage)`,
     drawnLive: 'Drawn live until our map copy is published.',
   },

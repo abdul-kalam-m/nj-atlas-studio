@@ -1,0 +1,49 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_rehabilitation_areas",
+  "title": "Areas in need of rehabilitation",
+  "category": "planning",
+  "status": "published",
+  "geometry": "polygon",
+  "noun": {"singular": "rehabilitation area", "plural": "rehabilitation areas"},
+  "summary": "Areas municipalities designated in need of rehabilitation under the Local Redevelopment and Housing Law, mapped by DCA from municipal resolutions. Check the resolution for the current boundary.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/Aur8tCo478N3VovT/arcgis/rest/services/NJ_Areas_in_Need_of_Rehabilitation/FeatureServer/1",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "NJ Department of Community Affairs (DCA), Local Planning Services; NJ Office of GIS",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=b32191e7f4604be98754bac3c90e814b",
+    "expected_count": {"min": 214, "max": 260}
+  },
+  "license": {
+    "name": "State of New Jersey data terms (acknowledgement requested)",
+    "url": "https://www.nj.gov/nj/legal.html",
+    "attribution": "NJ Department of Community Affairs, Office of Local Planning Services; NJ Office of GIS",
+    "reviewed_by": "abdul-kalam-m",
+    "reviewed_on": "2026-10-02"
+  },
+  "fields": [
+    {"source": "NOTES", "name": "designation", "label": "Designation", "type": "text", "filter": "search", "popup": true},
+    {"source": "MUN_LABEL", "name": "municipality_name", "label": "Municipality", "type": "text", "filter": "search", "popup": true},
+    {"source": "RESOLUTION", "name": "resolution", "label": "Resolution", "type": "text", "filter": "search", "popup": true},
+    {"source": "RES_DATE", "name": "resolution_date", "label": "Resolution date", "type": "date", "filter": "range", "popup": true},
+    {"source": "APPROVAL", "name": "approved", "label": "DCA approval", "type": "date", "filter": "none", "popup": true}
+  ],
+  "label_field": "designation",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 8,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#B9770E", "opacity": 0.35, "outline": "#7E5109"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Areas in need of rehabilitation"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["resolution", "resolution_date"],
+  "clip_mode": "cut",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "examples": []
+}

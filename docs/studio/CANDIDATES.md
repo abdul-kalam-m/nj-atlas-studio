@@ -86,7 +86,7 @@ All are live. Twenty are NJDEP layers under the agreement already accepted; the 
 | Air permitted facilities; NJPDES facilities; landfills; power plants | NJDEP | 17,010; 3,574; 412; 77 | Cumulative-impact screening |
 | Brownfield development areas; brownfield inventory | NJDEP | 39; 803 | Owners' names, phones and emails in the inventory are never requested |
 | Bus stops; bus routes; rail lines | NJ TRANSIT | 19,739; 264; 13 | |
-| High Injury Network (state roads) | NJDOT | 156 | The county, municipal and Turnpike layers (61, 25, 1) wait for a merge step |
+| High Injury Network | NJDOT, for the Target Zero Commission | 145 | All road owners, from NJDOT's combined layer (D-087) |
 
 ### Still waiting
 
@@ -94,7 +94,6 @@ All are live. Twenty are NJDEP layers under the agreement already accepted; the 
 | --- | --- |
 | Landscape Project habitat, plus vernal pools | Six regional services to merge into one map copy |
 | State Plan critical environmental and historic sites; transit villages | OPA's permission (O-10) |
-| High Injury Network (county, municipal and Turnpike roads) | A merge step, so the four road owners are one layer |
 | Urban land with future flooding | The source has only a census ID and acres |
 | Underground storage tank facilities (45,955) | Mostly residential heating-oil tanks, with the responsible party's name |
 
@@ -117,6 +116,17 @@ Not done from that review, and why: the High Injury Network merge, the Landscape
 | Demographics (block groups) | the same | 6,599 | 21 variables (no disability); most block group estimates rate low reliability |
 
 Next (v1.1): ring demographics as a list of the block groups a ring touches, with their published values.
+
+## Remaining candidates (2026-10-02, D-087)
+
+| Layer | Source | Records | Status |
+| --- | --- | --- | --- |
+| Areas in need of rehabilitation | DCA, Local Planning Services | 225 | In Studio |
+| Wild and Scenic Rivers | National Park Service | 5 in NJ | In Studio |
+| Highlands Land Use Capability Zones | Highlands Council | 23,251 | Draft: no redistribution without written permission (O-13) |
+| Agricultural Development Areas | SADC | 28 | Draft: no redistribution without written permission (O-12) |
+| Water supply critical areas; groundwater quality classifications | NJDEP | | No published service found |
+| Fourth-round fair-share obligations | DCA | | Not added: a report, not data, and since superseded by municipal numbers |
 
 ## Tier 3: needs new work or a source decision
 
