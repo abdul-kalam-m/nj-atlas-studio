@@ -331,12 +331,23 @@ function styleSection(app, layer, rt) {
     controls.push(el('div', { class: 'field inline' }, [el('label', { for: color.id, text: T.style.color }), color]));
   }
   if (style.kind === 'graduated') {
+    // A preset whose recipe sets its class breaks shows them as Fixed until the person picks a method (D-090): its
+    // `method` is only the schema's default, and naming it Quantile would describe breaks it does not use.
+    const fixed = Boolean(entry.styles[key].breaks) && !layer.style.overrides?.method;
+    const current = fixed ? 'fixed' : style.method;
     const classes = el('select', { id: `s-${layer.id}-classes` }, [3, 4, 5, 6, 7].map((n) => el('option', { value: String(n), text: String(n) })));
     classes.value = String(style.classes);
-    classes.addEventListener('change', () => setOverride({ classes: Number(classes.value), breaks: undefined, colors: undefined }));
-    const method = el('select', { id: `s-${layer.id}-method` }, Object.entries(T.style.methods).map(([id, label]) => el('option', { value: id, text: label })));
-    method.value = style.method;
-    method.addEventListener('change', () => setOverride({ method: method.value, breaks: undefined, colors: undefined }));
+    classes.addEventListener('change', () => setOverride({ classes: Number(classes.value), method: fixed ? 'quantile' : style.method, breaks: undefined, colors: undefined }));
+    const methods = Object.entries(T.style.methods).filter(([id]) => id !== 'fixed' || entry.styles[key].breaks);
+    const method = el('select', { id: `s-${layer.id}-method` }, methods.map(([id, label]) => el('option', { value: id, text: label })));
+    method.value = current;
+    method.addEventListener('change', () => {
+      if (method.value === 'fixed') {
+        // Back to the recipe's breaks: drop what was computed, keep the person's other choices.
+        const { method: _m, classes: _c, breaks: _b, colors: _k, basis: _s, ...rest } = layer.style.overrides ?? {};
+        app.actions.setStyle(layer.id, { preset: key, overrides: rest });
+      } else setOverride({ method: method.value, breaks: undefined, colors: undefined });
+    });
     controls.push(el('div', { class: 'field inline' }, [el('label', { for: classes.id, text: T.style.classes }), classes]),
       el('div', { class: 'field inline' }, [el('label', { for: method.id, text: T.style.method }), method]));
   }

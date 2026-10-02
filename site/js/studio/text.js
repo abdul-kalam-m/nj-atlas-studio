@@ -163,7 +163,7 @@ export const TEXT = {
     width: 'Line width',
     classes: 'Classes',
     method: 'Method',
-    methods: { quantile: 'Quantile', equal: 'Equal interval' },
+    methods: { fixed: 'Fixed', quantile: 'Quantile', equal: 'Equal interval' },
     labels: 'Labels',
     other: 'Other',
     noData: 'No data',

@@ -235,15 +235,22 @@ async function refreshLayer(id) {
     // Stale breaks are computed again from scratch; stale colors keep their values' colors and add the new ones.
     const choice = stale && style.kind === 'graduated'
       ? { ...layer.style, overrides: { ...layer.style.overrides, breaks: undefined, colors: undefined } } : layer.style;
-    resolveStyle(id, choice).then((overrides) => {
+    let succeeded = false;
+    resolveStyle(id, choice).then(async (overrides) => {
       const resolved = (overrides.colors && Object.keys(overrides.colors).length) || overrides.breaks;
       if (!resolved) return;
-      update((doc) => {
+      succeeded = true;
+      await update((doc) => {
         const target = doc.layers.find((l) => l.id === id);
         // Only if the style is still the one this was computed for (the person may have changed it meanwhile).
         if (target && JSON.stringify(target.style) === before) target.style.overrides = overrides;
       });
-    }).catch(() => {}).finally(() => { rt.resolving = false; });
+    }).catch(() => {}).finally(() => {
+      rt.resolving = false;
+      // The area may have changed while this ran, and the refresh it caused skipped the style: look again, but only
+      // after a success, so a failing source is not asked again and again.
+      if (succeeded) refreshLayer(id);
+    });
   }
 }
 
@@ -254,8 +261,9 @@ export async function loadStats(id) {
   if (entry.access === 'copy') {
     // The area's own counts (D-090), like a live layer's; the build's statewide values were shown before.
     const key = areaKey();
+    const place = copyPlace(); // with the key, before the rows arrive
     try {
-      const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place: copyPlace(), conditions: [] }, entry.fields)));
+      const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place, conditions: [] }, entry.fields)));
       const values = {};
       const ranges = {};
       for (const field of entry.fields.filter((f) => f.filter === 'checklist')) {
@@ -326,10 +334,11 @@ const colorsBasis = () => areaKey();
 
 // A number field's values for the layer in the area, with its filters, in displayed units: a copy layer's rows, or
 // a live source's values (up to VALUE_CAP; beyond it, the first VALUE_CAP, which the basis does not hide).
-async function fieldNumbers(rt, layer, field) {
+// `place` is the area as it was when the computation began, so the numbers and their basis describe the same area.
+async function fieldNumbers(rt, layer, field, place) {
   const { entry } = rt;
   if (entry.access === 'copy') {
-    const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place: copyPlace(), conditions: layer.filters }, entry.fields)));
+    const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place, conditions: layer.filters }, entry.fields)));
     return rows.map((row) => row[field.name]).filter(Number.isFinite);
   }
   const q = await queryFor(rt, layer);
@@ -352,24 +361,28 @@ async function resolveStyle(id, choice) {
   const { entry } = rt;
   const { style } = presetStyle(entry, choice);
   const layer = app.doc.layers.find((l) => l.id === id) ?? { filters: [] };
+  // What this computation is for, read once before anything is fetched: the area can change while it runs, and
+  // the result must record the area its numbers came from (then the map sees it is stale and computes again).
+  const basis = { breaks: breaksBasis(layer), colors: colorsBasis() };
+  const place = copyPlace();
   const extra = {};
   const stats = {};
-  if (style.kind === 'categories' && style.palette && (!style.colors || (choice.overrides?.basis !== undefined && choice.overrides.basis !== colorsBasis()))) {
+  if (style.kind === 'categories' && style.palette && (!style.colors || (choice.overrides?.basis !== undefined && choice.overrides.basis !== basis.colors))) {
     // Copy layers color from the statewide values in their build, which no area changes.
     const field = entry.fields.find((f) => f.name === style.field);
     const values = await fieldValues(rt, field);
     if (style.colors) extra.colors = extendColors(style.palette, style.colors, values);
     else stats.values = values;
-    if (entry.access !== 'copy') extra.basis = colorsBasis();
+    if (entry.access !== 'copy') extra.basis = basis.colors;
   }
   if (style.kind === 'graduated' && !style.breaks) {
     const field = entry.fields.find((f) => f.name === style.field);
-    const numbers = await fieldNumbers(rt, layer, field);
+    const numbers = await fieldNumbers(rt, layer, field, place);
     if (style.method === 'equal') {
       stats.min = numbers.reduce((min, n) => Math.min(min, n), Infinity);
       stats.max = numbers.reduce((max, n) => Math.max(max, n), -Infinity);
     } else stats.numbers = numbers;
-    extra.basis = breaksBasis(layer);
+    extra.basis = basis.breaks;
   }
   return { ...choice.overrides, ...resolve(style, stats), ...extra };
 }
@@ -1368,7 +1381,8 @@ async function computeChartData(chart, signal) {
     return { totals, capped: target.capped, skipped: totals.skipped };
   }
   if (entry.access === 'copy') {
-    const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place: copyPlace(), conditions: layer.filters }, entry.fields)));
+    const place = copyPlace(); // the area the chart's key was made for
+    const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place, conditions: layer.filters }, entry.fields)));
     if (histogramType) return histogramData(rows.map((row) => row[chart.field]), chart, layer, entry);
     const totals = categoryTotals(rows, chart.field, valueOf);
     return { totals, skipped: totals.skipped };

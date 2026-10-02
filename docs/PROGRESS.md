@@ -771,4 +771,6 @@ Template (from OPERATING_GUIDE.md §4):
   - Data files are requested with ?v=<catalog build time> (206 range answers); the tracts draw from versioned tiles; the atlas self-test passes 44 of 44, Demographics included. The §1.4 screening still gives 2, 3, 0 and 14 land use areas. No console errors.
   - 244 JavaScript and 213 Python tests pass; the lint passes.
 - Known, not changed: module caching across a release (D-090), for the owner.
+- Released as gh-pages 9f5e479d. Live check: Newark's equal and quantile breaks as above. **Found live:** after picking Essex County and then Newark quickly, the map kept Essex's quantile breaks recorded as Newark's.
+- **Release 1.3** (fixes, D-090 items 9 and 10): computations read the area once before fetching and look again when they finish; the Method box shows Fixed for a recipe's breaks. Checked through the style panel's own controls: Fixed, then Equal (25.36, 44.02, 62.68, 81.34), Quantile (16.3, 20.3, 23.8, 32.4), 4 classes (17.4, 22.5, 30.5, equal to the same computation over the rows), and back to Fixed. County then town, twice: settles on Pennsville's (6, 7.3, 10.9, 17.6) and Newark's own breaks. 244 JavaScript and 213 Python tests, lint: pass.
 
