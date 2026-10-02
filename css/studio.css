@@ -73,6 +73,8 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
   border: 1px solid transparent; background: none; padding: 5px 6px; min-height: 32px; }
 .catalog-item:hover:not(:disabled) { border-color: var(--line); background: var(--panel); }
 .catalog-item > span:first-child { flex: 1; }
+.more-layers > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.more-layers[open] > summary { margin-bottom: 4px; }
 .badge.partial { color: var(--draft); border-color: var(--draft); background: var(--draft-soft); }
 .coverage-note { font-size: 0.84rem; color: var(--draft); background: var(--draft-soft); border-radius: var(--radius); padding: 6px 8px; margin: 0; }
 .preset-row { display: flex; flex-wrap: wrap; gap: 6px; }
