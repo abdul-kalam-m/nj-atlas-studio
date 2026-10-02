@@ -44,8 +44,8 @@ test('round steps and breaks', () => {
 test('histogram bins follow the map: below the first break, each break up to the next, the last and above', () => {
   const bins = histogram([1, 5, 5, 10, 25, 31, NaN], [5, 10, 20, 30]);
   assert.deepEqual(bins.map((b) => b.count), [1, 2, 1, 1, 1]);
-  assert.equal(bins[0].low, 1);
-  assert.equal(bins.at(-1).high, 31);
+  assert.deepEqual([bins[0].low, bins[0].high, bins.at(-1).low, bins.at(-1).high], [null, 5, 30, null]);
+  assert.deepEqual([bins.min, bins.max], [1, 31]);
   assert.equal(bins.reduce((s, b) => s + b.count, 0), 6);
   assert.deepEqual(binsFor([1, 2], [5, 10]), [5, 10]);
   assert.deepEqual(binsFor([]), []);
@@ -101,6 +101,7 @@ const TEXT = {
   scopeArea: (name) => `in ${name}`, scopeRing: (ft) => `within ${ft} ft of the site`,
   defaultTitle: (layer, field) => `${layer} by ${field}`,
   partial: (read, expected) => `Read ${read} of ${expected}`, capped: 'Capped', skipped: (n) => `${n} without a value`,
+  under: (v) => `Under ${v}`, orMore: (v) => `${v} or more`,
 };
 const landUse = recipe('nj_land_use');
 const tracts = recipe('nj_acs_tracts');
@@ -192,4 +193,15 @@ test("Studio's own chart words fill every slot the chart spec uses", () => {
   const spec = chartSpec({ type: 'bar', field: 'land_use_type', measure: 'count', scope: 'area', title: '', max_bars: 8 }, landUse,
     { totals: [{ value: 'Urban', total: 3, n: 3 }] }, { text: C, areaName: 'Pennsville Township' });
   assert.equal(spec.subtitle, 'Count, in Pennsville Township');
+});
+
+test('a histogram on fixed breaks wider than the data labels its open ends like the legend (D-090)', () => {
+  const spec = chartSpec({ type: 'histogram', field: 'poverty_pct', measure: 'count', scope: 'area', title: '' }, tracts,
+    { values: [6, 7.3, 10.9, 17.6], breaks: [5, 10, 20, 30] }, { text: TEXT });
+  assert.deepEqual(spec.rows.map((r) => [r.label, r.value]), [['Under 5', 0], ['5 – 10', 2], ['10 – 20', 2], ['20 – 30', 0], ['30 or more', 0]]);
+  assert.deepEqual(spec.edges, ['', '5', '10', '20', '30', '']);
+  const svg = svgString(chartSvg('histogram', spec, 300).tree);
+  assert.doesNotMatch(svg, /NaN|undefined|>17.6</);
+  const single = chartSpec({ type: 'histogram', field: 'poverty_pct', measure: 'count', scope: 'area', title: '' }, tracts, { values: [4, 4], breaks: [] }, { text: TEXT });
+  assert.deepEqual(single.rows.map((r) => r.label), ['4 – 4']);
 });

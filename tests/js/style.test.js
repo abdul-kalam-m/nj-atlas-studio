@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { categoryColors, equalBreaks, layerSpecs, legendFor, presetStyle, quantileBreaks, resolve, sequential }
+import { categoryColors, equalBreaks, extendColors, layerSpecs, legendFor, presetStyle, quantileBreaks, resolve, sequential }
   from '../../site/js/studio/style.js';
 import { createRegistry, displayFields, isSource, isTarget, outFields } from '../../site/js/studio/registry.js';
 
@@ -116,4 +116,18 @@ test('a choropleth legend ends with the blank row, labelled in the recipe unit (
   assert.deepEqual(rows.map((row) => row.label), ['Under 5 %', '5 – 10 %', '10 – 20 %', '20 – 30 %', '30 % or more', 'No data']);
   assert.equal(rows.at(-1).swatch.color, '#BDBDBD');
   assert.equal(legendFor(tracts, tracts.styles.poverty).length, 5);
+});
+
+test('new values get unused colors and old values keep theirs (D-090)', () => {
+  const colors = { Elementary: '#E69F00', Middle: '#56B4E9' };
+  const extended = extendColors('okabe_ito', colors, [{ value: 'High', count: 3 }, { value: 'Elementary', count: 9 }, { value: 'Charter', count: 5 }, { value: null, count: 2 }]);
+  assert.equal(extended.Elementary, '#E69F00');
+  assert.equal(extended.Middle, '#56B4E9');
+  assert.equal(extended.Charter, '#009E73');
+  assert.equal(extended.High, '#F0E442');
+  assert.equal(new Set(Object.values(extended)).size, 4);
+  assert.deepEqual(extendColors('okabe_ito', colors, [{ value: 'Middle', count: 1 }]), colors);
+  const flood = extendColors('flood', { AE: '#1F78B4' }, [{ value: 'VE', count: 1 }, { value: 'AE', count: 4 }]);
+  assert.equal(flood.AE, '#1F78B4');
+  assert.ok(flood.VE && flood.VE !== '#BDBDBD');
 });

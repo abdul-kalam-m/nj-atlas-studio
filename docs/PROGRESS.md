@@ -758,4 +758,17 @@ Template (from OPERATING_GUIDE.md §4):
 - Rollback point: gh-pages aad6358c (the release before this one).
 - Released as gh-pages 981edd66 (rollback point aad6358c). Live check (https://abdul-kalam-m.github.io/nj-atlas-studio/): the land use chart reads the same counts as locally (2,442; Wetlands 1,112), the §1.4 screening holds (2, 3, 0; 14 land use areas), 81 layers, the atlas answers, no console errors.
 - **Found live and fixed (release 1.1):** after a chart's settings changed, its card could draw the numbers computed for the earlier settings until the new ones were counted (about 0.2 s while editing; longer if the Charts tool was not open). A chart now draws only numbers computed for its current settings (`chartState`), and shows "Counting…" otherwise. Checked: right after a change from count to total, the card shows no earlier numbers, then the total (28,165.5 acres).
+- Release 1.1 pushed as gh-pages b9c0fe92.
+
+### Stale values, release 1.2 (D-090) · done · 2026-10-02
+- The owner's request in chat: check the full site for cached values shown after their inputs changed, particularly quantile and equal intervals on the census layers.
+- Changed: site/js/studio/{studio,panels,style,chartdata,chartspec,charts,text}.js, site/js/main.js; tests: style.test.js, charts.test.js.
+- Checks (browser, local; then live):
+  - Demographics (tracts), Newark, poverty: equal interval 25.36, 44.02, 62.68, 81.34 and quantile 16.3, 20.3, 23.8, 32.4, both equal to the same computation over Newark's 88 tract rows (before: no breaks, and tract numbers). Moved to Pennsville, quantile is computed again for its 4 tracts (6, 7.3, 10.9, 17.6); the recipe's fixed poverty breaks stay as they are in both towns.
+  - Two style changes in a row end on the later one. Filter counts for the tracts sum to the area's tracts (88 in Newark, 4 in Pennsville); the poverty range is Newark's own (6.7 to 100).
+  - The table follows the area (88, then 4 rows) and a filter (2 rows at 10% or more, then 4). A histogram follows the map's switch to equal interval at once, with legend-style open ends.
+  - A screening is marked out of date after a filter on a target layer. Schools by type, moved from Pennsville to Newark, keep their 3 colors and give 5 new types unused colors.
+  - Data files are requested with ?v=<catalog build time> (206 range answers); the tracts draw from versioned tiles; the atlas self-test passes 44 of 44, Demographics included. The §1.4 screening still gives 2, 3, 0 and 14 land use areas. No console errors.
+  - 244 JavaScript and 213 Python tests pass; the lint passes.
+- Known, not changed: module caching across a release (D-090), for the owner.
 

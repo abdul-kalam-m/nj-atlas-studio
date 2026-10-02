@@ -108,9 +108,14 @@ export function chartSpec(chart, entry, data, { style = null, text, areaName = '
     const decimals = Math.min(field?.decimals ?? 2, 2);
     const fmt = (value) => (value === null ? '' : formatNumber(value, Math.abs(value) >= 100 ? 0 : decimals));
     const colors = data.colors?.length === bins.length ? data.colors : null;
-    const rows = bins.map((bin, i) => ({ label: `${fmt(bin.low)} – ${fmt(bin.high)}`, value: bin.count, display: formatNumber(bin.count, 0),
-      color: colors?.[i] ?? ACCENT }));
-    const edges = bins.length ? [fmt(bins[0].low), ...breaks.map(fmt), fmt(bins.at(-1).high)] : [];
+    // Outer bins read like the legend ("Under 5", "30 or more"); a single bin spans the data.
+    const binLabel = (bin) => (bin.low === null && bin.high === null ? `${fmt(bins.min)} – ${fmt(bins.max)}`
+      : bin.low === null ? text.under(fmt(bin.high)) : bin.high === null ? text.orMore(fmt(bin.low)) : `${fmt(bin.low)} – ${fmt(bin.high)}`);
+    const rows = bins.map((bin, i) => ({ label: binLabel(bin), value: bin.count, display: formatNumber(bin.count, 0), color: colors?.[i] ?? ACCENT }));
+    // The axis marks the breaks, and the data's own ends where they lie beyond them.
+    const lowEnd = bins.min !== null && (!breaks.length || bins.min < breaks[0]) ? fmt(bins.min) : '';
+    const highEnd = bins.max !== null && (!breaks.length || bins.max > breaks.at(-1)) ? fmt(bins.max) : '';
+    const edges = bins.min === null ? [] : [lowEnd, ...breaks.map(fmt), highEnd];
     return { ...base, rows, edges, axisLabel: field?.unit ? `${fieldLabel} (${field.unit})` : fieldLabel,
       total: bins.reduce((sum, bin) => sum + bin.count, 0), formatCount: (v) => formatNumber(v, 0) };
   }

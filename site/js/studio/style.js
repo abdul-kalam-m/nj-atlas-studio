@@ -59,6 +59,22 @@ export function categoryColors(palette, values) {
   return colors;
 }
 
+// Colors for values not yet colored, keeping every value's color (D-090): named palettes color by name; others take
+// the palette's colors not yet used, most common value first.
+export function extendColors(palette, colors, values) {
+  const out = { ...colors };
+  const fresh = values.filter((item) => item.value !== null && item.value !== undefined && !(item.value in out));
+  if (!fresh.length || !PALETTES[palette] && !NAMED[palette]) return out;
+  if (NAMED[palette]) return { ...categoryColors(palette, fresh), ...out };
+  const used = new Set(Object.values(out));
+  const free = PALETTES[palette].filter((color) => !used.has(color));
+  for (const { value } of [...fresh].sort((a, b) => (b.count ?? 0) - (a.count ?? 0))) {
+    if (Object.keys(out).length >= MAX_CATEGORIES || !free.length) break;
+    out[value] = free.shift();
+  }
+  return out;
+}
+
 export function quantileBreaks(numbers, classes) {
   const sorted = numbers.filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
   if (!sorted.length) return [];

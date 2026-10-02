@@ -945,7 +945,8 @@ function screeningNodes(app) {
 
   const results = app.results && app.results.bufferId === screening.id ? app.results : null;
   const stale = results && (results.key !== JSON.stringify([screening.source.geometry, screening.distance_ft])
-    || results.targets.map((t) => t.id).join() !== screening.targets.join());
+    || results.targets.map((t) => t.id).join() !== screening.targets.join()
+    || (results.filters !== undefined && results.filters !== app.screeningFilters(screening)));
   nodes.push(el('div', { class: 'button-row' }, [
     el('button', { type: 'button', class: 'primary', text: app.ui.running ? T.loading : T.screening.run,
       disabled: app.ui.running || !screening.targets.length, onclick: () => app.actions.runScreening() }),

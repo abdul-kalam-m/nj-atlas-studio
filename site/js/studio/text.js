@@ -70,6 +70,8 @@ export const TEXT = {
     capped: 'The screening found more than 5,000; the chart counts the first 5,000.',
     skipped: (n) => `${n} without a value are left out.`,
     wholeShapes: 'Totals count each shape that touches the area whole, including any part beyond its edge.',
+    under: (value) => `Under ${value}`,
+    orMore: (value) => `${value} or more`,
   },
   basemaps: {
     label: 'Basemap',
