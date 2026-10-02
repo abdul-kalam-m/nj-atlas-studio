@@ -581,7 +581,7 @@ function chartTable(spec, type, C) {
 function chartCard(app, chart, index) {
   const C = app.text.charts;
   const entry = app.registry.get(chart.layer);
-  const state = app.chartData.get(chart.id);
+  const state = app.chartState(chart);
   // Drawn at the panel's own width, so the text stays at its size (the panel is hidden while another tab shows).
   const width = Math.max(220, ($('panel-analysis')?.clientWidth || 320) - 44);
   const view = state?.status === 'ready' ? app.chartView(chart, width) : null;

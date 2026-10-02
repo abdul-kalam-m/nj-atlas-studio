@@ -756,3 +756,6 @@ Template (from OPERATING_GUIDE.md §4):
     - statewide, land use by type counts 590,537 on the server, and a total of acres says it cannot read that many.
   - The charts survive a link reload (the document in the URL); removing a layer removes its charts; a ring chart without a screening asks for one; the table view matches the bars; at phone width the chart fits with no sideways scroll; no console errors.
 - Rollback point: gh-pages aad6358c (the release before this one).
+- Released as gh-pages 981edd66 (rollback point aad6358c). Live check (https://abdul-kalam-m.github.io/nj-atlas-studio/): the land use chart reads the same counts as locally (2,442; Wetlands 1,112), the §1.4 screening holds (2, 3, 0; 14 land use areas), 81 layers, the atlas answers, no console errors.
+- **Found live and fixed (release 1.1):** after a chart's settings changed, its card could draw the numbers computed for the earlier settings until the new ones were counted (about 0.2 s while editing; longer if the Charts tool was not open). A chart now draws only numbers computed for its current settings (`chartState`), and shows "Counting…" otherwise. Checked: right after a change from count to total, the card shows no earlier numbers, then the total (28,165.5 acres).
+
