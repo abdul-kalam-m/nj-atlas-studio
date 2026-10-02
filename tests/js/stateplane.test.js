@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fromGrid, scaleFactor, toGrid } from '../../site/js/studio/stateplane.js';
+import { fromGrid, gridAreaSqM, scaleFactor, toGrid } from '../../site/js/studio/stateplane.js';
 import { geodesic } from './geodesic.mjs';
 
 // EPSG:4326 -> EPSG:32111 by PROJ 9.5.1 (pyproj 3.7.2), always_xy.
@@ -35,4 +35,18 @@ test('corrected by the grid scale, 1,000 ft on the grid is 1,000 ft on the groun
       assert.ok(Math.abs(ground - 304.8) / 304.8 < 1e-6, `${name} ${step}: ${ground}`);
     }
   }
+});
+
+test('ground area of a small square matches its geodesic sides, and holes are subtracted (D-088)', () => {
+  const [w, s, e, n] = [-75.512, 39.647, -75.51, 39.649];
+  const square = { type: 'Polygon', coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]] };
+  const mid = (s + n) / 2;
+  const expected = geodesic([w, mid], [e, mid]) * geodesic([w, s], [w, n]);
+  assert.ok(Math.abs(gridAreaSqM(square) / expected - 1) < 0.0005, `${gridAreaSqM(square)} vs ${expected}`);
+  const [cw, cs, ce, cn] = [-75.5115, 39.6475, -75.5105, 39.6485];
+  const holed = { type: 'Polygon', coordinates: [...square.coordinates, [[cw, cs], [cw, cn], [ce, cn], [ce, cs], [cw, cs]]] };
+  assert.ok(Math.abs(gridAreaSqM(holed) / (expected * 0.75) - 1) < 0.001);
+  assert.equal(gridAreaSqM({ type: 'MultiPolygon', coordinates: [square.coordinates, square.coordinates] }), 2 * gridAreaSqM(square));
+  assert.equal(gridAreaSqM({ type: 'Point', coordinates: [w, s] }), 0);
+  assert.equal(gridAreaSqM(null), 0);
 });

@@ -741,3 +741,18 @@ Template (from OPERATING_GUIDE.md §4):
   - `pipeline validate` passes; `node tools/healthcheck.mjs` passes for the five changed or new layers. A Road owner filter of County returns NJDOT's 41 county segments.
   - 213 Python and 218 JavaScript tests pass, and the lint passes.
   - Browser: Add layer shows 16 core layers, then "More layers (65)", closed. Site feasibility and Environmental constraints each add 8 layers and open site selection; an Environmental constraints screening in Woodbridge queries all 7 targets and lists 5 flood zone areas.
+
+### Charts, release 1: the Charts tool (D-088) · done · 2026-10-02
+- The owner's request in chat: charts and a Layout tab, reconciling the agent's plan with the advisor's; "test and confirm before deploy", with a plan to find and fix anything that breaks.
+- Changed: site/js/studio/{chartdata,charts,chartspec}.js (new), mapdoc.js (optional `charts`), stateplane.js (`gridAreaSqM`), studio.js, panels.js, text.js, studio.css; tests/js/charts.test.js (new), mapdoc.test.js, stateplane.test.js; RELEASE.md (rolling back).
+- Checks:
+  - 242 JavaScript and 213 Python tests pass; the lint passes; every Studio module passes `node --check`.
+  - Regression, in the browser: the saved test document from before charts opens with no notices; its two buffers rebuild; on the real parcel (block 301, lot 19) the screening still gives the §1.4 answer: 2 wetland areas, 3 flood areas, 0 Category 1 waters, and 14 land use areas. (The document's own site is a simplified rectangle, which reaches 1 flood area; the source agrees, so this is not a change.) Print layout and PNG render as before (11 x 8.5 in; 1.19 MB PNG).
+  - Charts against independent numbers, Pennsville:
+    - land use acres inside the 300 ft ring: 16.52, the ring's own area 16.52;
+    - land use by type: 2,442 = the layer's count; Urban 546, Forest 455, Wetlands 1,112 equal separate server counts;
+    - flood zones donut: 245 = the layer's count; with the layer filtered to AE, 102;
+    - tract histograms read the copy rows (4 tracts); a new chart on Demographics starts as a density histogram with the map's breaks and colors;
+    - statewide, land use by type counts 590,537 on the server, and a total of acres says it cannot read that many.
+  - The charts survive a link reload (the document in the URL); removing a layer removes its charts; a ring chart without a screening asks for one; the table view matches the bars; at phone width the chart fits with no sideways scroll; no console errors.
+- Rollback point: gh-pages aad6358c (the release before this one).

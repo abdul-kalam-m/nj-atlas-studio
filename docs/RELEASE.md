@@ -39,6 +39,20 @@ Studio at the site root and the atlas at `/atlas/`, plus an explicit list of dat
    ```
 5. **Agent, live check (M6-T4).** Run the G6 checks against the Pages URL and record them in PROGRESS.md.
 
+## Rolling back a release (agent route, no force push)
+
+If the live check after a release finds a problem, put the previous site back first and fix after. Studio's map
+documents are additive (D-088), so links made with the newer site still open in the older one.
+
+```text
+git clone --depth 2 --branch gh-pages <repository URL> build/rollback
+git -C build/rollback revert --no-edit HEAD
+git -C build/rollback push <repository URL> HEAD:gh-pages
+```
+
+Pages republishes in a minute or two. Then revert or fix the commit on `main`, run the checks, and release again.
+Record the rollback in PROGRESS.md with the gh-pages commits before and after.
+
 ## Large layers on Cloudflare R2 (M7)
 
 Parcels are too big for GitHub Pages, so they live in the owner's R2 bucket (O-6, steps in PARCELS_REVIEW.md).

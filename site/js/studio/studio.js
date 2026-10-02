@@ -7,11 +7,16 @@ import { LiveLayer } from './tiles.js';
 import { createStudioMap } from './mapview.js';
 import { basemapCredit } from './basemaps.js';
 import { DrawTool } from './draw.js';
-import { createDoc, layerDoc, LEVEL_KEY, MAX_BUFFERS, MAX_LAYERS, nextBufferId, nextScreeningId, validate } from './mapdoc.js';
+import { createDoc, layerDoc, LEVEL_KEY, MAX_BUFFERS, MAX_LAYERS, nextBufferId, nextChartId, nextScreeningId, validate } from './mapdoc.js';
+import { BARS, MAX_CHARTS, SQ_M_PER_ACRE, VALUE_CAP, binsFor, categoryTotals, completeness, fromCounts } from './chartdata.js';
+import { chartDefaults, chartSpec, fitChart, histogramClasses } from './chartspec.js';
+import { chartSvg } from './charts.js';
+import { clipFeature } from './clip.js';
+import { gridAreaSqM } from './stateplane.js';
 import { decodeHash, embedSnippet, encodeDoc, isLong, linkFor } from './share.js';
 import { areaWhere, conditionsWhere, joinWhere, quote } from './sql.js';
 import { layerSpecs, legendFor, presetStyle, resolve } from './style.js';
-import { toRow } from './transform.js';
+import { convertValue, toRow } from './transform.js';
 import { loadJsts, loadTurf } from './turf.js';
 import { bufferFeatures } from './geoprocess.js';
 import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_PICKED, MAX_RINGS, bufferDownload, bufferLegend, bufferName, bufferSpecs,
@@ -59,6 +64,9 @@ const app = {
   inputCounts: new Map(),
   bufferRequested: new Set(),
   pickShapes: new Map(),
+  // Charts (D-088): computed data by chart ID, and the charts shown as tables.
+  chartData: new Map(),
+  chartTables: new Set(),
   ui: { tab: 'area', tool: 'buffer', editing: null, pickFor: null, ringStyle: null, selected: null,
     sections: { style: true, filter: false, about: false }, addQuery: '', candidates: null, candidatesFor: null, status: '' },
   embed: new URLSearchParams(location.search).get('embed') === '1',
@@ -432,6 +440,7 @@ export async function setDoc(next, { render = true, fit = false } = {}) {
   forgetRemovedBuffers();
   countInputs();
   autoRunBuffers();
+  syncCharts();
 }
 
 export function update(change, options) {
@@ -462,6 +471,7 @@ export const actions = {
   setTab(tab) {
     app.ui.tab = tab;
     panels.renderTabs(app);
+    syncCharts();
   },
   setBasemap(name) {
     update((doc) => { doc.basemap = name; });
@@ -502,6 +512,7 @@ export const actions = {
     update((doc) => {
       doc.layers = doc.layers.filter((l) => l.id !== id);
       doc.buffers = doc.buffers.filter((buffer) => buffer.layer !== id); // a buffer goes with its layer
+      doc.charts = doc.charts.filter((chart) => chart.layer !== id); // and so does a chart (D-088)
       for (const screening of doc.screenings) screening.targets = screening.targets.filter((t) => t !== id);
     });
   },
@@ -566,6 +577,56 @@ export const actions = {
   setTool(tool) {
     app.ui.tool = tool;
     actions.cancelMode();
+    if (tool === 'charts') panels.renderAnalysis(app);
+    syncCharts();
+  },
+
+  // Charts (D-088)
+  newChart() {
+    if (!app.doc.layers.length || app.doc.charts.length >= MAX_CHARTS) return;
+    const layer = app.doc.layers.find((l) => l.id === app.ui.selected) ?? app.doc.layers[0];
+    const entry = app.registry.get(layer.id);
+    const id = nextChartId(app.doc);
+    app.ui.chartEditing = id;
+    app.ui.tool = 'charts';
+    update((doc) => {
+      doc.charts.push(fitChart({ id, layer: layer.id, scope: 'area', measure: 'count', sum_field: null, title: '', max_bars: BARS.default,
+        ...chartDefaults(entry, 'bar', presetStyle(entry, layer.style).style) }, entry));
+    });
+  },
+  editChart(id) {
+    app.ui.chartEditing = app.ui.chartEditing === id ? null : id;
+    panels.renderAnalysis(app);
+  },
+  setChart(id, patch) {
+    update((doc) => {
+      const chart = doc.charts.find((c) => c.id === id);
+      if (chart) Object.assign(chart, fitChart({ ...chart, ...patch }, app.registry.get(patch.layer ?? chart.layer)));
+    });
+  },
+  moveChart(id, delta) {
+    update((doc) => {
+      const index = doc.charts.findIndex((c) => c.id === id);
+      const to = index + delta;
+      if (index < 0 || to < 0 || to >= doc.charts.length) return;
+      [doc.charts[index], doc.charts[to]] = [doc.charts[to], doc.charts[index]];
+    });
+  },
+  removeChart(id) {
+    app.chartData.get(id)?.abort?.abort();
+    app.chartData.delete(id);
+    app.chartTables.delete(id);
+    if (app.ui.chartEditing === id) app.ui.chartEditing = null;
+    update((doc) => { doc.charts = doc.charts.filter((c) => c.id !== id); });
+  },
+  toggleChartTable(id) {
+    if (app.chartTables.has(id)) app.chartTables.delete(id);
+    else app.chartTables.add(id);
+    panels.renderAnalysis(app);
+  },
+  retryChart(id) {
+    app.chartData.delete(id);
+    syncCharts();
   },
 
   // Buffer layers (D-076)
@@ -1174,7 +1235,117 @@ async function runScreeningNow() {
   }
   syncOverlays();
   panels.renderAnalysis(app);
+  syncCharts();
 }
+
+// ---- Charts (D-088) ----
+// A chart's numbers come from what Studio already reads for its layer, so they match the layer's counts and table:
+// a copy layer's rows in the area, a live layer's grouped counts (or values) for its query, or a screening's
+// results. They are computed when the Charts tool is open, and again when the layer's filters, the area or the
+// screening change.
+
+function chartKey(chart) {
+  const layer = app.doc.layers.find((l) => l.id === chart.layer);
+  return JSON.stringify([chart.layer, chart.type, chart.scope, chart.field, chart.measure, chart.sum_field, layer?.filters ?? [],
+    chart.scope === 'ring' ? app.results?.key ?? null : areaKey()]);
+}
+
+const chartError = (code, detail) => Object.assign(new Error(code), { code, detail });
+const numberOrNaN = (value) => (typeof value === 'number' ? value : NaN);
+
+function histogramData(values, chart, layer, entry, extra = {}) {
+  const { style } = presetStyle(entry, layer.style);
+  const classes = histogramClasses(style, chart);
+  return { values, breaks: classes?.breaks ?? binsFor(values), colors: classes?.colors ?? null, ...extra };
+}
+
+async function computeChartData(chart, signal) {
+  const entry = app.registry.get(chart.layer);
+  const layer = app.doc.layers.find((l) => l.id === chart.layer);
+  const field = entry?.fields.find((f) => f.name === chart.field);
+  if (!entry || !layer || !field) throw chartError('noField');
+  const histogramType = chart.type === 'histogram';
+  const valueOf = chart.measure === 'sum' ? (row) => numberOrNaN(row[chart.sum_field]) : () => 1;
+  if (chart.scope === 'ring') {
+    const target = app.results?.targets.find((t) => t.id === chart.layer);
+    if (!target) throw chartError('needsRing');
+    if (target.error) throw target.error;
+    let rows = target.features.map((feature) => feature.properties);
+    let weigh = valueOf;
+    if (chart.measure === 'ring_area') {
+      const turf = await loadTurf();
+      const ring = app.results.ring.geometry;
+      rows = target.features.map((feature) => {
+        const cut = clipFeature(feature, ring, turf.intersect);
+        return { ...feature.properties, ring_acres: cut ? gridAreaSqM(cut.geometry) / SQ_M_PER_ACRE : 0 };
+      });
+      weigh = (row) => row.ring_acres;
+    }
+    if (histogramType) return histogramData(rows.map((row) => row[chart.field]), chart, layer, entry, { capped: target.capped });
+    const totals = categoryTotals(rows, chart.field, weigh);
+    return { totals, capped: target.capped, skipped: totals.skipped };
+  }
+  if (entry.access === 'copy') {
+    const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place: copyPlace(), conditions: layer.filters }, entry.fields)));
+    if (histogramType) return histogramData(rows.map((row) => row[chart.field]), chart, layer, entry);
+    const totals = categoryTotals(rows, chart.field, valueOf);
+    return { totals, skipped: totals.skipped };
+  }
+  const rt = runtime(chart.layer);
+  const q = await queryFor(rt, layer);
+  const expected = await app.client.count(entry.source.url, { where: q.where, geometry: q.geometry });
+  if (!histogramType && chart.measure === 'count') {
+    const counts = await app.client.groupCounts(entry.source.url, field.source, { where: q.where, geometry: q.geometry, signal });
+    const totals = fromCounts(counts.map((item) => ({ value: convertValue(item.value, field), count: item.count })));
+    return { totals, ...completeness(totals.reduce((sum, item) => sum + item.total, 0), expected) };
+  }
+  if (expected > VALUE_CAP) throw chartError('tooMany', expected.toLocaleString('en-US'));
+  const sumField = entry.fields.find((f) => f.name === chart.sum_field);
+  const page = await app.client.allFeatures(entry.source.url, { where: q.where, geometry: q.geometry, signal,
+    outFields: [...new Set([field.source, sumField?.source].filter(Boolean))], returnGeometry: false }, VALUE_CAP);
+  const rows = page.features.map((feature) => toRow(feature.properties ?? {}, entry));
+  const read = completeness(rows.length, expected);
+  if (histogramType) return histogramData(rows.map((row) => row[chart.field]), chart, layer, entry, read);
+  const totals = categoryTotals(rows, chart.field, valueOf);
+  return { totals, skipped: totals.skipped, ...read };
+}
+
+function ensureChartData(chart) {
+  const key = chartKey(chart);
+  const current = app.chartData.get(chart.id);
+  if (current?.key === key) return current.promise;
+  current?.abort?.abort();
+  const abort = new AbortController();
+  const state = { key, status: 'loading', abort };
+  state.promise = computeChartData(chart, abort.signal)
+    .then((data) => { Object.assign(state, { status: 'ready', data }); })
+    .catch((error) => { Object.assign(state, { status: abort.signal.aborted ? 'cancelled' : 'error', error }); })
+    .finally(() => { if (app.chartData.get(chart.id) === state) panels.renderCharts(app); });
+  app.chartData.set(chart.id, state);
+  return state.promise;
+}
+
+const syncCharts = debounce(() => {
+  for (const id of app.chartData.keys()) if (!app.doc.charts.some((chart) => chart.id === id)) app.chartData.delete(id);
+  if (!(app.ui.tab === 'analysis' && app.ui.tool === 'charts')) return;
+  const before = app.doc.charts.map((chart) => app.chartData.get(chart.id)?.key);
+  for (const chart of app.doc.charts) ensureChartData(chart);
+  if (app.doc.charts.some((chart, i) => app.chartData.get(chart.id)?.key !== before[i])) panels.renderCharts(app);
+}, 200);
+
+// What a chart draws, from its computed data: { spec, tree, height }, or null until the data is ready.
+function chartView(chart, width = 300) {
+  const state = app.chartData.get(chart.id);
+  if (state?.status !== 'ready') return null;
+  const entry = app.registry.get(chart.layer);
+  const layer = app.doc.layers.find((l) => l.id === chart.layer);
+  if (!entry || !layer) return null;
+  const { style } = presetStyle(entry, layer.style);
+  const spec = chartSpec(chart, entry, state.data, { style, text: TEXT.charts, areaName: app.areaName?.() ?? '',
+    ringDistance: app.doc.screenings[0]?.distance_ft ?? null });
+  return { spec, ...chartSvg(chart.type, spec, width) };
+}
+app.chartView = chartView;
 
 function resultsContext(screening) {
   return {
@@ -1451,7 +1622,7 @@ async function boot() {
     return;
   }
   if (app.embed) document.body.classList.add('embed');
-  if (new URLSearchParams(location.search).has('debug')) window.studio = { app, actions, setDoc, update, imageContext, layerData, selectAt, chooseSite };
+  if (new URLSearchParams(location.search).has('debug')) window.studio = { app, actions, setDoc, update, imageContext, layerData, selectAt, chooseSite, ensureChartData };
   app.pilot = rememberPilot();
   app.client = createClient();
   panels.renderShell(app, actions);

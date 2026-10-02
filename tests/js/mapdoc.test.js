@@ -10,11 +10,11 @@ const v1 = () => read('v1-screening');
 const fixture = () => read('v2-buffers');
 const known = new Set(['nj_schools', 'nj_parcels', 'nj_wetlands', 'nj_flood_zones', 'nj_c1_waters']);
 
-test('the v2 fixture is valid and unchanged by validation', () => {
+test('the v2 fixture, made before charts, is valid and unchanged by validation apart from an empty chart list', () => {
   const { doc, problems, notices } = validate(fixture(), known);
   assert.deepEqual(problems, []);
   assert.deepEqual(notices, []);
-  assert.deepEqual(doc, fixture());
+  assert.deepEqual(doc, { ...fixture(), charts: [] });
 });
 
 test('a v1 document opens as v2: its buffers were site screenings (D-076)', () => {
@@ -137,4 +137,58 @@ test('a buffer keeps its rule preset key (D-085); a document without one is unch
   assert.equal(doc.buffers[0].preset, 'riparian_300');
   input.buffers[0].preset = 42;
   assert.equal('preset' in validate(input, known).doc.buffers[0], false);
+});
+
+const chartsDoc = () => ({ ...fixture(), charts: [
+  { id: 'c1', type: 'bar', layer: 'nj_flood_zones', scope: 'area', field: 'flood_zone', measure: 'count', sum_field: null, title: 'Zones', max_bars: 8 },
+  { id: 'c2', type: 'histogram', layer: 'nj_wetlands', scope: 'area', field: 'acres', measure: 'count', sum_field: null, title: '', max_bars: 8 },
+  { id: 'c3', type: 'donut', layer: 'nj_wetlands', scope: 'ring', field: 'wetland_type', measure: 'ring_area', sum_field: null, title: '', max_bars: 6 },
+] });
+
+test('charts are kept as written when valid (D-088), and a document without them is unchanged', () => {
+  const { doc, problems, notices } = validate(chartsDoc(), known);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(notices, []);
+  assert.deepEqual(doc, chartsDoc());
+});
+
+test('charts are cleaned: bad ones dropped with a notice, measures that do not fit become counts, limits applied', () => {
+  const input = chartsDoc();
+  input.charts = input.charts.slice(0, 1);
+  input.charts.push(
+    { id: 'c1', type: 'bar', layer: 'nj_schools', field: 'school_type', measure: 'ring_area', max_bars: 99 },
+    { id: 'c5', type: 'pie', layer: 'nj_schools', field: 'x' },
+    { id: 'c6', type: 'bar', layer: 'nj_trails', field: 'x' },
+    { type: 'histogram', layer: 'nj_schools', field: 'enrollment', measure: 'sum', sum_field: 'enrollment' },
+    { type: 'bar', layer: 'nj_schools', field: 'school_type', measure: 'sum' },
+  );
+  const { doc, notices } = validate(input, known);
+  assert.deepEqual(notices, [{ code: 'badChart' }, { code: 'chartLayerMissing', detail: 'nj_trails' }]);
+  const [, renamed, histogram, sumless] = doc.charts;
+  assert.equal(doc.charts.length, 4);
+  assert.deepEqual([renamed.id, renamed.scope, renamed.measure, renamed.max_bars, renamed.title], ['c2', 'area', 'count', 12, '']);
+  assert.deepEqual([histogram.measure, histogram.sum_field], ['count', null]);
+  assert.deepEqual([sumless.measure, sumless.sum_field], ['count', null]);
+});
+
+test('no more than six charts, and a chart goes when its layer is not in the document', () => {
+  const input = chartsDoc();
+  input.charts = Array.from({ length: 9 }, (_, i) => ({ id: `c${i + 1}`, type: 'bar', layer: 'nj_schools', field: 'school_type' }));
+  assert.equal(validate(input, known).doc.charts.length, 6);
+  const unknown = chartsDoc();
+  const { doc, notices } = validate(unknown, new Set(['nj_schools', 'nj_parcels', 'nj_wetlands', 'nj_c1_waters']));
+  assert.deepEqual(doc.charts.map((c) => c.id), ['c2', 'c3']);
+  assert.ok(notices.some((n) => n.code === 'chartLayerMissing' && n.detail === 'nj_flood_zones'));
+});
+
+test('charts an older Studio kept as an extension come back as charts', () => {
+  const { charts, ...rest } = chartsDoc();
+  const { doc } = validate({ ...rest, extensions: { charts, other: 1 } }, known);
+  assert.deepEqual(doc.charts, charts);
+  assert.deepEqual(doc.extensions, { other: 1 });
+});
+
+test('charts travel in a link', async () => {
+  const hash = await encodeDoc(chartsDoc(), { compress: true });
+  assert.deepEqual(validate(await decodeHash(`#${hash}`), known).doc.charts, chartsDoc().charts);
 });

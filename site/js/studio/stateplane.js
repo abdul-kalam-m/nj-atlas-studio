@@ -104,6 +104,24 @@ export function mapCoordinates(geometry, fn) {
 }
 
 export const projectGeometry = (geometry) => mapCoordinates(geometry, toGrid);
+
+// Ground area in square meters of a polygon or multipolygon (D-088): the shoelace area on the grid, divided by the
+// square of the grid's scale factor at the shape's first vertex (within 0.01% across New Jersey).
+export function gridAreaSqM(geometry) {
+  const polygons = geometry?.type === 'Polygon' ? [geometry.coordinates] : geometry?.type === 'MultiPolygon' ? geometry.coordinates : [];
+  let area = 0;
+  let first = null;
+  for (const polygon of polygons) {
+    polygon.forEach((ring, index) => {
+      const points = ring.map(toGrid);
+      first ??= ring[0];
+      let twice = 0;
+      for (let i = 0; i < points.length - 1; i += 1) twice += points[i][0] * points[i + 1][1] - points[i + 1][0] * points[i][1];
+      area += (index === 0 ? 1 : -1) * Math.abs(twice) / 2;
+    });
+  }
+  return first ? area / scaleFactor(first) ** 2 : 0;
+}
 export const unprojectGeometry = (geometry, decimals = 7) => {
   const scale = 10 ** decimals;
   return mapCoordinates(geometry, (p) => fromGrid(p).map((v) => Math.round(v * scale) / scale));
