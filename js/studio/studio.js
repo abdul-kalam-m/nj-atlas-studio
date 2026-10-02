@@ -15,7 +15,7 @@ import { clipFeature } from './clip.js';
 import { gridAreaSqM } from './stateplane.js';
 import { decodeHash, embedSnippet, encodeDoc, isLong, linkFor } from './share.js';
 import { areaWhere, conditionsWhere, joinWhere, quote } from './sql.js';
-import { layerSpecs, legendFor, presetStyle, resolve } from './style.js';
+import { extendColors, layerSpecs, legendFor, presetStyle, resolve } from './style.js';
 import { convertValue, toRow } from './transform.js';
 import { loadJsts, loadTurf } from './turf.js';
 import { bufferFeatures } from './geoprocess.js';
@@ -172,8 +172,15 @@ async function queryFor(rt, layer) {
   return { whereArea, where, geometry, area };
 }
 
+// A data file's address with the catalog's build time (D-090): after a release the address is new, so no browser
+// reuses a copy it cached before (GitHub Pages caches for 10 minutes); the server ignores the query.
+function versioned(url) {
+  const stamp = String(app.registry?.catalog.generated_at ?? '').replace(/\D/g, '');
+  return stamp ? `${url}?v=${stamp}` : url;
+}
+
 function copyFile(entry) {
-  return { url: dataUrl(entry.files.parquet.path), bytes: entry.files.parquet.bytes };
+  return { url: versioned(dataUrl(entry.files.parquet.path)), bytes: entry.files.parquet.bytes };
 }
 
 async function refreshLayer(id) {
@@ -189,6 +196,7 @@ async function refreshLayer(id) {
       rt.total = rows.filter(toPredicate(cleanState({ place, conditions: [] }, entry.fields))).length;
       rt.matched = rows.filter(toPredicate(cleanState({ place, conditions: layer.filters }, entry.fields))).length;
       rt.status = 'ready';
+      if (rt.stats.key !== areaKey()) rt.stats.loaded = false; // counted for another area (D-090)
     } else {
       const q = await queryFor(rt, layer);
       const key = JSON.stringify([q.where, q.whereArea, Boolean(q.geometry), q.area]);
@@ -220,12 +228,22 @@ async function refreshLayer(id) {
   // added) is resolved once and stored, so the map and legend show them.
   const { style } = presetStyle(entry, layer.style);
   const unresolved = (style.kind === 'categories' && !style.colors) || (style.kind === 'graduated' && !style.breaks);
-  if (unresolved && !rt.resolving && rt.status === 'ready') {
+  const stale = !unresolved && styleStale(layer, style);
+  if ((unresolved || stale) && !rt.resolving && rt.status === 'ready') {
     rt.resolving = true;
-    resolveStyle(id, layer.style).then((overrides) => {
+    const before = JSON.stringify(layer.style);
+    // Stale breaks are computed again from scratch; stale colors keep their values' colors and add the new ones.
+    const choice = stale && style.kind === 'graduated'
+      ? { ...layer.style, overrides: { ...layer.style.overrides, breaks: undefined, colors: undefined } } : layer.style;
+    resolveStyle(id, choice).then((overrides) => {
       const resolved = (overrides.colors && Object.keys(overrides.colors).length) || overrides.breaks;
-      if (resolved) update((doc) => { const target = doc.layers.find((l) => l.id === id); if (target) target.style.overrides = overrides; });
-    }).catch(() => {});
+      if (!resolved) return;
+      update((doc) => {
+        const target = doc.layers.find((l) => l.id === id);
+        // Only if the style is still the one this was computed for (the person may have changed it meanwhile).
+        if (target && JSON.stringify(target.style) === before) target.style.overrides = overrides;
+      });
+    }).catch(() => {}).finally(() => { rt.resolving = false; });
   }
 }
 
@@ -234,7 +252,25 @@ export async function loadStats(id) {
   const rt = runtime(id);
   const { entry } = rt;
   if (entry.access === 'copy') {
-    rt.stats = { values: entry.values ?? {}, ranges: entry.ranges ?? {}, loaded: true };
+    // The area's own counts (D-090), like a live layer's; the build's statewide values were shown before.
+    const key = areaKey();
+    try {
+      const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place: copyPlace(), conditions: [] }, entry.fields)));
+      const values = {};
+      const ranges = {};
+      for (const field of entry.fields.filter((f) => f.filter === 'checklist')) {
+        const totals = categoryTotals(rows, field.name);
+        values[field.name] = totals.map((t) => ({ value: t.value, count: t.total }))
+          .sort((a, b) => (a.value === null) - (b.value === null) || String(a.value).localeCompare(String(b.value), 'en', { numeric: true }));
+      }
+      for (const field of entry.fields.filter((f) => f.filter === 'range')) {
+        const present = rows.map((row) => row[field.name]).filter((v) => v !== null && v !== undefined && v !== '');
+        ranges[field.name] = present.length ? { min: present.reduce((a, b) => (b < a ? b : a)), max: present.reduce((a, b) => (b > a ? b : a)) } : { min: null, max: null };
+      }
+      rt.stats = { values, ranges, loaded: true, key };
+    } catch {
+      rt.stats = { values: entry.values ?? {}, ranges: entry.ranges ?? {}, loaded: true, key };
+    }
     panels.renderLayer(app, id);
     if (app.ui.tab === 'analysis') panels.renderAnalysis(app);
     return;
@@ -282,39 +318,73 @@ export async function loadStats(id) {
   if (app.ui.tab === 'analysis' && app.doc.buffers.some((buffer) => buffer.layer === id && buffer.select === 'filter')) panels.renderAnalysis(app);
 }
 
+// What computed colors and breaks were computed for (D-090): class breaks for the area and the layer's filters,
+// category colors for the area. Stored with them as `basis`, so the map computes them again when either changes;
+// a recipe's fixed breaks or colors have no basis and never change.
+const breaksBasis = (layer) => JSON.stringify([areaKey(), layer.filters ?? []]);
+const colorsBasis = () => areaKey();
+
+// A number field's values for the layer in the area, with its filters, in displayed units: a copy layer's rows, or
+// a live source's values (up to VALUE_CAP; beyond it, the first VALUE_CAP, which the basis does not hide).
+async function fieldNumbers(rt, layer, field) {
+  const { entry } = rt;
+  if (entry.access === 'copy') {
+    const rows = (await loadRows(entry, copyFile(entry))).filter(toPredicate(cleanState({ place: copyPlace(), conditions: layer.filters }, entry.fields)));
+    return rows.map((row) => row[field.name]).filter(Number.isFinite);
+  }
+  const q = await queryFor(rt, layer);
+  const page = await app.client.allFeatures(entry.source.url, { where: q.where, geometry: q.geometry, outFields: [field.source], returnGeometry: false }, VALUE_CAP);
+  return page.features.map((feature) => convertValue(feature.properties?.[field.source], field)).filter(Number.isFinite);
+}
+
+// A category field's values in the area (no filters, as the filter counts), most common first.
+async function fieldValues(rt, field) {
+  const { entry } = rt;
+  if (entry.access === 'copy') return entry.values?.[field.name] ?? [];
+  const q = await queryFor(rt, { filters: [] });
+  const counts = await app.client.groupCounts(entry.source.url, field.source, { where: q.whereArea, geometry: q.geometry });
+  return counts.map((item) => ({ value: convertValue(item.value, field), count: item.count }));
+}
+
 // Category colors and class breaks for a style, stored in the document so a shared map looks the same.
 async function resolveStyle(id, choice) {
   const rt = runtime(id);
   const { entry } = rt;
   const { style } = presetStyle(entry, choice);
+  const layer = app.doc.layers.find((l) => l.id === id) ?? { filters: [] };
+  const extra = {};
   const stats = {};
-  if (style.kind === 'categories' && !style.colors) {
-    if (entry.values?.[style.field]) stats.values = entry.values[style.field];
-    else {
-      const field = entry.fields.find((f) => f.name === style.field);
-      const layer = app.doc.layers.find((l) => l.id === id) ?? { filters: [] };
-      const q = await queryFor(rt, { ...layer, filters: [] });
-      const counts = await app.client.groupCounts(entry.source.url, field.source, { where: q.whereArea, geometry: q.geometry });
-      stats.values = counts.map((item) => ({ value: toRow({ [field.source]: item.value }, { source: { id_field: '_' }, fields: [field] })[field.name], count: item.count }));
-    }
+  if (style.kind === 'categories' && style.palette && (!style.colors || (choice.overrides?.basis !== undefined && choice.overrides.basis !== colorsBasis()))) {
+    // Copy layers color from the statewide values in their build, which no area changes.
+    const field = entry.fields.find((f) => f.name === style.field);
+    const values = await fieldValues(rt, field);
+    if (style.colors) extra.colors = extendColors(style.palette, style.colors, values);
+    else stats.values = values;
+    if (entry.access !== 'copy') extra.basis = colorsBasis();
   }
   if (style.kind === 'graduated' && !style.breaks) {
     const field = entry.fields.find((f) => f.name === style.field);
-    const layer = app.doc.layers.find((l) => l.id === id) ?? { filters: [] };
-    const q = await queryFor(rt, layer);
-    if (style.method === 'equal') Object.assign(stats, await app.client.minMax(entry.source.url, field.source, { where: q.where, geometry: q.geometry }));
-    else {
-      const page = await app.client.features(entry.source.url, { where: q.where, geometry: q.geometry, outFields: [field.source], returnGeometry: false, num: 2000 });
-      stats.numbers = page.features.map((f) => Number(f.properties[field.source])).filter(Number.isFinite);
-    }
+    const numbers = await fieldNumbers(rt, layer, field);
+    if (style.method === 'equal') {
+      stats.min = numbers.reduce((min, n) => Math.min(min, n), Infinity);
+      stats.max = numbers.reduce((max, n) => Math.max(max, n), -Infinity);
+    } else stats.numbers = numbers;
+    extra.basis = breaksBasis(layer);
   }
-  return { ...choice.overrides, ...resolve(style, stats) };
+  return { ...choice.overrides, ...resolve(style, stats), ...extra };
+}
+
+// Whether a layer's computed colors or breaks were computed for another area or other filters (D-090).
+function styleStale(layer, style) {
+  const basis = layer.style.overrides?.basis;
+  if (basis === undefined) return false;
+  return basis !== (style.kind === 'graduated' ? breaksBasis(layer) : colorsBasis());
 }
 
 // ---- The map ----
 
 function tileUrl(entry) {
-  return entry.tiles.url ? `${entry.tiles.url}${entry.tiles.path}` : dataUrl(entry.tiles.path);
+  return versioned(entry.tiles.url ? `${entry.tiles.url}${entry.tiles.path}` : dataUrl(entry.tiles.path));
 }
 
 function tileFilter(entry, layer) {
@@ -441,6 +511,7 @@ export async function setDoc(next, { render = true, fit = false } = {}) {
   countInputs();
   autoRunBuffers();
   syncCharts();
+  syncTable();
 }
 
 export function update(change, options) {
@@ -531,13 +602,17 @@ export const actions = {
     update((doc) => { doc.layers.find((l) => l.id === id).filters = filters; });
   },
   async setStyle(id, choice) {
+    const rt = runtime(id);
+    rt.styleSeq = (rt.styleSeq ?? 0) + 1;
+    const seq = rt.styleSeq;
     let overrides = choice.overrides ?? {};
     try {
       overrides = await resolveStyle(id, choice);
     } catch {
       // keep the preset's own colors
     }
-    update((doc) => { doc.layers.find((l) => l.id === id).style = { preset: choice.preset, overrides }; });
+    if (rt.styleSeq !== seq) return; // a later change won (D-090)
+    update((doc) => { const target = doc.layers.find((l) => l.id === id); if (target) target.style = { preset: choice.preset, overrides }; });
   },
   // The layer whose properties are open (D-070). An open table follows the chosen layer.
   selectLayer(id) {
@@ -1229,6 +1304,7 @@ async function runScreeningNow() {
     const turf = await loadTurf();
     const results = await runScreening({ client: app.client, turf, buffer: screening, entries, layerDocs: app.doc.layers });
     results.key = JSON.stringify([screening.source.geometry, screening.distance_ft]);
+    results.filters = screeningFilters(screening);
     app.results = results;
   } finally {
     app.ui.running = false;
@@ -1237,6 +1313,12 @@ async function runScreeningNow() {
   panels.renderAnalysis(app);
   syncCharts();
 }
+
+// The target layers' filters a screening ran with (D-090): when they change, its results are out of date.
+function screeningFilters(screening) {
+  return JSON.stringify(screening.targets.map((id) => app.doc.layers.find((l) => l.id === id)?.filters ?? []));
+}
+app.screeningFilters = screeningFilters;
 
 // ---- Charts (D-088) ----
 // A chart's numbers come from what Studio already reads for its layer, so they match the layer's counts and table:
@@ -1253,10 +1335,10 @@ function chartKey(chart) {
 const chartError = (code, detail) => Object.assign(new Error(code), { code, detail });
 const numberOrNaN = (value) => (typeof value === 'number' ? value : NaN);
 
+// A histogram keeps the values; its classes come from the map's style when it is drawn (chartView), so a change
+// of method or classes on the map shows in the chart at once (D-090).
 function histogramData(values, chart, layer, entry, extra = {}) {
-  const { style } = presetStyle(entry, layer.style);
-  const classes = histogramClasses(style, chart);
-  return { values, breaks: classes?.breaks ?? binsFor(values), colors: classes?.colors ?? null, ...extra };
+  return { values, ...extra };
 }
 
 async function computeChartData(chart, signal) {
@@ -1349,7 +1431,10 @@ function chartView(chart, width = 300) {
   const layer = app.doc.layers.find((l) => l.id === chart.layer);
   if (!entry || !layer) return null;
   const { style } = presetStyle(entry, layer.style);
-  const spec = chartSpec(chart, entry, state.data, { style, text: TEXT.charts, areaName: app.areaName?.() ?? '',
+  const classes = chart.type === 'histogram' ? histogramClasses(style, chart) : null;
+  const data = chart.type === 'histogram'
+    ? { ...state.data, breaks: classes?.breaks ?? binsFor(state.data.values ?? []), colors: classes?.colors ?? null } : state.data;
+  const spec = chartSpec(chart, entry, data, { style, text: TEXT.charts, areaName: app.areaName?.() ?? '',
     ringDistance: app.doc.screenings[0]?.distance_ft ?? null });
   return { spec, ...chartSvg(chart.type, spec, width) };
 }
@@ -1541,9 +1626,21 @@ async function exportData(id, format) {
 
 // ---- Table ----
 
+const tableKey = (layer) => JSON.stringify([areaKey(), layer?.filters ?? []]);
+
 async function openTable(id) {
-  app.table = { id, rows: [], offset: 0, sort: null, done: false };
+  app.table = { id, rows: [], offset: 0, sort: null, done: false, key: tableKey(app.doc.layers.find((l) => l.id === id)) };
   await loadTablePage();
+}
+
+// After the area or the table's layer's filters change, the table starts again (D-090).
+function syncTable() {
+  const table = app.table;
+  if (!table) return;
+  const layer = app.doc.layers.find((l) => l.id === table.id);
+  if (!layer || tableKey(layer) === table.key) return;
+  app.table = { ...table, rows: [], offset: 0, done: false, error: null, key: tableKey(layer) };
+  loadTablePage();
 }
 
 function closeTable() {
@@ -1580,6 +1677,7 @@ async function loadTablePage() {
     table.error = error;
   }
   table.loading = false;
+  if (app.table !== table) return; // the area or filters changed while this page loaded; a new one is coming (D-090)
   panels.renderTable(app);
 }
 

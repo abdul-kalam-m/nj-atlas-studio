@@ -75,18 +75,22 @@ export function niceBreaks(min, max, target = 8) {
 }
 
 // Bins as the map's graduated style draws them (D-035): below the first break, then each break up to the next,
-// then the last break and above. [{ low, high, count }]; low and high are the data's own ends for the outer bins.
+// then the last break and above. [{ low, high, count }], where the outer bins are open (low or high null), as in
+// the legend; the list carries the data's own min and max.
 export function histogram(values, breaks) {
   const numbers = values.filter(Number.isFinite);
   const counts = new Array(breaks.length + 1).fill(0);
+  let min = null;
+  let max = null;
   for (const value of numbers) {
     let index = 0;
     while (index < breaks.length && value >= breaks[index]) index += 1;
     counts[index] += 1;
+    min = min === null || value < min ? value : min;
+    max = max === null || value > max ? value : max;
   }
-  const min = numbers.length ? Math.min(...numbers) : null;
-  const max = numbers.length ? Math.max(...numbers) : null;
-  return counts.map((count, i) => ({ low: i === 0 ? min : breaks[i - 1], high: i === breaks.length ? max : breaks[i], count }));
+  const bins = counts.map((count, i) => ({ low: i === 0 ? null : breaks[i - 1], high: i === breaks.length ? null : breaks[i], count }));
+  return Object.assign(bins, { min, max });
 }
 
 // The breaks a histogram uses: the layer's own when its style classes this field (so chart and map agree),

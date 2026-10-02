@@ -148,7 +148,7 @@ export function histogramChart(spec, width = 300, plotHeight = 120) {
   });
   const edges = spec.edges ?? [];
   const every = Math.max(1, Math.ceil(edges.length / Math.max(2, Math.floor(plotWidth / 46))));
-  const labels = edges.map((label, i) => (i % every && i !== edges.length - 1 ? null
+  const labels = edges.map((label, i) => (!label || (i % every && i !== edges.length - 1) ? null
     : h('text', { x: n(left + i * barWidth), y: y0 + 13, 'font-size': 9.5, fill: MUTED, 'text-anchor': i === 0 ? 'start' : i === edges.length - 1 ? 'end' : 'middle' }, t(label))));
   const axis = spec.axisLabel ? h('text', { x: left + plotWidth / 2, y: y0 + 26, 'font-size': 9.5, fill: MUTED, 'text-anchor': 'middle' }, t(spec.axisLabel)) : null;
   return { tree: frame(spec, width, height, [...ticks, ...bars, ...labels, axis]), height };

@@ -24,13 +24,19 @@ async function getJson(path) {
   return response.json();
 }
 
+// Data addresses carry the catalog's build time (D-090), so a browser never reuses a copy cached before a release.
+function versioned(url) {
+  const stamp = String(app.catalog?.generated_at ?? '').replace(/\D/g, '');
+  return stamp ? `${url}?v=${stamp}` : url;
+}
+
 function dataUrl(path) {
-  return new URL(app.catalog.data_base_url + path, document.baseURI).href; // the atlas page sets <base href="../">
+  return versioned(new URL(app.catalog.data_base_url + path, document.baseURI).href); // the atlas page sets <base href="../">
 }
 
 // A layer's file: next to the site, or at the layer's own base_url (large layers on R2, D-025).
 function fileUrl(entry, path) {
-  return new URL((entry.base_url ?? app.catalog.data_base_url) + path, document.baseURI).href;
+  return versioned(new URL((entry.base_url ?? app.catalog.data_base_url) + path, document.baseURI).href);
 }
 
 // ---- Large layers, loaded one municipality at a time (§6.9) ----
