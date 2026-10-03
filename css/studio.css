@@ -20,7 +20,7 @@ html:has(body.studio) { overflow: hidden; }
 .doc-meta { color: var(--muted); font-size: 0.82rem; }
 
 /* Tabs (D-068) */
-.tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); background: var(--paper); }
+.tab-bar { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); border-bottom: 1px solid var(--line); background: var(--paper); }
 .tab-bar [role="tab"] { border: none; border-bottom: 3px solid transparent; background: none; padding: 8px 4px; min-height: 40px;
   font-size: 0.88rem; font-weight: 600; color: var(--muted); border-radius: 0; }
 .tab-bar [role="tab"][aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
@@ -90,6 +90,10 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
 .chart-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
 .chart-table th, .chart-table td { padding: 3px 4px; border-bottom: 1px solid var(--line); text-align: left; }
 .chart-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.template-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.template-option { display: grid; justify-items: center; gap: 2px; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); font-size: 0.8rem; text-align: center; }
+.template-option[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.template-option .hint { font-size: 0.72rem; }
 .preset-row .secondary { padding: 3px 10px; font-size: 0.82rem; }
 .layer-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .layer { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px; display: grid; gap: 2px; }

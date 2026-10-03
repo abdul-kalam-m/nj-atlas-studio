@@ -11,6 +11,7 @@ import { createDoc, layerDoc, LEVEL_KEY, MAX_BUFFERS, MAX_LAYERS, nextBufferId, 
 import { BARS, MAX_CHARTS, SQ_M_PER_ACRE, VALUE_CAP, binsFor, categoryTotals, completeness, fromCounts } from './chartdata.js';
 import { chartDefaults, chartSpec, fitChart, histogramClasses } from './chartspec.js';
 import { chartSvg } from './charts.js';
+import { TEMPLATES } from './layoutgeom.js';
 import { clipFeature } from './clip.js';
 import { gridAreaSqM } from './stateplane.js';
 import { decodeHash, embedSnippet, encodeDoc, isLong, linkFor } from './share.js';
@@ -597,6 +598,7 @@ export const actions = {
       doc.layers = doc.layers.filter((l) => l.id !== id);
       doc.buffers = doc.buffers.filter((buffer) => buffer.layer !== id); // a buffer goes with its layer
       doc.charts = doc.charts.filter((chart) => chart.layer !== id); // and so does a chart (D-088)
+      doc.layout.slots = doc.layout.slots.filter((slot) => doc.charts.some((chart) => chart.id === slot));
       for (const screening of doc.screenings) screening.targets = screening.targets.filter((t) => t !== id);
     });
   },
@@ -705,7 +707,10 @@ export const actions = {
     app.chartData.delete(id);
     app.chartTables.delete(id);
     if (app.ui.chartEditing === id) app.ui.chartEditing = null;
-    update((doc) => { doc.charts = doc.charts.filter((c) => c.id !== id); });
+    update((doc) => {
+      doc.charts = doc.charts.filter((c) => c.id !== id);
+      doc.layout.slots = doc.layout.slots.filter((slot) => slot !== id);
+    });
   },
   toggleChartTable(id) {
     if (app.chartTables.has(id)) app.chartTables.delete(id);
@@ -1031,12 +1036,33 @@ export const actions = {
   setLayout(patch) {
     update((doc) => Object.assign(doc.layout, patch));
   },
+  // A page template (D-089): its slots keep the charts already placed, then take the others in order.
+  setTemplate(template) {
+    update((doc) => {
+      const kept = doc.layout.slots.filter((id) => doc.charts.some((chart) => chart.id === id));
+      const rest = doc.charts.map((chart) => chart.id).filter((id) => !kept.includes(id));
+      doc.layout.template = template;
+      doc.layout.slots = [...kept, ...rest].slice(0, TEMPLATES[template] ?? 0);
+    });
+  },
+  // Put a chart in slot `index` (moving it from any other slot), or empty the slot with null.
+  setSlot(index, id) {
+    update((doc) => {
+      const slots = [...doc.layout.slots];
+      const from = id ? slots.indexOf(id) : -1;
+      if (!id) slots.splice(index, 1);
+      else if (from >= 0 && index < slots.length) [slots[from], slots[index]] = [slots[index], id];
+      else if (from < 0 && index < slots.length) slots[index] = id;
+      else if (from < 0) slots.push(id);
+      doc.layout.slots = slots.filter(Boolean).slice(0, TEMPLATES[doc.layout.template] ?? 0);
+    });
+  },
   print: () => exportImage('pdf'),
   // Preview the print layout, then print it without drawing the map again.
   async previewPrint() {
     panels.flash(app, TEXT.export.preparing);
     try {
-      const { root, page, complete } = await renderPrintRoot(imageContext());
+      const { root, page, complete } = await renderPrintRoot(await withCharts(imageContext()));
       panels.flash(app, complete ? '' : TEXT.export.printTimeout);
       panels.showPrintPreview(app, root, page, async () => {
         await printRoot(root, page);
@@ -1437,6 +1463,25 @@ function chartState(chart) {
 }
 app.chartState = chartState;
 
+// The charts a page template places (D-089), counted now if they have not been, as { type, spec }; their notes go
+// with the page's notes, and a chart that cannot be counted is named as left out.
+async function withCharts(ctx) {
+  if (app.doc.layout.template === 'map') return ctx;
+  const charts = [];
+  const notes = [];
+  for (const id of app.doc.layout.slots) {
+    const chart = app.doc.charts.find((c) => c.id === id);
+    if (!chart) continue;
+    await ensureChartData(chart);
+    const view = chartView(chart);
+    if (view?.spec.rows.length) {
+      charts.push({ type: chart.type, spec: view.spec });
+      notes.push(...view.spec.notes);
+    } else notes.push(TEXT.layout.chartLeftOut(chart.title || app.registry.get(chart.layer)?.title || chart.id));
+  }
+  return { ...ctx, charts, notes: [...new Set([...(ctx.notes ?? []), ...notes])] };
+}
+
 // What a chart draws, from its computed data: { spec, tree, height }, or null until the data is ready.
 function chartView(chart, width = 300) {
   const state = chartState(chart);
@@ -1578,7 +1623,7 @@ async function exportImage(kind) {
   const failed = failedLayers();
   if (failed.length && !window.confirm(TEXT.export.leaveOut(failed.join(', ')))) return;
   panels.flash(app, TEXT.export.preparing);
-  const ctx = imageContext(failed);
+  const ctx = await withCharts(imageContext(failed));
   const { doc } = ctx;
   try {
     if (kind === 'pdf') {

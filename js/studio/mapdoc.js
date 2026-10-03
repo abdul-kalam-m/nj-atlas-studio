@@ -6,6 +6,7 @@
 import { MAX_PICKED, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, defaultStyle, validDistance } from './buffer.js';
 import { BASEMAP_MODES, BASEMAP_NAMES, OUTSIDE_MODES } from './basemaps.js';
 import { BARS, CHART_TYPES, MAX_CHARTS, MEASURES, SCOPES } from './chartdata.js';
+import { TEMPLATES } from './layoutgeom.js';
 
 export const SCHEMA_VERSION = 2;
 export const MAX_LAYERS = 8;
@@ -43,7 +44,7 @@ export function createDoc(now = new Date()) {
     screenings: [],
     buffers: [],
     charts: [],
-    layout: { paper: 'letter', orientation: 'landscape', legend: true, scale_bar: true, north_arrow: true, notes: '' },
+    layout: { paper: 'letter', orientation: 'landscape', legend: true, scale_bar: true, north_arrow: true, notes: '', template: 'map', slots: [] },
     credits: [],
     source_versions: {},
     extensions: {},
@@ -239,7 +240,14 @@ export function validate(input, known = null, bufferable = null) {
     scale_bar: layout.scale_bar !== false,
     north_arrow: layout.north_arrow !== false,
     notes: isText(layout.notes) ? layout.notes.slice(0, 600) : '',
+    // D-089: the page template and the charts in its slots, in order (charts this document has, each once).
+    template: Object.hasOwn(TEMPLATES, layout.template) ? layout.template : 'map',
+    slots: [],
   };
+  for (const id of Array.isArray(layout.slots) ? layout.slots : []) {
+    if (isText(id) && doc.charts.some((chart) => chart.id === id) && !doc.layout.slots.includes(id)) doc.layout.slots.push(id);
+  }
+  doc.layout.slots = doc.layout.slots.slice(0, TEMPLATES[doc.layout.template]);
   doc.credits = Array.isArray(raw.credits) ? raw.credits.filter(isText) : [];
   doc.source_versions = isObject(raw.source_versions) ? raw.source_versions : {};
   // Unknown keys are kept under extensions and never deleted (paid features plug in here, D-040).

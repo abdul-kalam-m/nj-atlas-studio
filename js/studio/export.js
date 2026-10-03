@@ -6,6 +6,8 @@ import { metersPerPixel, scaleBar } from './geo.js';
 import { clipFeature } from './clip.js';
 import { toRow } from './transform.js';
 import { toCsv } from '../csv.js';
+import { chartSvg, svgNode, svgString } from './charts.js';
+import { composeArea, drawWidth, fitScale } from './layoutgeom.js';
 
 const DPI = 96;
 const PAPER_IN = { letter: [8.5, 11], tabloid: [11, 17] };
@@ -118,21 +120,58 @@ function sideParts(ctx, scale) {
   return parts;
 }
 
+// The charts a page template places (D-089): ctx.charts ([{ type, spec }], in slot order); none on 'map'.
+function placedCharts(ctx) {
+  return ctx.doc.layout.template && ctx.doc.layout.template !== 'map' ? ctx.charts ?? [] : [];
+}
+
+// The map area split between the map and the chart boxes (the map keeps the whole area on 'map').
+function pageAreas(ctx) {
+  const frame = frameSize(ctx.doc.layout);
+  const charts = placedCharts(ctx);
+  return { frame, charts, ...composeArea(ctx.doc.layout.template ?? 'map', ctx.doc.layout.orientation, frame, charts.length) };
+}
+
+// One chart in its box: drawn at drawWidth and shrunk, whole, to fit.
+function chartBox(chart, cell) {
+  const width = drawWidth(cell);
+  const { tree, height } = chartSvg(chart.type, chart.spec, width);
+  const scale = fitScale(width, height, cell);
+  const node = svgNode(tree);
+  node.setAttribute('width', String(width * scale));
+  node.setAttribute('height', String(height * scale));
+  return el('div', { class: 'print-chart', style: `left:${cell.x}px;top:${cell.y}px;width:${cell.w}px;height:${cell.h}px` }, [node]);
+}
+
 // The print layout, not yet on the page: { root, page, complete }. The preview shows it; printRoot prints it.
 export async function renderPrintRoot(ctx) {
   const { doc, text } = ctx;
   const page = pageSize(doc.layout);
-  const frame = frameSize(doc.layout);
-  const rendered = await renderMap(ctx, frame, 2);
+  const { frame, charts, map, cells } = pageAreas(ctx);
+  const rendered = await renderMap(ctx, { width: map.w, height: map.h }, 2);
+  const mapNode = el('div', { class: 'print-map', style: `width:${map.w}px;height:${map.h}px` },
+    [el('img', { src: rendered.image, alt: doc.title || text.export.untitled, width: map.w, height: map.h })]);
+  const main = cells.length
+    ? el('div', { class: 'print-main', style: `width:${frame.width}px;height:${frame.height}px` }, [mapNode, ...cells.map((cell, i) => chartBox(charts[i], cell))])
+    : mapNode;
   const root = el('div', { id: 'print-root', class: `print-root ${doc.layout.orientation}`, style: `width:${page.width}px` }, [
     el('header', { class: 'print-title' }, [el('h1', { text: doc.title || text.export.untitled }), doc.subtitle ? el('p', { text: doc.subtitle }) : null]),
-    el('div', { class: 'print-body' }, [
-      el('div', { class: 'print-map', style: `width:${frame.width}px;height:${frame.height}px` },
-        [el('img', { src: rendered.image, alt: doc.title || text.export.untitled, width: frame.width, height: frame.height })]),
-      el('aside', { class: 'print-side' }, sideParts(ctx, rendered.scale)),
-    ]),
+    el('div', { class: 'print-body' }, [main, el('aside', { class: 'print-side' }, sideParts(ctx, rendered.scale))]),
   ]);
   return { root, page, complete: rendered.complete };
+}
+
+// A chart on the PNG's canvas, drawn from its SVG at the canvas's pixel density.
+async function drawChart(context, chart, cell, top, density) {
+  const width = drawWidth(cell);
+  const { tree, height } = chartSvg(chart.type, chart.spec, width);
+  const scale = fitScale(width, height, cell);
+  const [w, h] = [width * scale, height * scale];
+  const sized = { ...tree, attrs: { ...tree.attrs, width: Math.round(w * density), height: Math.round(h * density) } };
+  const image = new Image();
+  image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString(sized))}`;
+  await image.decode();
+  context.drawImage(image, cell.x, top + cell.y, w, h);
 }
 
 // Put a layout on the page for the print dialog: { cleanup }.
@@ -191,9 +230,9 @@ function wrap(context, words, width) {
 export async function pngMap(ctx) {
   const { doc, text } = ctx;
   const page = pageSize(doc.layout);
-  const frame = frameSize(doc.layout);
+  const { frame, charts, map, cells } = pageAreas(ctx);
   const scaleFactor = Math.min(2, 4096 / Math.max(page.width, page.height));
-  const rendered = await renderMap(ctx, frame, scaleFactor);
+  const rendered = await renderMap(ctx, { width: map.w, height: map.h }, scaleFactor);
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(page.width * scaleFactor);
   canvas.height = Math.round(page.height * scaleFactor);
@@ -210,9 +249,10 @@ export async function pngMap(ctx) {
   image.src = rendered.image;
   await image.decode();
   const top = 64;
-  c.drawImage(image, 0, top, frame.width, frame.height);
+  c.drawImage(image, 0, top, map.w, map.h);
   c.strokeStyle = '#8a96a3';
-  c.strokeRect(0, top, frame.width, frame.height);
+  c.strokeRect(0, top, map.w, map.h);
+  for (const [i, cell] of cells.entries()) await drawChart(c, charts[i], cell, top, scaleFactor);
   let x = doc.layout.orientation === 'portrait' ? 0 : frame.width + 16;
   let y = doc.layout.orientation === 'portrait' ? top + frame.height + 18 : top + 4;
   const width = doc.layout.orientation === 'portrait' ? page.width : page.width - x;

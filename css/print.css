@@ -6,6 +6,10 @@
 .print-root.portrait .print-body { flex-direction: column; }
 .print-root .print-map { border: 1px solid #8a96a3; flex: 0 0 auto; }
 .print-root .print-map img { display: block; width: 100%; height: 100%; }
+.print-root .print-main { position: relative; flex: 0 0 auto; }
+.print-root .print-main > .print-map { position: absolute; left: 0; top: 0; }
+.print-root .print-chart { position: absolute; overflow: hidden; }
+.print-root .print-chart svg { display: block; }
 .print-root .print-side { flex: 1 1 auto; display: flex; flex-direction: column; gap: 6px; font-size: 10px; color: #17212c; min-width: 0; }
 .print-root.portrait .print-side { flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
 .print-root.portrait .print-side > * { flex: 1 1 200px; }

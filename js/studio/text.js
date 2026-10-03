@@ -16,7 +16,19 @@ export const TEXT = {
   count: (n, plural) => `${n} ${plural}`,
 
   panels: { area: 'Area', layers: 'Layers', screening: 'Site screening', export: 'Export' },
-  tabs: { area: 'Area', layers: 'Layers', analysis: 'Analysis', export: 'Export' },
+  tabs: { area: 'Area', layers: 'Layers', analysis: 'Analysis', layout: 'Layout', export: 'Export' },
+  layout: {
+    template: 'Page',
+    templates: { map: 'Map only', side: 'Charts beside the map', bottom: 'Charts below the map', grid: 'Map and chart grid' },
+    room: (n) => (n ? `Up to ${n} charts` : 'No charts'),
+    slot: (n) => `Chart ${n}`,
+    none: 'None',
+    noCharts: 'No charts yet.',
+    toCharts: 'Make a chart',
+    chartLeftOut: (title) => `Chart left out (no data): ${title}`,
+    setup: 'Page',
+    toLayout: 'Page setup: Layout tab',
+  },
   docBar: {
     layers: (n) => (n === 1 ? '1 layer' : `${n} layers`),
     buffers: (n) => (n === 1 ? '1 buffer' : `${n} buffers`),
