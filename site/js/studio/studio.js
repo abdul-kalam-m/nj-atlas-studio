@@ -463,12 +463,15 @@ async function syncArea() {
   const key = `${level}/${code}`;
   if (app.areaKey !== key) {
     app.areaKey = key;
+    let geometry = null;
     try {
-      app.areaGeometry = await outlineFor(level, code);
+      geometry = await outlineFor(level, code);
     } catch {
-      app.areaGeometry = null;
+      // no outline: the map shows the area without one
     }
+    // An earlier area's outline that arrives after a later one's is dropped, not shown as the current area's (D-090).
     if (app.areaKey !== key) return false;
+    app.areaGeometry = geometry;
   }
   app.map?.setArea(app.areaGeometry, app.doc.mask);
   return true;

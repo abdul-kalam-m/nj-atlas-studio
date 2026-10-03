@@ -14,7 +14,7 @@ Studio at the site root and the atlas at `/atlas/`, plus an explicit list of dat
 
 1. **Owner, licenses (O-3).** For each layer to publish, read the terms at its `source.landing_page` and `license.url`. Then fill in `license.name`, `license.url`, `reviewed_by` and `reviewed_on`, and set `status` to `published`. Counties and municipalities must be published, because the area pickers need them. If any data layer is published, census tracts and block groups must be too, because every data layer's place columns come from them; `release.py` names any that are missing. [LICENSE_REVIEW.md](LICENSE_REVIEW.md) lists the evidence gathered so far.
 2. **Agent, rehearsal (optional).** `python tools/release.py --rehearsal` runs the whole process with drafts included. It never offers a push command.
-3. **Agent, release.** `python tools/release.py` does the following:
+3. **Agent, release.** First copy the live `data/health.json` from `gh-pages` into `site/data/health.json`: the nightly source check updates it there, and the release publishes the local copy (found 2026-10-03, when a release put back a 6-day-old copy). Then `python tools/release.py` does the following:
    - clears the copy layers' folders in `site/data/` and rebuilds them (add `--refresh` to download fresh data); hybrid and parked folders are kept;
    - writes the catalog and runs every automated check;
    - writes `site/data/release.json`;
