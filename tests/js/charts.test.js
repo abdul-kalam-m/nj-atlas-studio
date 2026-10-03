@@ -205,3 +205,12 @@ test('a histogram on fixed breaks wider than the data labels its open ends like 
   const single = chartSpec({ type: 'histogram', field: 'poverty_pct', measure: 'count', scope: 'area', title: '' }, tracts, { values: [4, 4], breaks: [] }, { text: TEXT });
   assert.deepEqual(single.rows.map((r) => r.label), ['4 – 4']);
 });
+
+test('the Layout tab has its words', () => {
+  const L = STUDIO_TEXT.layout;
+  assert.equal(STUDIO_TEXT.tabs.layout, 'Layout');
+  for (const key of ['map', 'side', 'bottom', 'grid']) assert.equal(typeof L.templates[key], 'string', key);
+  assert.equal(L.room(3), 'Up to 3 charts');
+  assert.equal(L.room(0), 'No charts');
+  assert.equal(L.slot(2), 'Chart 2');
+});

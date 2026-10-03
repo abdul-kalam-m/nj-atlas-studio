@@ -206,7 +206,8 @@ Keep today's modules: `places.js`, `filters.js`, `format.js`, `csv.js`, `data.js
 | `tiles.js` | Live feature tile cache: which tiles are visible, fetch the missing ones, merge them into a GeoJSON source |
 | `draw.js` | Minimal drawing: click points, double-click to finish; Escape cancels, Backspace removes the last point |
 | `search.js`* | The slower address search: typed address to house number, street and place (D-048) |
-| `panels.js` | The four tabs (D-068), the layer list and properties panel (D-070), dialogs, legend, table |
+| `panels.js` | The five tabs (D-068; Layout, D-089), the layer list and properties panel (D-070), dialogs, legend, table |
+| `layoutgeom.js` | Page templates: where the map and the charts sit in the map frame (D-089) |
 | `screening.js` | Site screening: draw the ring (turf), run distance queries per target, build the results list (called `buffer.js` before D-076) |
 | `buffer.js`* | Buffer layers (D-076): the recipe's defaults, names, limits, map layer specs, legend rows and download |
 | `geoprocess.js`* | The buffer step: shapes onto State Plane, JSTS buffers, dissolve in chunks, back to longitude and latitude (D-075) |
@@ -348,7 +349,7 @@ All load from jsDelivr with exact versions (OPERATING_GUIDE.md §5). Add the tur
      "distance_ft": 300, "targets": ["nj_wetlands", "nj_flood_zones", "nj_c1_waters"], "label": "300 ft screening ring"}
   ],
   "layout": {"paper": "letter", "orientation": "landscape", "legend": true, "scale_bar": true,
-             "north_arrow": true, "notes": ""},
+             "north_arrow": true, "notes": "", "template": "map", "slots": []},
   "credits": ["New Jersey Office of GIS (NJOGIS)", "This map was developed using NJDEP …"],
   "source_versions": {"nj_wetlands": {"mode": "hybrid", "tiles_built": "2026-10-01", "queried_at": "2026-10-05T14:01:40Z"}},
   "extensions": {}
@@ -471,6 +472,7 @@ Each preset has a `label` (its name in the Style panel) and a `kind`. The schema
 ### 4.9 Print and PNG
 
 - **Paper:** letter (8.5 × 11 in) and tabloid (11 × 17 in), portrait and landscape, with 0.4 in margins.
+- **Page templates (D-089, the Layout tab):** Map only, Charts beside the map, Charts below the map, and Map and chart grid. A template shares the map frame between the map and up to 3 or 4 of the document's charts (`layout.template`, `layout.slots`); the paper, the frame's size and the side column do not change.
 - **Layout:** title and subtitle; the map frame; then, in a side column (landscape) or bottom strip (portrait):
   - the legend;
   - a scale bar in feet or miles;

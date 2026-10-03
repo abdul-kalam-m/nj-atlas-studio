@@ -774,3 +774,16 @@ Template (from OPERATING_GUIDE.md §4):
 - Released as gh-pages 9f5e479d. Live check: Newark's equal and quantile breaks as above. **Found live:** after picking Essex County and then Newark quickly, the map kept Essex's quantile breaks recorded as Newark's.
 - **Release 1.3** (fixes, D-090 items 9 and 10): computations read the area once before fetching and look again when they finish; the Method box shows Fixed for a recipe's breaks. Checked through the style panel's own controls: Fixed, then Equal (25.36, 44.02, 62.68, 81.34), Quantile (16.3, 20.3, 23.8, 32.4), 4 classes (17.4, 22.5, 30.5, equal to the same computation over the rows), and back to Fixed. County then town, twice: settles on Pennsville's (6, 7.3, 10.9, 17.6) and Newark's own breaks. 244 JavaScript and 213 Python tests, lint: pass.
 
+### Charts, release 2: the Layout tab (D-089) · done · 2026-10-03
+- The owner's instruction in chat: "close the Layout Tab".
+- Changed: site/js/studio/layoutgeom.js (new), export.js, mapdoc.js (`layout.template`, `layout.slots`), panels.js, studio.js, text.js, index.html, studio.css (the tab bar takes any number of tabs), print.css; tests: layoutgeom.test.js (new), mapdoc.test.js, charts.test.js. README and IMPLEMENTATION_GUIDE.md §4.9 and the module table.
+- Found while checking and fixed before release: the tab bar was fixed at 4 columns (a fifth tab would wrap); two untitled charts of one field had the same name in the slot menus (names now carry the kind); in the grid template's 172 px boxes, labels were cut short and histogram ticks ran together (charts are now drawn at 240 px or more and shrunk whole).
+- Checks (browser, local), Newark, schools and Demographics (tracts), 3 charts:
+  - the five tabs fit one row on the desktop and at 375 px, with no sideways scroll;
+  - every template, letter and tabloid, landscape and portrait: the map and chart boxes stay inside the map frame without overlaps (side 459 + 3 x 260 x 218; bottom 729 x 435 + 3 x 236 x 230; grid landscape 364 + 172 x 332; grid portrait 739 x 342 + 364 x 161); Map only keeps the frame whole (729 x 675), the page as before;
+  - print preview and PNG (1958 x 1478) carry the charts; the PNG canvas is not tainted;
+  - the template and slots survive a link reload; removing a chart or its layer empties its slot; moving a chart between slots swaps them; a ring chart with no screening is left off the page with "Chart left out (no data)";
+  - Export links to Layout; Layout with no charts offers Make a chart, which opens the Charts tool;
+  - no console errors; the atlas self-test passes 44 of 44.
+  - 251 JavaScript and 213 Python tests pass; the lint passes.
+- Rollback point: gh-pages 5d6f678 (the nightly source check after release 1.3).

@@ -14,7 +14,7 @@ test('the v2 fixture, made before charts, is valid and unchanged by validation a
   const { doc, problems, notices } = validate(fixture(), known);
   assert.deepEqual(problems, []);
   assert.deepEqual(notices, []);
-  assert.deepEqual(doc, { ...fixture(), charts: [] });
+  assert.deepEqual(doc, { ...fixture(), charts: [], layout: { ...fixture().layout, template: 'map', slots: [] } });
 });
 
 test('a v1 document opens as v2: its buffers were site screenings (D-076)', () => {
@@ -139,7 +139,7 @@ test('a buffer keeps its rule preset key (D-085); a document without one is unch
   assert.equal('preset' in validate(input, known).doc.buffers[0], false);
 });
 
-const chartsDoc = () => ({ ...fixture(), charts: [
+const chartsDoc = () => ({ ...fixture(), layout: { ...fixture().layout, template: 'side', slots: ['c3', 'c1'] }, charts: [
   { id: 'c1', type: 'bar', layer: 'nj_flood_zones', scope: 'area', field: 'flood_zone', measure: 'count', sum_field: null, title: 'Zones', max_bars: 8 },
   { id: 'c2', type: 'histogram', layer: 'nj_wetlands', scope: 'area', field: 'acres', measure: 'count', sum_field: null, title: '', max_bars: 8 },
   { id: 'c3', type: 'donut', layer: 'nj_wetlands', scope: 'ring', field: 'wetland_type', measure: 'ring_area', sum_field: null, title: '', max_bars: 6 },
@@ -191,4 +191,22 @@ test('charts an older Studio kept as an extension come back as charts', () => {
 test('charts travel in a link', async () => {
   const hash = await encodeDoc(chartsDoc(), { compress: true });
   assert.deepEqual(validate(await decodeHash(`#${hash}`), known).doc.charts, chartsDoc().charts);
+});
+
+test('a page template keeps only charts the document has, each once, up to its room (D-089)', () => {
+  const input = chartsDoc();
+  input.layout = { ...input.layout, template: 'bottom', slots: ['c2', 'nope', 'c2', 'c1', 'c3', 42] };
+  assert.deepEqual(validate(input, known).doc.layout.slots, ['c2', 'c1', 'c3']);
+  input.layout = { ...input.layout, template: 'side', slots: ['c1', 'c2', 'c3'] };
+  assert.deepEqual(validate(input, known).doc.layout.slots, ['c1', 'c2', 'c3']);
+  input.layout = { ...input.layout, template: 'poster' };
+  const { doc } = validate(input, known);
+  assert.deepEqual([doc.layout.template, doc.layout.slots], ['map', []]);
+  const noCharts = { ...fixture(), layout: { ...fixture().layout, template: 'grid', slots: ['c1'] } };
+  assert.deepEqual(validate(noCharts, known).doc.layout.slots, []);
+});
+
+test("a chart's slot goes when its layer is not in the document", () => {
+  const { doc } = validate(chartsDoc(), new Set(['nj_schools', 'nj_parcels', 'nj_wetlands', 'nj_c1_waters']));
+  assert.deepEqual(doc.layout.slots, ['c3']);
 });

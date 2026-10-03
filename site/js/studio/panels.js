@@ -1,6 +1,6 @@
 // Studio's panels, legend, table and popups, drawn from the map document and the layer runtimes.
 // Data values only go into textContent. Every string comes from text.js.
-import { el } from './dom.js';
+import { el, svgEl } from './dom.js';
 import { isTarget, isSource } from './registry.js';
 import { presetStyle } from './style.js';
 import { combinedRows, resultNotes } from './screening.js';
@@ -9,6 +9,7 @@ import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_RINGS, OUTLINE_STYLES, SELECTS, 
 import { CHART_TYPES, MAX_CHARTS, SCOPES, BARS } from './chartdata.js';
 import { chartFields, chartMeasures } from './chartspec.js';
 import { svgNode } from './charts.js';
+import { TEMPLATES, composeArea } from './layoutgeom.js';
 import { legendNode, ringSwatchStyle } from './export.js';
 import { formatCount, formatValue } from '../format.js';
 import { pickerLevels, unitsFor, LEVEL_KEYS, pickerNeeds } from '../places.js';
@@ -85,6 +86,7 @@ export function renderAll(app) {
   renderArea(app);
   renderLayers(app);
   renderAnalysis(app);
+  renderLayout(app);
   renderExport(app);
   renderLegend(app);
   renderTable(app);
@@ -992,9 +994,27 @@ function resultsNode(app, screening) {
   ]);
 }
 
-// ---- Export ----
+// ---- Layout (D-089): the page template, its charts, paper and marks ----
 
-export function renderExport(app) {
+// A small drawing of a template: the map, the chart boxes and the side column, from the same geometry the print uses.
+function templateThumb(template, orientation) {
+  const [w, h] = orientation === 'portrait' ? [40, 52] : [60, 40];
+  const area = orientation === 'portrait' ? { width: w, height: h - 12 } : { width: w - 14, height: h };
+  const { map, cells } = composeArea(template, orientation, area, TEMPLATES[template]);
+  const rect = (x, y, rw, rh, fill) => svgEl('rect', { x: String(x), y: String(y), width: String(Math.max(1, rw)), height: String(Math.max(1, rh)), fill, rx: '1' });
+  const side = orientation === 'portrait' ? rect(0, h - 10, w, 10, '#d6dde6') : rect(w - 12, 0, 12, h, '#d6dde6');
+  return svgEl('svg', { viewBox: `0 0 ${w} ${h}`, width: String(w), height: String(h), 'aria-hidden': 'true' },
+    [rect(0, 0, map.w, map.h, '#9ecae1'), ...cells.map((c) => rect(c.x, c.y, c.w, c.h, '#1d4e89')), side]);
+}
+
+function chartName(app, chart) {
+  const entry = app.registry.get(chart.layer);
+  const field = entry?.fields.find((f) => f.name === chart.field);
+  const name = chart.title || `${entry?.title ?? chart.layer}: ${field?.label ?? chart.field ?? ''}`;
+  return `${name} · ${app.text.charts.types[chart.type] ?? chart.type}`; // two charts of one field differ by kind
+}
+
+function pageFields(app) {
   const T = app.text;
   const { doc } = app;
   const text = (key, label, multiline = false) => {
@@ -1017,6 +1037,49 @@ export function renderExport(app) {
     box.addEventListener('change', () => app.actions.setLayout({ [key]: box.checked }));
     return el('label', { class: 'check', for: box.id }, [box, el('span', { text: label })]);
   };
+  return { text, select, check };
+}
+
+export function renderLayout(app) {
+  const T = app.text;
+  const L = T.layout;
+  const { doc } = app;
+  const { text, select, check } = pageFields(app);
+  const templates = el('div', { class: 'template-grid', role: 'group', 'aria-label': L.template }, Object.keys(TEMPLATES).map((key) =>
+    el('button', { type: 'button', class: 'template-option', 'aria-pressed': String(doc.layout.template === key), onclick: () => app.actions.setTemplate(key) }, [
+      templateThumb(key, doc.layout.orientation), el('span', { text: L.templates[key] }), el('span', { class: 'hint', text: L.room(TEMPLATES[key]) })])));
+  const nodes = [el('fieldset', { class: 'filter' }, [el('legend', { text: L.template }), templates])];
+  const room = TEMPLATES[doc.layout.template] ?? 0;
+  if (room) {
+    if (!doc.charts.length) {
+      nodes.push(el('p', { class: 'hint' }, [L.noCharts, ' ',
+        el('button', { type: 'button', class: 'link-button', text: L.toCharts, onclick: () => { app.actions.setTab('analysis'); app.actions.setTool('charts'); } })]));
+    } else {
+      const options = [['', L.none], ...doc.charts.map((chart) => [chart.id, chartName(app, chart)])];
+      for (let i = 0; i < Math.min(room, doc.charts.length); i += 1) {
+        const id = `lay-slot-${i}`;
+        const node = el('select', { id }, options.map(([value, name]) => el('option', { value, text: name })));
+        node.value = doc.layout.slots[i] ?? '';
+        node.addEventListener('change', () => app.actions.setSlot(i, node.value || null));
+        nodes.push(el('div', { class: 'field' }, [el('label', { for: id, text: L.slot(i + 1) }), node]));
+      }
+    }
+  }
+  nodes.push(text('subtitle', T.export.subtitle), text('notes', T.export.notes, true),
+    select('paper', T.export.paper, T.export.papers), select('orientation', T.export.orientation, T.export.orientations),
+    el('div', { class: 'checks' }, [check('legend', T.export.legend), check('scale_bar', T.export.scaleBar), check('north_arrow', T.export.northArrow)]),
+    el('div', { class: 'button-row' }, [
+      el('button', { type: 'button', class: 'primary', text: T.export.preview, onclick: () => app.actions.previewPrint() }),
+      el('button', { type: 'button', class: 'secondary', text: T.export.print, onclick: () => app.actions.print() }),
+      el('button', { type: 'button', class: 'secondary', text: T.export.png, onclick: () => app.actions.png() })]));
+  $('panel-layout').replaceChildren(...nodes);
+}
+
+// ---- Export ----
+
+export function renderExport(app) {
+  const T = app.text;
+  const { doc } = app;
   const data = doc.layers.map((layer) => {
     const entry = app.registry.get(layer.id);
     return el('li', {}, [el('span', { text: entry.title }),
@@ -1030,9 +1093,7 @@ export function renderExport(app) {
   }
   $('panel-export').replaceChildren(...[
     el('p', { class: 'export-summary', text: app.exportSummary?.() ?? '' }),
-    text('subtitle', T.export.subtitle), text('notes', T.export.notes, true),
-    select('paper', T.export.paper, T.export.papers), select('orientation', T.export.orientation, T.export.orientations),
-    el('div', { class: 'checks' }, [check('legend', T.export.legend), check('scale_bar', T.export.scaleBar), check('north_arrow', T.export.northArrow)]),
+    el('p', { class: 'hint' }, [el('button', { type: 'button', class: 'link-button', text: T.layout.toLayout, onclick: () => app.actions.setTab('layout') })]),
     el('div', { class: 'button-row' }, [
       el('button', { type: 'button', class: 'primary', text: T.export.preview, onclick: () => app.actions.previewPrint() }),
       el('button', { type: 'button', class: 'secondary', text: T.export.print, onclick: () => app.actions.print() }),
