@@ -10,11 +10,11 @@ const v1 = () => read('v1-screening');
 const fixture = () => read('v2-buffers');
 const known = new Set(['nj_schools', 'nj_parcels', 'nj_wetlands', 'nj_flood_zones', 'nj_c1_waters']);
 
-test('the v2 fixture, made before charts, is valid and unchanged by validation apart from an empty chart list', () => {
+test('the v2 fixture, made before charts, is valid and unchanged by validation apart from empty chart, comparison and deadline lists', () => {
   const { doc, problems, notices } = validate(fixture(), known);
   assert.deepEqual(problems, []);
   assert.deepEqual(notices, []);
-  assert.deepEqual(doc, { ...fixture(), charts: [], layout: { ...fixture().layout, template: 'map', slots: [] } });
+  assert.deepEqual(doc, { ...fixture(), charts: [], comparisons: [], deadlines: [], layout: { ...fixture().layout, template: 'map', slots: [] } });
 });
 
 test('a v1 document opens as v2: its buffers were site screenings (D-076)', () => {
@@ -149,7 +149,7 @@ test('charts are kept as written when valid (D-088), and a document without them
   const { doc, problems, notices } = validate(chartsDoc(), known);
   assert.deepEqual(problems, []);
   assert.deepEqual(notices, []);
-  assert.deepEqual(doc, chartsDoc());
+  assert.deepEqual(doc, { ...chartsDoc(), comparisons: [], deadlines: [] });
 });
 
 test('charts are cleaned: bad ones dropped with a notice, measures that do not fit become counts, limits applied', () => {
@@ -209,4 +209,18 @@ test('a page template keeps only charts the document has, each once, up to its r
 test("a chart's slot goes when its layer is not in the document", () => {
   const { doc } = validate(chartsDoc(), new Set(['nj_schools', 'nj_parcels', 'nj_wetlands', 'nj_c1_waters']));
   assert.deepEqual(doc.layout.slots, ['c3']);
+});
+
+test('a comparison names a known layer and a town keeps up to 12 dated entries of its own (D-091, D-093)', () => {
+  const input = { ...fixture(), comparisons: [{ id: 'k1', layer: 'nj_schools' }, { layer: 'nj_parcels' }],
+    deadlines: [{ title: '  Master plan reexamination ', date: '2027-06-30' }, { title: 'No date' }, { title: '', date: '2027-01-01' },
+      { title: 'Bad day', date: '2027-6-30' }, ...Array.from({ length: 14 }, (_, i) => ({ title: `T${i}`, date: '2028-01-01' }))] };
+  const { doc, notices } = validate(input, known);
+  assert.deepEqual(doc.comparisons, [{ id: 'k1', layer: 'nj_schools' }]);
+  assert.deepEqual(doc.deadlines[0], { title: 'Master plan reexamination', date: '2027-06-30' });
+  assert.equal(doc.deadlines.length, 9); // the first 12 entries, of which 3 are not dated entries
+  assert.deepEqual(notices, []);
+  const unknown = validate({ ...fixture(), comparisons: [{ layer: 'nj_nothing' }, 'x'] }, known);
+  assert.deepEqual(unknown.doc.comparisons, []);
+  assert.deepEqual(unknown.notices, [{ code: 'unknownLayer', detail: 'nj_nothing' }]);
 });

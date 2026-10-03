@@ -2,6 +2,7 @@
 // IMPLEMENTATION_GUIDE.md §4.2). Version 2 (D-076) keeps site screenings under `screenings` (version 1 called them
 // `buffers`) and buffer layers under `buffers`. Charts (D-088) are an optional `charts` list: an addition, not a new
 // version, so documents made before charts open unchanged and older copies of Studio keep charts as an extension.
+// So are `comparisons` (the Changes tool's series, D-091) and `deadlines` (a town's own dates, D-093).
 // Imports pure modules only. Problems are codes with details; site/js/studio/text.js turns them into words.
 import { MAX_PICKED, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, defaultStyle, validDistance } from './buffer.js';
 import { BASEMAP_MODES, BASEMAP_NAMES, OUTSIDE_MODES } from './basemaps.js';
@@ -12,6 +13,8 @@ export const SCHEMA_VERSION = 2;
 export const MAX_LAYERS = 8;
 export const MAX_BUFFERS = 4;
 export const MAX_SCREENINGS = 4;
+export const MAX_DEADLINES = 12;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
 export const MIN_DISTANCE_FT = 1;
 export const MAX_DISTANCE_FT = 5280;
 export const BUFFER_PRESETS_FT = [50, 100, 200, 300, 500, 1000];
@@ -22,7 +25,7 @@ export const LEVEL_KEY = { county: 'county_fips', municipality: 'mun_code', trac
 const PAPERS = ['letter', 'tabloid'];
 const ORIENTATIONS = ['landscape', 'portrait'];
 const KNOWN_KEYS = ['schema_version', 'title', 'subtitle', 'created_at', 'area', 'mask', 'basemap', 'basemap_mode', 'view', 'layers', 'screenings',
-  'buffers', 'charts', 'layout', 'credits', 'source_versions', 'extensions'];
+  'buffers', 'charts', 'comparisons', 'deadlines', 'layout', 'credits', 'source_versions', 'extensions'];
 const OPS = ['in', 'contains', 'range'];
 
 export function emptyArea() {
@@ -44,6 +47,8 @@ export function createDoc(now = new Date()) {
     screenings: [],
     buffers: [],
     charts: [],
+    comparisons: [],
+    deadlines: [],
     layout: { paper: 'letter', orientation: 'landscape', legend: true, scale_bar: true, north_arrow: true, notes: '', template: 'map', slots: [] },
     credits: [],
     source_versions: {},
@@ -230,6 +235,19 @@ export function validate(input, known = null, bufferable = null) {
       title: isText(chart.title) ? chart.title.slice(0, 100) : '',
       max_bars: Number.isInteger(chart.max_bars) ? Math.min(BARS.max, Math.max(BARS.min, chart.max_bars)) : BARS.default,
     });
+  }
+
+  // The Changes tool's series (D-091): one at a time, by the later cycle's layer; the layer need not be on the map.
+  const comparisons = Array.isArray(raw.comparisons) ? raw.comparisons : [];
+  for (const comparison of comparisons.slice(0, 1)) {
+    if (!isObject(comparison) || !isText(comparison.layer)) { notices.push({ code: 'badComparison' }); continue; }
+    if (known && !known.has(comparison.layer)) { notices.push({ code: 'unknownLayer', detail: comparison.layer }); continue; }
+    doc.comparisons.push({ id: isText(comparison.id) ? comparison.id.slice(0, 12) : 'k1', layer: comparison.layer });
+  }
+  // A town's own dates for the calendar (D-093): a short title and a day.
+  for (const entry of (Array.isArray(raw.deadlines) ? raw.deadlines : []).slice(0, MAX_DEADLINES)) {
+    if (!isObject(entry) || !isText(entry.title) || !entry.title.trim() || !isText(entry.date) || !DATE.test(entry.date)) continue;
+    doc.deadlines.push({ title: entry.title.trim().slice(0, 80), date: entry.date });
   }
 
   const layout = isObject(raw.layout) ? raw.layout : {};

@@ -97,3 +97,22 @@ These were checked but left out of v1, for size or because they duplicate a cura
 - Trails (12,761): kept as a published copy layer and listed in Studio (D-061), for the owner to confirm.
 - Census blocks (137,972).
 - Lighthouses and county seats.
+
+## Added 2026-10-03 (D-091, D-094): drafts awaiting license review (O-14)
+
+The recipes in `catalog/layers/` are the record. All are live, sliced by `intersects`, and boundary-like (`target`).
+
+| Layer | Source | Records | Notes |
+| --- | --- | --- | --- |
+| Aquatic life use, 2024 assessment | NJDEP `2024_General_Aquatic_Life_Use_Unit_Assessment_h/FeatureServer/72` | 958 | A series with the 2022 assessment: the Changes tool compares them (D-091) |
+| Aquatic life use, 2022 assessment | NJDEP `2022_General_Aquatic_Life_Use_Unit_Assessment/FeatureServer/72` | 958 | Its key is `HUC14`, which holds the 2024 unit IDs |
+| Recreation use, 2024 assessment | NJDEP `2024_Primary_Recreation_Unit_Assessment_h/FeatureServer/74` | 958 | Series with 2022 (E. coli, enterococcus, beach closures) |
+| Recreation use, 2022 assessment | NJDEP `2022_Primary_Recreation_Unit_Assessment/FeatureServer/74` | 958 | |
+| Stormwater-related impairments, 2022 list | NJDEP `2020_NJDEP_Stormwater_303d_List_Impairments_for_New_Jersey_HUC14s/FeatureServer/106`, with table 107 joined by HUC14 | 958 (721 listed) | NJDEP's layer for MS4 permittees |
+| TMDLs for streams | NJDEP `Envr_mon_TMDL_streamshed/FeatureServer/0` | 841 | Urban and agricultural runoff reductions as percents (`share_to_percent`) |
+| TMDLs for lakes | NJDEP `Envr_mon_TMDL_lakeshed/FeatureServer/0` | 118 | |
+| TMDLs for shellfish waters | NJDEP `Total_Maximum_Daily_Loads_TMDL_for_Shellfish_Impaired_Waters_in_New_Jersey/FeatureServer/113` | 443 | |
+| HUD qualified census tracts, 2026 | HUD `QUALIFIED_CENSUS_TRACTS_2026/FeatureServer/0`, `STATE = '34'` | 272 | |
+| HUD difficult development areas, 2026 | HUD `Difficult_Development_Areas_2026/FeatureServer/0`, ZIP areas 07 and 08 | 162 | ZIP areas do not follow town lines |
+| Low and moderate income areas (HUD) | HUD `LOW_MOD_INCOME_BY_BG/FeatureServer/0`, `State = '34'` | 6,599 | CDBG area benefit; percents with margins of error |
+| National Risk Index (FEMA) | FEMA `National_Risk_Index_Census_Tracts/FeatureServer/0`, `STATEABBRV = 'NJ'` | 2,175 | December 2025 (1.20.0) |

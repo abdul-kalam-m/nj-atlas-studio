@@ -1,0 +1,58 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_difficult_development_areas",
+  "title": "HUD difficult development areas, 2026",
+  "category": "community",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "zip code area", "plural": "zip code areas"},
+  "summary": "ZIP code areas HUD designates for 2026 as Difficult Development Areas under the Low-Income Housing Tax Credit, where construction, land and utility costs are high for the area's income.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/Difficult_Development_Areas_2026/FeatureServer/0",
+    "where": "(ZCTA5 LIKE '07%' OR ZCTA5 LIKE '08%')",
+    "id_field": "OBJECTID",
+    "publisher": "U.S. Department of Housing and Urban Development (HUD)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=87d645f216024a07936c0f8bb0f20366",
+    "expected_count": {"min": 150, "max": 175}
+  },
+  "license": {
+    "name": "U.S. Government work; HUD eGIS terms of use",
+    "url": "https://www.arcgis.com/home/item.html?id=87d645f216024a07936c0f8bb0f20366",
+    "attribution": "U.S. Department of Housing and Urban Development (HUD)",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "ZCTA5", "name": "zip", "label": "ZIP code area", "type": "text", "filter": "search", "popup": true},
+    {"source": "DDA_NAME", "name": "metro_area", "label": "HUD metro area", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "DDA_TYPE", "name": "dda_type", "label": "Kind", "type": "category", "filter": "checklist", "popup": true,
+     "value_labels": {"SA": "Small area in a metro area", "NM": "Nonmetropolitan county"}}
+  ],
+  "label_field": "zip",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "by_metro": {"label": "By HUD metro area", "kind": "categories", "field": "metro_area", "palette": "okabe_ito", "opacity": 0.45, "outline": "#5B6770"},
+    "fill": {"label": "Fill", "kind": "single", "color": "#B7791F", "opacity": 0.4, "outline": "#8A5A12"}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Difficult development areas, 2026"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["metro_area"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "HUD's 2026 Difficult Development Areas, drawn on ZIP Code Tabulation Areas, which do not follow town lines.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "New Jersey's difficult development areas", "where": "(ZCTA5 LIKE '07%' OR ZCTA5 LIKE '08%')", "expected": {"min": 150, "max": 175}}
+  ],
+  "examples": [
+    {"label": "Difficult development areas in Hudson County", "place": {"county_fips": "017"}, "conditions": []},
+    {"label": "In the Newark HUD metro area", "conditions": [{"field": "metro_area", "op": "in", "values": ["Newark, NJ HUD Metro FMR Area"]}]}
+  ]
+}

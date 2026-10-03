@@ -89,3 +89,26 @@ def test_lookup_rules():
     bad = json.loads(json.dumps(recipe))
     del bad["fields"][2]["lookup"], bad["fields"][4]["lookup"]
     assert any("duplicate source field" in problem for problem in validate(bad, load_schema(ROOT), "nj_soils"))
+
+
+def test_stormwater_listings_cover_every_subwatershed_in_plain_words():
+    from pipeline.lookups import STORMWATER_COLUMNS, stormwater_rows
+    rows = stormwater_rows(["A", "B", "C"], [
+        ("A", "PHOSPHORUS, TOTAL", "Aquatic Life"), ("A", "ESCHERICHIA COLI (E. COLI)", "Recreation.Primary"),
+        ("A", "PHOSPHORUS, TOTAL", "Aquatic Life, Aquatic Life Trout"), ("B", "SOMETHING NEW", " "), ("Z", "PH", "Shellfish"),
+        ("C", " ", "Aquatic Life")])
+    assert STORMWATER_COLUMNS == ["impairments", "uses", "listed", "listings"]
+    assert rows["A"] == ["E. coli; Total phosphorus", "Aquatic life; Primary recreation; Trout aquatic life", "Listed", "2"]
+    assert rows["B"] == ["SOMETHING NEW", None, "Listed", "1"]
+    assert rows["C"] == [None, None, "Not listed", "0"]
+    assert "Z" not in rows  # only the layer's own subwatersheds
+
+
+def test_the_stormwater_table_joins_the_layer_by_huc14():
+    recipe = json.loads((ROOT / "catalog" / "layers" / "nj_stormwater_impairments.json").read_text(encoding="utf-8"))
+    assert lookup_errors(ROOT, recipe) == []
+    table = load_lookup(ROOT, "nj_stormwater_303d")
+    assert table["key"] == "HUC14" and table["source"]["keys"] >= 940
+    entry = studio_entry(recipe, None, {}, False, ROOT)
+    listed = next(f for f in entry["fields"] if f["name"] == "listed")
+    assert set(listed["value_labels"].values()) == {"Listed", "Not listed"}

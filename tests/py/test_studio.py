@@ -99,3 +99,50 @@ def test_the_real_core_list_and_templates_name_published_layers():
     for key, template in templates.items():
         if key != "description":
             assert len(template["layers"]) <= 8 and set(template.get("targets", [])) <= {layer["id"] for layer in template["layers"]}
+
+
+def write_kits(root, kits):
+    (root / "catalog" / "kits.json").write_text(json.dumps({"description": "test", **kits}), encoding="utf-8")
+
+
+def test_a_kit_drops_an_optional_layer_and_its_charts_and_waits_for_a_required_one(studio_atlas):
+    write_kits(studio_atlas, {
+        "both": {"title": "B", "summary": "s", "layers": [{"id": "nj_parcels", "preset": "outline"},
+                                                        {"id": "nj_wetlands", "preset": "fill", "optional": True}],
+                 "charts": [{"layer": "nj_wetlands", "type": "bar", "field": "wetland_type"}], "page": "side"},
+        "needs": {"title": "N", "summary": "s", "layers": [{"id": "nj_wetlands", "preset": "fill"}]}})
+    from pipeline.studio import studio_templates
+    notes = []
+    kits = studio_templates(studio_atlas, {"nj_parcels"}, notes, "kits.json")
+    assert list(kits) == ["both"]
+    assert [item["id"] for item in kits["both"]["layers"]] == ["nj_parcels"] and kits["both"]["charts"] == []
+    assert any("needs left out" in note for note in notes)
+    full = build_studio_catalog(studio_atlas, include_drafts=True)["kits"]
+    assert set(full) == {"both", "needs"} and full["both"]["charts"][0]["layer"] == "nj_wetlands"
+
+
+def test_a_wrong_kit_stops_the_build(studio_atlas):
+    from pipeline.studio import template_errors
+    from pipeline.recipes import load_recipes
+    recipes = {r["id"]: r for r in load_recipes(studio_atlas)}
+    good = {"layers": [{"id": "nj_parcels", "preset": "outline"}], "charts": [], "page": "side"}
+    assert template_errors("k", good, recipes) == []
+    assert any("no style" in e for e in template_errors("k", {**good, "layers": [{"id": "nj_parcels", "preset": "nope"}]}, recipes))
+    chart = {"layer": "nj_wetlands", "type": "bar", "field": "x"}
+    assert any("does not add" in e for e in template_errors("k", {**good, "charts": [chart]}, recipes))
+    four = [{"layer": "nj_parcels", "type": "bar", "field": "property_class"}] * 4
+    assert any("holds 3" in e for e in template_errors("k", {**good, "charts": four}, recipes))
+    write_kits(studio_atlas, {"bad": {**good, "title": "t", "summary": "s", "compare": "nj_parcels"}})
+    with pytest.raises(CatalogError, match="compare"):
+        build_studio_catalog(studio_atlas, include_drafts=True)
+
+
+def test_the_real_kits_and_calendar_build():
+    from pipeline.studio import studio_templates
+    from pipeline.recipes import load_recipes
+    everything = {r["id"] for r in load_recipes(ROOT)}
+    published = {r["id"] for r in load_recipes(ROOT) if r["status"] == "published"}
+    assert set(studio_templates(ROOT, everything, [], "kits.json")) == {"ms4_watershed", "hazard_mitigation", "grant_project_area"}
+    released = studio_templates(ROOT, published, [], "kits.json")
+    for kit in released.values():
+        assert all(item["id"] in published for item in kit["layers"])

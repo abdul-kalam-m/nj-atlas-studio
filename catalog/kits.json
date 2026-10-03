@@ -1,0 +1,67 @@
+{
+  "description": "Kits (D-092): a template that sets up a deliverable, not only a layer stack: its layers and presets (top first), its charts and page, a methods note for the print, and, for a series, the Changes tool. A layer marked optional is dropped, with its charts, from a build that lacks it (a draft awaiting review); without a required layer the kit is left out. Deadlines link to kits from catalog/deadlines/deadlines.json. Screening, not a regulatory determination (D-041): nothing here is named or designed as a filing.",
+  "ms4_watershed": {
+    "title": "MS4 watershed review",
+    "summary": "Stormwater-related listings, aquatic life assessments and TMDLs for the area's subwatersheds, with its outfalls; charts beside the map, and what changed since the 2022 assessment.",
+    "layers": [
+      {"id": "nj_ms4_outfalls", "preset": "points"},
+      {"id": "nj_tmdl_streamsheds", "preset": "outline"},
+      {"id": "nj_aquatic_life_2024", "preset": "outline"},
+      {"id": "nj_stormwater_impairments", "preset": "by_count"},
+      {"id": "nj_tmdl_lakesheds", "preset": "outline", "optional": true},
+      {"id": "nj_overburdened_communities", "preset": "fill", "visible": false}
+    ],
+    "charts": [
+      {"layer": "nj_stormwater_impairments", "type": "donut", "field": "listed", "title": "Subwatersheds on the stormwater list"},
+      {"layer": "nj_aquatic_life_2024", "type": "donut", "field": "use_status", "title": "Aquatic life use, 2024"},
+      {"layer": "nj_tmdl_streamsheds", "type": "bar", "field": "parameter", "title": "Stream TMDLs by pollutant"}
+    ],
+    "page": "side",
+    "compare": "nj_aquatic_life_2024",
+    "notes": "Methods: subwatersheds (HUC14) touching the area, from NJDEP's final 2022 303(d) list filtered by NJDEP to stormwater-related parameters; general aquatic life assessments by assessment unit from NJDEP's 2024 Integrated Water Quality Assessment, compared with 2022; TMDL areas from NJDEP. Counts are of whole units touching the area.",
+    "layout": {"paper": "letter", "orientation": "landscape"}
+  },
+  "hazard_mitigation": {
+    "title": "Hazard mitigation plan update",
+    "summary": "Flood zones and tidal flooding, hospitals, long-term care and schools, Overburdened Communities and, once reviewed, FEMA's National Risk Index by tract; charts beside the map.",
+    "layers": [
+      {"id": "nj_hospitals", "preset": "points"},
+      {"id": "nj_long_term_care", "preset": "points"},
+      {"id": "nj_schools", "preset": "points"},
+      {"id": "nj_flood_zones", "preset": "by_zone"},
+      {"id": "nj_tidal_flood_elevation", "preset": "by_zone", "visible": false},
+      {"id": "nj_national_risk_index", "preset": "risk", "optional": true},
+      {"id": "nj_overburdened_communities", "preset": "fill", "visible": false},
+      {"id": "nj_acs_tracts", "preset": "age_65", "visible": false}
+    ],
+    "charts": [
+      {"layer": "nj_national_risk_index", "type": "bar", "field": "risk", "title": "Tracts by overall risk"},
+      {"layer": "nj_national_risk_index", "type": "donut", "field": "vulnerability", "title": "Tracts by social vulnerability"},
+      {"layer": "nj_long_term_care", "type": "bar", "field": "facility_type", "title": "Long-term care by type"}
+    ],
+    "page": "side",
+    "notes": "Methods: facilities, flood zones and tracts touching the area, from the publishers credited below. National Risk Index ratings compare each tract with all U.S. tracts; they are a screening input to the plan's risk assessment, not a substitute for it.",
+    "layout": {"paper": "letter", "orientation": "landscape"}
+  },
+  "grant_project_area": {
+    "title": "Grant project area",
+    "summary": "The High Injury Network, schools and bus stops over tract poverty and Overburdened Communities, with HUD's low- and moderate-income areas and qualified tracts once reviewed; charts below the map.",
+    "layers": [
+      {"id": "nj_high_injury_network", "preset": "by_owner"},
+      {"id": "nj_schools", "preset": "points"},
+      {"id": "nj_bus_stops", "preset": "points", "visible": false},
+      {"id": "nj_qualified_census_tracts", "preset": "outline", "optional": true},
+      {"id": "nj_low_mod_income", "preset": "lowmod", "optional": true, "visible": false},
+      {"id": "nj_overburdened_communities", "preset": "fill", "visible": false},
+      {"id": "nj_acs_tracts", "preset": "poverty"}
+    ],
+    "charts": [
+      {"layer": "nj_high_injury_network", "type": "bar", "field": "owner", "title": "High Injury Network by road owner"},
+      {"layer": "nj_schools", "type": "bar", "field": "school_type", "title": "Schools by type"},
+      {"layer": "nj_acs_tracts", "type": "histogram", "field": "poverty_pct", "title": "Tracts by poverty rate"}
+    ],
+    "page": "bottom",
+    "notes": "Methods: features and tracts touching the area, from the publishers credited below. ACS figures are 2020-2024 5-year estimates with margins of error; check each program's own eligibility rules and maps.",
+    "layout": {"paper": "letter", "orientation": "landscape"}
+  }
+}

@@ -55,3 +55,13 @@ def test_remove_tree_deletes_read_only_files(tmp_path):
     release.remove_tree(tmp_path / "pages")
     assert not (tmp_path / "pages").exists()
 
+
+def test_a_release_publishes_the_health_file_checked_last():
+    older = '{"checked_at": "2026-09-27T19:58:27Z", "layers": {}}'
+    newer = '{"checked_at": "2026-10-02T12:34:39Z", "layers": {}}'
+    assert release.newer_health(older, newer) == newer
+    assert release.newer_health(newer, older) == newer
+    assert release.newer_health(older, None) == older
+    assert release.newer_health(None, newer) == newer
+    assert release.newer_health(older, "not json") == older
+    assert "calendar.json" in release.DATA_FILES

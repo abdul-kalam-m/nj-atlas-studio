@@ -1,0 +1,62 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_stormwater_impairments",
+  "title": "Stormwater-related impairments, 2022 list",
+  "category": "water",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "subwatershed", "plural": "subwatersheds"},
+  "summary": "Each subwatershed's listings on NJDEP's final 2022 303(d) list, filtered by NJDEP to the 18 parameters tied to stormwater run-on and run-off, as NJDEP publishes them for MS4 permittees.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/2020_NJDEP_Stormwater_303d_List_Impairments_for_New_Jersey_HUC14s/FeatureServer/106",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=0feb58f7b6d24e6eb04c20d70ae6006d",
+    "expected_count": {"min": 940, "max": 975}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=0feb58f7b6d24e6eb04c20d70ae6006d",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "AU_NAME", "name": "name", "label": "Subwatershed", "type": "text", "filter": "search", "popup": true},
+    {"source": "HUC14", "name": "huc14", "label": "HUC14", "type": "text", "filter": "none", "popup": true},
+    {"source": "HUC14", "name": "impairments", "label": "Stormwater-related listings", "type": "text", "filter": "search", "popup": true, "lookup": {"table": "nj_stormwater_303d", "column": "impairments"}},
+    {"source": "HUC14", "name": "uses", "label": "Uses impaired", "type": "text", "filter": "none", "popup": true, "lookup": {"table": "nj_stormwater_303d", "column": "uses"}},
+    {"source": "HUC14", "name": "listed", "label": "On the list", "type": "category", "filter": "checklist", "popup": false, "lookup": {"table": "nj_stormwater_303d", "column": "listed"}},
+    {"source": "HUC14", "name": "listings", "label": "Parameters listed", "type": "category", "filter": "checklist", "popup": true, "lookup": {"table": "nj_stormwater_303d", "column": "listings"}},
+    {"source": "WMA_NAME", "name": "wma", "label": "Watershed management area", "type": "category", "filter": "checklist", "popup": true, "value_labels": {" ": null}}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "by_count": {"label": "Parameters listed", "kind": "categories", "field": "listings", "colors": {"0": "#F2F2F2", "1": "#FCBBA1", "2": "#FC9272", "3": "#FB6A4A", "4": "#EF3B2C", "5": "#CB181D", "6": "#A50F15", "7": "#67000D"}, "opacity": 0.65, "outline": "#5B6770"},
+    "listed": {"label": "On the list", "kind": "categories", "field": "listed", "colors": {"Listed": "#C0392B", "Not listed": "#E8EEF2"}, "opacity": 0.55, "outline": "#5B6770"},
+    "outline": {"label": "Outline", "kind": "single", "color": "#1F78B4", "fill": false, "width": 1.5, "labels": {"field": "name", "size": 11}}
+  },
+  "default_style": "by_count",
+  "legend": {"title": "Stormwater-related listings, 2022"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["impairments"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "NJDEP's final 2022 303(d) list, filtered by NJDEP to stormwater-related parameters, by subwatershed (HUC14). The 2024 list and any TMDL change what a plan must address; check NJDEP's current Integrated Report.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "Every subwatershed", "where": "1=1", "expected": {"min": 940, "max": 975}}
+  ],
+  "examples": [
+    {"label": "Listed for total phosphorus", "conditions": [{"field": "impairments", "op": "contains", "value": "phosphorus"}]},
+    {"label": "Three or more listings in Bergen County", "place": {"county_fips": "003"}, "conditions": [{"field": "listings", "op": "in", "values": ["3", "4", "5", "6", "7"]}]}
+  ]
+}

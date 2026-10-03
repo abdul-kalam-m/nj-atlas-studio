@@ -1,0 +1,58 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_low_mod_income",
+  "title": "Low and moderate income areas (HUD)",
+  "category": "community",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "block group", "plural": "block groups"},
+  "summary": "HUD's share of low- and moderate-income residents in each block group, the figure CDBG uses for area-benefit activities, from the 2016-2020 American Community Survey.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/LOW_MOD_INCOME_BY_BG/FeatureServer/0",
+    "where": "State = '34'",
+    "id_field": "OBJECTID",
+    "publisher": "U.S. Department of Housing and Urban Development (HUD)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=09eceb08d95d429dae9f88fe39826bf1",
+    "expected_count": {"min": 6550, "max": 6650}
+  },
+  "license": {
+    "name": "U.S. Government work; HUD eGIS terms of use",
+    "url": "https://www.arcgis.com/home/item.html?id=09eceb08d95d429dae9f88fe39826bf1",
+    "attribution": "U.S. Department of Housing and Urban Development (HUD)",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "geoname", "name": "name", "label": "Block group", "type": "text", "filter": "search", "popup": true},
+    {"source": "GEOID", "name": "bg_id", "label": "Block group GEOID", "type": "text", "filter": "none", "popup": true},
+    {"source": "Lowmod_pct", "name": "lowmod_pct", "label": "Low and moderate income", "type": "number", "filter": "range", "popup": true, "unit": "%", "decimals": 1, "transform": "share_to_percent"},
+    {"source": "MOE_LOWMOD_PCT", "name": "moe", "label": "Margin of error", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 10,
+  "styles": {
+    "lowmod": {"label": "Low and moderate income", "kind": "graduated", "field": "lowmod_pct", "classes": 4, "method": "quantile", "breaks": [30, 51, 70], "palette": "purples", "opacity": 0.6},
+    "outline": {"label": "Outline", "kind": "single", "color": "#6A51A3", "fill": false, "width": 1}
+  },
+  "default_style": "lowmod",
+  "legend": {"title": "Low and moderate income (HUD)"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["lowmod_pct"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "HUD low- and moderate-income summary data, 2016-2020 ACS. CDBG area-benefit activities generally need 51% or more; HUD sets a lower threshold for some grantees, and estimates carry the margin of error shown.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "New Jersey's block groups", "where": "State = '34'", "expected": {"min": 6550, "max": 6650}}
+  ],
+  "examples": [
+    {"label": "51% or more low and moderate income", "conditions": [{"field": "lowmod_pct", "op": "range", "min": 51, "max": null}]},
+    {"label": "51% or more in Trenton", "place": {"county_fips": "021", "mun_code": "1111"}, "conditions": [{"field": "lowmod_pct", "op": "range", "min": 51, "max": null}]}
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_tmdl_streamsheds",
+  "title": "TMDLs for streams",
+  "category": "water",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "load reduction area", "plural": "load reduction areas"},
+  "summary": "Stream drainage areas covered by an adopted or established Total Maximum Daily Load, with the pollutant and the reduction it sets for urban and agricultural runoff.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Envr_mon_TMDL_streamshed/FeatureServer/0",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=d5b995fed02542da800e4db8f8440a15",
+    "expected_count": {"min": 820, "max": 860}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=d5b995fed02542da800e4db8f8440a15",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "SITE_NAME", "name": "name", "label": "Water", "type": "text", "filter": "search", "popup": true},
+    {"source": "PARAMETER", "name": "parameter", "label": "Pollutant", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "TMDL_TITLE", "name": "tmdl", "label": "TMDL", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "TMDL_DATE", "name": "year", "label": "Year", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "STATUS", "name": "status", "label": "Status", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "FINAL_URB_NPS", "name": "urban_reduction", "label": "Urban runoff reduction", "type": "number", "filter": "range", "popup": true, "unit": "%", "decimals": 0, "transform": "share_to_percent"},
+    {"source": "FINAL_AG_NPS", "name": "farm_reduction", "label": "Agricultural runoff reduction", "type": "number", "filter": "range", "popup": true, "unit": "%", "decimals": 0, "transform": "share_to_percent"},
+    {"source": "NJDEPLINK", "name": "document", "label": "TMDL document", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "by_pollutant": {"label": "By pollutant", "kind": "categories", "field": "parameter", "palette": "okabe_ito", "opacity": 0.5, "outline": "#5B6770"},
+    "urban_reduction": {"label": "Urban runoff reduction", "kind": "graduated", "field": "urban_reduction", "classes": 4, "method": "quantile", "breaks": [25, 50, 75], "palette": "reds", "opacity": 0.6},
+    "outline": {"label": "Outline", "kind": "single", "color": "#1F78B4", "fill": false, "width": 1.5}
+  },
+  "default_style": "by_pollutant",
+  "legend": {"title": "Stream TMDLs"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["parameter", "urban_reduction"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "NJDEP's TMDL areas. Reductions are the TMDL's share of the load to remove; the TMDL document sets the allocations an MS4 plan addresses.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "Every stream TMDL area", "where": "1=1", "expected": {"min": 820, "max": 860}},
+    {"label": "Phosphorus TMDL areas", "where": "PARAMETER = 'Total Phosphorus'", "expected": {"min": 1, "max": 860}}
+  ],
+  "examples": [
+    {"label": "Phosphorus TMDLs", "conditions": [{"field": "parameter", "op": "in", "values": ["Total Phosphorus"]}]},
+    {"label": "Urban runoff reduction of 50% or more", "conditions": [{"field": "urban_reduction", "op": "range", "min": 50, "max": null}]}
+  ]
+}

@@ -152,3 +152,11 @@ A hybrid layer (`access: hybrid`) ships a map copy only: `python -m pipeline bui
 - `buffer_role: target` for a **boundary layer**: administrative, political, statistical or hydrologic units and designations drawn on them (categories `boundaries` and `government`, subwatersheds, overburdened communities, tax blocks). It can be listed inside a screening but never buffered. `pipeline validate` enforces this; a new boundary-like layer outside those categories goes into `BOUNDARY_LAYERS` in `pipeline/recipes.py`.
 - Either way, `list_fields` is required (the screening list).
 
+## Series: two cycles of one assessment (D-091)
+
+When a publisher issues each cycle as its own layer (NJDEP's Integrated Report assessments), write one recipe per cycle
+with the same output names, and give the later one a `compare` block: `label`, `with` (the earlier recipe), `key` (the
+output field that names a unit in both), `fields`, `flag` (the displayed value that is a finding) and the cycles'
+names. `validate` checks both recipes. Before publishing, confirm the key joins at the source:
+`.venv\Scripts\python -m pytest -m network tests/py/test_series.py` (NJDEP renumbered its units between 2022 and 2024;
+the 2022 recipes read the key from `HUC14`). Shares stored as 0 to 1 take `transform: share_to_percent`.

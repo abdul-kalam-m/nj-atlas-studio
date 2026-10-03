@@ -1,0 +1,62 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_recreation_2022",
+  "title": "Recreation use, 2022 assessment",
+  "category": "water",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "assessment unit", "plural": "assessment units"},
+  "summary": "Whether each assessment unit's waters supported swimming and other primary contact recreation in NJDEP's 2022 Integrated Water Quality Assessment, the cycle before 2024, overall and for E. coli and enterococcus.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/2022_Primary_Recreation_Unit_Assessment/FeatureServer/74",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=0dc6d70377494942a0ad532bd428ec7f",
+    "expected_count": {"min": 940, "max": 975}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=0dc6d70377494942a0ad532bd428ec7f",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "AU_NAME", "name": "name", "label": "Assessment unit", "type": "text", "filter": "search", "popup": true},
+    {"source": "HUC14", "name": "au_id", "label": "Assessment unit ID", "type": "text", "filter": "none", "popup": true},
+    {"source": "PRIMARY_RECREATION", "name": "use_status", "label": "Primary recreation use", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "E_COLI", "name": "e_coli", "label": "E. coli", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "ENTEROCOCCUS", "name": "enterococcus", "label": "Enterococcus", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "BEACH_CLOSURES", "name": "beach_closures", "label": "Beach closures", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "by_use": {"label": "Primary recreation use", "kind": "categories", "field": "use_status", "colors": {"Not attaining": "#C0392B", "Insufficient data": "#BDBDBD", "Attaining": "#2E7D4F"}, "opacity": 0.55, "outline": "#5B6770"},
+    "e_coli": {"label": "E. coli", "kind": "categories", "field": "e_coli", "colors": {"Not attaining": "#C0392B", "Insufficient data": "#BDBDBD", "Attaining": "#2E7D4F"}, "opacity": 0.55, "outline": "#5B6770"},
+    "enterococcus": {"label": "Enterococcus", "kind": "categories", "field": "enterococcus", "colors": {"Not attaining": "#C0392B", "Insufficient data": "#BDBDBD", "Attaining": "#2E7D4F"}, "opacity": 0.55, "outline": "#5B6770"},
+    "outline": {"label": "Outline", "kind": "single", "color": "#1F78B4", "fill": false, "width": 1.5, "labels": {"field": "name", "size": 11}}
+  },
+  "default_style": "by_use",
+  "legend": {"title": "Primary recreation, 2022"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["use_status"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "NJDEP 2022 Integrated Water Quality Assessment, primary contact recreation use, by assessment unit; the 2024 assessment is newer. NJDEP's Integrated Report decides listings and their categories.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "Every assessment unit", "where": "1=1", "expected": {"min": 940, "max": 975}}
+  ],
+  "examples": [
+    {"label": "Not attaining for E. coli", "conditions": [{"field": "e_coli", "op": "in", "values": ["Not attaining"]}]},
+    {"label": "Not attaining recreation use in Monmouth County", "place": {"county_fips": "025"}, "conditions": [{"field": "use_status", "op": "in", "values": ["Not attaining"]}]}
+  ]
+}

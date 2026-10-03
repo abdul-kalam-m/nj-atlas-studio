@@ -208,6 +208,8 @@ Keep today's modules: `places.js`, `filters.js`, `format.js`, `csv.js`, `data.js
 | `search.js`* | The slower address search: typed address to house number, street and place (D-048) |
 | `panels.js` | The five tabs (D-068; Layout, D-089), the layer list and properties panel (D-070), dialogs, legend, table |
 | `layoutgeom.js` | Page templates: where the map and the charts sit in the map frame (D-089) |
+| `compare.js` | Changes between two cycles of a series: new, gone and in both, per unit and field (D-091) |
+| `calendar.js` | The area's deadlines from `calendar.json` and the map's own dates; the `.ics` file (D-093) |
 | `screening.js` | Site screening: draw the ring (turf), run distance queries per target, build the results list (called `buffer.js` before D-076) |
 | `buffer.js`* | Buffer layers (D-076): the recipe's defaults, names, limits, map layer specs, legend rows and download |
 | `geoprocess.js`* | The buffer step: shapes onto State Plane, JSTS buffers, dissolve in chunks, back to longitude and latitude (D-075) |
@@ -472,6 +474,7 @@ Each preset has a `label` (its name in the Style panel) and a `kind`. The schema
 ### 4.9 Print and PNG
 
 - **Paper:** letter (8.5 × 11 in) and tabloid (11 × 17 in), portrait and landscape, with 0.4 in margins.
+- **Fit (D-094):** once a layout is on the page, its side column (legend, labels, notes, credits) is scaled down, to no less than 55%, until the page ends on its paper; the PNG lays its side column out first and shrinks it the same way, so the credits are never cut off. Mandatory labels are boxed; other notes are a compact list.
 - **Page templates (D-089, the Layout tab):** Map only, Charts beside the map, Charts below the map, and Map and chart grid. A template shares the map frame between the map and up to 3 or 4 of the document's charts (`layout.template`, `layout.slots`); the paper, the frame's size and the side column do not change.
 - **Layout:** title and subtitle; the map frame; then, in a side column (landscape) or bottom strip (portrait):
   - the legend;

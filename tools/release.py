@@ -10,7 +10,8 @@ copy site/ into a brand-new git repository at build/pages with one commit. Nothi
 Studio (docs/studio/IMPLEMENTATION_GUIDE.md): only copy layers are rebuilt. Folders of hybrid layers (hours to
 rebuild) and parked split layers are kept when site/data is cleared, and never copied into build/pages; hybrid
 map copies are uploaded by the owner (tools/publish_tiles.py). build/pages gets the site plus an explicit list of
-data files: both catalogs, the area lists and outlines, health.json, release.json and the copy layers' folders.
+data files: both catalogs, the area lists and outlines, the calendar, health.json, release.json and the copy layers'
+folders. health.json is the newer of the local copy and the live site's, which the nightly check updates.
 """
 import argparse
 import json
@@ -100,7 +101,7 @@ def remove_tree(path: Path) -> None:
     shutil.rmtree(path, onexc=make_writable_and_retry)
 
 
-DATA_FILES = ("catalog.json", "places.json", "studio.json", "health.json", "release.json")
+DATA_FILES = ("catalog.json", "places.json", "studio.json", "calendar.json", "health.json", "release.json")
 DATA_FOLDERS = ("places", "outlines")
 
 
@@ -113,6 +114,43 @@ def pages_data(data: Path, copy_ids: set[str]) -> list[Path]:
     """The data paths published to GitHub Pages."""
     names = [*DATA_FILES, *DATA_FOLDERS, *sorted(copy_ids)]
     return [data / name for name in names if (data / name).exists()]
+
+
+def newer_health(local: str | None, live: str | None) -> str | None:
+    """The health file to publish: the one checked last. The nightly check commits health.json to gh-pages, and a
+    release must not put an older local copy back (found 2026-10-03)."""
+    def checked(text):
+        try:
+            return json.loads(text).get("checked_at") or ""
+        except (TypeError, ValueError, AttributeError):
+            return None
+    if checked(live) is None:
+        return local
+    if checked(local) is None:
+        return live
+    return live if checked(live) > checked(local) else local
+
+
+def live_health() -> str | None:
+    """gh-pages' data/health.json, or None when it cannot be read (offline, no remote)."""
+    fetched = subprocess.run(["git", "fetch", "-q", "origin", "gh-pages"], cwd=ROOT, capture_output=True, text=True)
+    if fetched.returncode != 0:
+        return None
+    shown = subprocess.run(["git", "show", "FETCH_HEAD:data/health.json"], cwd=ROOT, capture_output=True, text=True,
+                           encoding="utf-8")
+    return shown.stdout if shown.returncode == 0 else None
+
+
+def refresh_health(data: Path) -> None:
+    path = data / "health.json"
+    local = path.read_text(encoding="utf-8") if path.exists() else None
+    live = live_health()
+    keep = newer_health(local, live)
+    if keep is not None and keep != local:
+        path.write_text(keep, encoding="utf-8", newline="\n")
+        print("-> health.json: using the live site's, which is newer", flush=True)
+    elif live is None:
+        print("-> health.json: the live site's could not be read; keeping the local copy", flush=True)
 
 
 def prepare_pages(date: str, rehearsal: bool, copy_ids: set[str]) -> None:
@@ -147,6 +185,7 @@ def main(argv=None) -> int:
         copy_ids = {r["id"] for r in layers}
         large = kept_folders(data, copy_ids)
         clear_data(data, keep=large + ["health.json"])
+        refresh_health(data)
         drafts = ["--include-drafts"] if args.rehearsal else []
         run([py, "-m", "pipeline", "build", "--all", *drafts, *(["--refresh"] if args.refresh else [])], "build every layer")
         run([py, "-m", "pipeline", "catalog", *drafts, "--for-release"], "write catalog.json and places.json")

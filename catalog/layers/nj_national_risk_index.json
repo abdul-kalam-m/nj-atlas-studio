@@ -1,0 +1,76 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_national_risk_index",
+  "title": "National Risk Index (FEMA)",
+  "category": "hazards",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "census tract", "plural": "census tracts"},
+  "summary": "FEMA's National Risk Index by census tract: overall natural hazard risk, expected annual loss, social vulnerability, community resilience, and the risk from flooding, heat and hurricanes.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/XG15cJAlne2vxtgt/arcgis/rest/services/National_Risk_Index_Census_Tracts/FeatureServer/0",
+    "where": "STATEABBRV = 'NJ'",
+    "id_field": "OBJECTID",
+    "publisher": "Federal Emergency Management Agency (FEMA)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=9da4eeb936544335a6db0cd7a8448a51",
+    "expected_count": {"min": 2150, "max": 2200}
+  },
+  "license": {
+    "name": "FEMA terms and conditions for public data",
+    "url": "https://www.arcgis.com/home/item.html?id=9da4eeb936544335a6db0cd7a8448a51",
+    "attribution": "FEMA National Risk Index, version 1.20.0 (December 2025)",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "TRACTFIPS", "name": "tract_id", "label": "Census tract", "type": "text", "filter": "search", "popup": true},
+    {"source": "POPULATION", "name": "population", "label": "Population", "type": "number", "filter": "none", "popup": true, "decimals": 0},
+    {"source": "RISK_RATNG", "name": "risk", "label": "Overall risk", "type": "category", "filter": "checklist", "popup": true,
+     "value_labels": {"Insufficient Data": "Insufficient data", "No Rating": "No rating", "Not Applicable": "Not applicable", "None": null}},
+    {"source": "RISK_SCORE", "name": "risk_score", "label": "Risk score", "type": "number", "filter": "range", "popup": true, "decimals": 1},
+    {"source": "EAL_RATNG", "name": "loss", "label": "Expected annual loss", "type": "category", "filter": "none", "popup": true,
+     "value_labels": {"Insufficient Data": "Insufficient data", "No Rating": "No rating", "Not Applicable": "Not applicable", "None": null}},
+    {"source": "SOVI_RATNG", "name": "vulnerability", "label": "Social vulnerability", "type": "category", "filter": "checklist", "popup": true,
+     "value_labels": {"Insufficient Data": "Insufficient data", "No Rating": "No rating", "Not Applicable": "Not applicable", "None": null}},
+    {"source": "RESL_RATNG", "name": "resilience", "label": "Community resilience", "type": "category", "filter": "checklist", "popup": true,
+     "value_labels": {"Insufficient Data": "Insufficient data", "No Rating": "No rating", "Not Applicable": "Not applicable", "None": null}},
+    {"source": "CFLD_RISKR", "name": "coastal_flooding", "label": "Coastal flooding risk", "type": "category", "filter": "checklist", "popup": true,
+     "value_labels": {"Insufficient Data": "Insufficient data", "No Rating": "No rating", "Not Applicable": "Not applicable", "None": null}},
+    {"source": "IFLD_RISKR", "name": "inland_flooding", "label": "Inland flooding risk", "type": "category", "filter": "checklist", "popup": true,
+     "value_labels": {"Insufficient Data": "Insufficient data", "No Rating": "No rating", "Not Applicable": "Not applicable", "None": null}},
+    {"source": "HWAV_RISKR", "name": "heat", "label": "Heat wave risk", "type": "category", "filter": "checklist", "popup": true,
+     "value_labels": {"Insufficient Data": "Insufficient data", "No Rating": "No rating", "Not Applicable": "Not applicable", "None": null}},
+    {"source": "HRCN_RISKR", "name": "hurricane", "label": "Hurricane risk", "type": "category", "filter": "none", "popup": true,
+     "value_labels": {"Insufficient Data": "Insufficient data", "No Rating": "No rating", "Not Applicable": "Not applicable", "None": null}}
+  ],
+  "label_field": "tract_id",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 9,
+  "styles": {
+    "risk": {"label": "Overall risk", "kind": "categories", "field": "risk", "colors": {"Very High": "#99000D", "Relatively High": "#EF3B2C", "Relatively Moderate": "#FC9272", "Relatively Low": "#FEE0D2", "Very Low": "#F7F7F7"}, "opacity": 0.6, "outline": "#8A96A3"},
+    "vulnerability": {"label": "Social vulnerability", "kind": "categories", "field": "vulnerability", "colors": {"Very High": "#4A1486", "Relatively High": "#807DBA", "Relatively Moderate": "#BCBDDC", "Relatively Low": "#EFEDF5", "Very Low": "#FCFBFD"}, "opacity": 0.6, "outline": "#8A96A3"},
+    "coastal_flooding": {"label": "Coastal flooding risk", "kind": "categories", "field": "coastal_flooding", "colors": {"Very High": "#084594", "Relatively High": "#4292C6", "Relatively Moderate": "#9ECAE1", "Relatively Low": "#DEEBF7", "Very Low": "#F7FBFF"}, "opacity": 0.6, "outline": "#8A96A3"},
+    "inland_flooding": {"label": "Inland flooding risk", "kind": "categories", "field": "inland_flooding", "colors": {"Very High": "#084594", "Relatively High": "#4292C6", "Relatively Moderate": "#9ECAE1", "Relatively Low": "#DEEBF7", "Very Low": "#F7FBFF"}, "opacity": 0.6, "outline": "#8A96A3"},
+    "heat": {"label": "Heat wave risk", "kind": "categories", "field": "heat", "colors": {"Very High": "#8C2D04", "Relatively High": "#F16913", "Relatively Moderate": "#FDAE6B", "Relatively Low": "#FEE6CE", "Very Low": "#FFF5EB"}, "opacity": 0.6, "outline": "#8A96A3"}
+  },
+  "default_style": "risk",
+  "legend": {"title": "National Risk Index"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["risk", "vulnerability"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "FEMA National Risk Index, December 2025 (1.20.0). Ratings compare each tract with all U.S. tracts; they are a screening input to a hazard mitigation plan, not a substitute for its risk assessment.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "New Jersey's tracts", "where": "STATEABBRV = 'NJ'", "expected": {"min": 2150, "max": 2200}}
+  ],
+  "examples": [
+    {"label": "Very high social vulnerability", "conditions": [{"field": "vulnerability", "op": "in", "values": ["Very High"]}]},
+    {"label": "Relatively high or very high coastal flooding risk in Ocean County", "place": {"county_fips": "029"}, "conditions": [{"field": "coastal_flooding", "op": "in", "values": ["Relatively High", "Very High"]}]}
+  ]
+}

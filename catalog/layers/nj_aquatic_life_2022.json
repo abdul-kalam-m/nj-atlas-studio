@@ -1,0 +1,70 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_aquatic_life_2022",
+  "title": "Aquatic life use, 2022 assessment",
+  "category": "water",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "assessment unit", "plural": "assessment units"},
+  "summary": "Whether each assessment unit's waters supported general aquatic life in NJDEP's 2022 Integrated Water Quality Assessment, the cycle before 2024, overall and by parameter.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/2022_General_Aquatic_Life_Use_Unit_Assessment/FeatureServer/72",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=5cf33bebbc9b485baa2ecea08904c759",
+    "expected_count": {"min": 940, "max": 975}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=5cf33bebbc9b485baa2ecea08904c759",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "AU_NAME", "name": "name", "label": "Assessment unit", "type": "text", "filter": "search", "popup": true},
+    {"source": "HUC14", "name": "au_id", "label": "Assessment unit ID", "type": "text", "filter": "none", "popup": true},
+    {"source": "AQUATIC_LIFE_DESIGNATED_USE", "name": "use_status", "label": "Aquatic life use", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "TOTAL_PHOSPHORUS", "name": "phosphorus", "label": "Total phosphorus", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "TSS", "name": "tss", "label": "Total suspended solids", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "TEMPERATURE", "name": "temperature", "label": "Temperature", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "DISSOLVED_OXYGEN", "name": "oxygen", "label": "Dissolved oxygen", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "CHLORIDE", "name": "chloride", "label": "Chloride", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "BIOLOGICAL", "name": "biological", "label": "Biological (benthic)", "type": "category", "filter": "checklist", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "PH", "name": "ph", "label": "pH", "type": "category", "filter": "none", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "TURBIDITY", "name": "turbidity", "label": "Turbidity", "type": "category", "filter": "none", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}},
+    {"source": "UNIONIZED_AMMONIA", "name": "ammonia", "label": "Un-ionized ammonia", "type": "category", "filter": "none", "popup": true, "value_labels": {"Full Attain": "Attaining", "Non Attain": "Not attaining", "Insufficient Data": "Insufficient data", " ": null, "NA": "Not applicable"}}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "by_use": {"label": "Aquatic life use", "kind": "categories", "field": "use_status", "colors": {"Not attaining": "#C0392B", "Insufficient data": "#BDBDBD", "Attaining": "#2E7D4F"}, "opacity": 0.55, "outline": "#5B6770"},
+    "phosphorus": {"label": "Total phosphorus", "kind": "categories", "field": "phosphorus", "colors": {"Not attaining": "#C0392B", "Insufficient data": "#BDBDBD", "Attaining": "#2E7D4F"}, "opacity": 0.55, "outline": "#5B6770"},
+    "tss": {"label": "Total suspended solids", "kind": "categories", "field": "tss", "colors": {"Not attaining": "#C0392B", "Insufficient data": "#BDBDBD", "Attaining": "#2E7D4F"}, "opacity": 0.55, "outline": "#5B6770"},
+    "temperature": {"label": "Temperature", "kind": "categories", "field": "temperature", "colors": {"Not attaining": "#C0392B", "Insufficient data": "#BDBDBD", "Attaining": "#2E7D4F"}, "opacity": 0.55, "outline": "#5B6770"},
+    "chloride": {"label": "Chloride", "kind": "categories", "field": "chloride", "colors": {"Not attaining": "#C0392B", "Insufficient data": "#BDBDBD", "Attaining": "#2E7D4F"}, "opacity": 0.55, "outline": "#5B6770"},
+    "outline": {"label": "Outline", "kind": "single", "color": "#1F78B4", "fill": false, "width": 1.5, "labels": {"field": "name", "size": 11}}
+  },
+  "default_style": "by_use",
+  "legend": {"title": "Aquatic life use, 2022"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["use_status"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "NJDEP 2022 Integrated Water Quality Assessment, general aquatic life use, by assessment unit; the 2024 assessment is newer. NJDEP's Integrated Report decides listings and their categories.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "Every assessment unit", "where": "1=1", "expected": {"min": 940, "max": 975}}
+  ],
+  "examples": [
+    {"label": "Not attaining for phosphorus", "conditions": [{"field": "phosphorus", "op": "in", "values": ["Not attaining"]}]},
+    {"label": "Not attaining aquatic life use in Essex County", "place": {"county_fips": "013"}, "conditions": [{"field": "use_status", "op": "in", "values": ["Not attaining"]}]}
+  ]
+}

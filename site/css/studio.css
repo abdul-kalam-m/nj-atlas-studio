@@ -233,3 +233,34 @@ input[type="color"] { width: 48px; height: 32px; padding: 0; border: 1px solid v
 .ring-style { display: grid; gap: 6px; border-left: 3px solid var(--line); padding-left: 10px; margin-left: 4px; }
 .buffer-row { border-style: dashed; margin-left: 16px; }
 
+
+/* Section headings in a panel or dialog (kits and templates, deadlines) */
+.section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 14px 0 4px; }
+.kit-item { border-left: 3px solid var(--accent); }
+.kit-for { color: var(--accent); }
+
+/* Deadlines (D-093) */
+.deadline-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.deadline { display: grid; grid-template-columns: 7.2rem minmax(0, 1fr); align-items: start; gap: 8px; padding: 7px 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+.deadline.soon { border-left: 3px solid var(--draft); }
+.deadline.past { border-left: 3px solid var(--danger); }
+.deadline.local { border-style: dashed; }
+.deadline-date { display: grid; align-content: start; gap: 1px; font-variant-numeric: tabular-nums; font-size: 0.86rem; }
+.deadline-body { display: grid; gap: 2px; min-width: 0; }
+.deadline-title { font-weight: 600; font-size: 0.9rem; }
+.deadline-note { font-size: 0.78rem; }
+.deadline-links { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.82rem; }
+.deadline-status { margin: 0 0 6px; }
+.deadline-add summary { cursor: pointer; font-size: 0.86rem; color: var(--accent); margin: 6px 0; }
+.deadline-add .field.inline { align-items: end; }
+@media (max-width: 420px) { .deadline { grid-template-columns: 1fr; } }
+
+/* Changes (D-091) */
+.changes-summary { margin: 6px 0; font-size: 0.9rem; }
+.changes-group { border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); margin-top: 6px; }
+.changes-group summary { cursor: pointer; padding: 6px 8px; font-size: 0.86rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.changes-group .table-scroll { padding: 0 6px 6px; }
+.change-key { display: inline-block; width: 12px; height: 12px; border-radius: 2px; flex: 0 0 auto; }
+.changes-table { table-layout: fixed; }
+.changes-table td, .changes-table th { overflow-wrap: anywhere; vertical-align: top; }
+.changes-table th:nth-child(1) { width: 32%; } .changes-table th:nth-child(2) { width: 28%; }

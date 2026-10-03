@@ -28,6 +28,7 @@ LEVEL_BY_LAYER = {level["layer"]: level for level in LEVELS}
 TWINS = {"nj_acs_tracts": TRACT_LAYER, "nj_acs_block_groups": BLOCK_GROUP_LAYER}
 DATA_PLACE_TAGS = ("all", "all_by_district")  # every layer that is not a boundary level (D-023, D-026)
 DISTRICT_FIELD = "district_code"  # all_by_district: the layer's own 4-digit municipal code
+CENSUS_CODE_FIELD = "census_code"  # the municipalities' 10-digit Census county subdivision code (FEMA, D-093)
 
 # place_tags mode -> steps. Each step copies `columns` (names first, the code last) from a boundary layer, matched:
 #   point:   by the boundary area containing the item's representative point (D-006, D-019);

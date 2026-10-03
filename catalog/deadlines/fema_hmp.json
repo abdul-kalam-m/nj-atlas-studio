@@ -1,0 +1,4816 @@
+{
+ "description": "FEMA hazard mitigation plan statuses for New Jersey (D-093): for each county and town, the approved plan that covers it now (its approval and expiration dates, and the town's own status in it) and any update under way. Rebuilt with: python -m pipeline deadlines.",
+ "source": {
+  "publisher": "Federal Emergency Management Agency (FEMA), OpenFEMA",
+  "url": "https://www.fema.gov/api/open/v1/HazardMitigationPlanStatuses",
+  "page": "https://www.fema.gov/openfema-data-page/hazard-mitigation-plan-statuses-v1",
+  "queried_at": "2026-10-03T07:58:06Z",
+  "rows": 799,
+  "refreshed": "2026-09-08"
+ },
+ "counties": {
+  "001": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   },
+   "towns": 23,
+   "towns_not_approved": 0
+  },
+  "003": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 70,
+   "towns_not_approved": 0
+  },
+  "005": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 37,
+   "towns_not_approved": 0
+  },
+  "007": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   },
+   "towns": 34,
+   "towns_not_approved": 0
+  },
+  "009": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 16,
+   "towns_not_approved": 0
+  },
+  "011": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 14,
+   "towns_not_approved": 0
+  },
+  "013": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 22,
+   "towns_not_approved": 0
+  },
+  "015": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   },
+   "towns": 24,
+   "towns_not_approved": 0
+  },
+  "017": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 12,
+   "towns_not_approved": 0
+  },
+  "019": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   },
+   "towns": 26,
+   "towns_not_approved": 0
+  },
+  "021": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   },
+   "towns": 12,
+   "towns_not_approved": 0
+  },
+  "023": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   },
+   "towns": 25,
+   "towns_not_approved": 0
+  },
+  "025": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 53,
+   "towns_not_approved": 0
+  },
+  "027": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 39,
+   "towns_not_approved": 0
+  },
+  "029": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 33,
+   "towns_not_approved": 0
+  },
+  "031": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 16,
+   "towns_not_approved": 0
+  },
+  "033": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 15,
+   "towns_not_approved": 0
+  },
+  "035": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 21,
+   "towns_not_approved": 0
+  },
+  "037": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 24,
+   "towns_not_approved": 0
+  },
+  "039": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false,
+   "towns": 21,
+   "towns_not_approved": 0
+  },
+  "041": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   },
+   "towns": 22,
+   "towns_not_approved": 0
+  }
+ },
+ "municipalities": {
+  "0101": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0102": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0103": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0104": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0105": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0106": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0107": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0108": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0109": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0110": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0111": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0112": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0113": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0114": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0115": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0116": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0117": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0118": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0119": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0120": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0121": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0122": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0123": {
+   "plan": "Atlantic County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Atlantic County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0201": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0202": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0203": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0204": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0205": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0206": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0207": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0208": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0209": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0210": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0211": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0212": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0213": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0214": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0215": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0216": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0217": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0218": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0219": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0220": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0221": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0222": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0223": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0224": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0225": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0226": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0227": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0228": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0229": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0230": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0231": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0232": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0233": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0234": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0235": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0236": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0237": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0238": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0239": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0240": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0241": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0242": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0243": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0244": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0245": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0246": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0247": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0248": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0249": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0250": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0251": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0252": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0253": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0254": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0255": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0256": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0257": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0258": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0259": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0260": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0261": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0262": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0263": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0264": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0265": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0266": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0267": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0268": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0269": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0270": {
+   "plan": "Bergen County 2026",
+   "approved": "2026-05-11",
+   "expires": "2031-05-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0301": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0302": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0303": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0304": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0305": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0306": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0307": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0308": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0309": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0310": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0311": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0312": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0313": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0315": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0316": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0317": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0318": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0319": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0320": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0321": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0322": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0324": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0325": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0326": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0327": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0328": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0329": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0330": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0331": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0332": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0333": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0334": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0335": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0336": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0338": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0339": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0340": {
+   "plan": "Burlington County 2024",
+   "approved": "2024-11-22",
+   "expires": "2029-11-21",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0401": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0402": {
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0403": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0404": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0405": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0406": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0407": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0408": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0409": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0410": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0411": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0412": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0413": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0414": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0415": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0416": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0417": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0418": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0419": {
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0420": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0421": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0422": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0423": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0424": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0425": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0426": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0427": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0428": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0430": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0431": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0432": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0433": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0434": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0435": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0436": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0437": {
+   "plan": "Camden County 2022",
+   "approved": "2022-03-07",
+   "expires": "2027-03-06",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Camden County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0501": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0502": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0503": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0504": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0505": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0506": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0507": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0508": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0509": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0510": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0511": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0512": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0513": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0514": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0515": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0516": {
+   "plan": "Cape May County 2025",
+   "approved": "2026-02-03",
+   "expires": "2031-02-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0601": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0602": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0603": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0604": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0605": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0606": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0607": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0608": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0609": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0610": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0611": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0612": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0613": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0614": {
+   "plan": "Cumberland County 2022",
+   "approved": "2022-10-25",
+   "expires": "2027-10-24",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0701": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0702": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0703": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0704": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0705": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0706": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0707": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0708": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0709": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0710": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0711": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0712": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0713": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0714": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0715": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0716": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0717": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0718": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0719": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0720": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0721": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0722": {
+   "plan": "Essex County 2025",
+   "approved": "2025-04-28",
+   "expires": "2030-04-27",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0801": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0802": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0803": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0804": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0805": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0806": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0807": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0808": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0809": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0810": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0811": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0812": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0813": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0814": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0815": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0816": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0817": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0818": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0819": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0820": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0821": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0822": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0823": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0824": {
+   "plan": "Gloucester County 2022",
+   "approved": "2022-08-26",
+   "expires": "2027-08-25",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Gloucester County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "0901": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0902": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0903": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0904": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0905": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0906": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0907": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0908": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0909": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0910": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0911": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "0912": {
+   "plan": "Hudson County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1001": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1002": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1003": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1004": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1005": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1006": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1007": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1008": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1009": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1010": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1011": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1012": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1013": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1014": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1015": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1016": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1017": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1018": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1019": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1020": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1021": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1022": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1023": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1024": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1025": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1026": {
+   "plan": "Hunterdon County 2022",
+   "approved": "2022-02-16",
+   "expires": "2027-02-15",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Hunterdon County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1101": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1102": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1103": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1104": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1105": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1106": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1107": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1108": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1111": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1112": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1113": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1114": {
+   "plan": "Mercer County 2021",
+   "approved": "2021-12-10",
+   "expires": "2026-12-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Mercer County 2026",
+    "status": "Plan in Progress"
+   }
+  },
+  "1201": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1202": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1203": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1204": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1205": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1206": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1207": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1208": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1209": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1210": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1211": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1212": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1213": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1214": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1215": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1216": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1217": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1218": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1219": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1220": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1221": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1222": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1223": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1224": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1225": {
+   "plan": "Middlesex County 2022",
+   "approved": "2022-01-27",
+   "expires": "2027-01-26",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Middlesex County 2027",
+    "status": "Plan in Progress"
+   }
+  },
+  "1301": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1302": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1303": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1304": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1305": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1306": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1307": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1308": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1309": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1310": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1311": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1312": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1313": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1314": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1315": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1316": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1317": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1318": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1319": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1320": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1321": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1322": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1323": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1324": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1325": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1326": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1327": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1328": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1329": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1330": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1331": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1332": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1333": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1334": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1335": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1336": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1337": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1338": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1339": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1340": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1341": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1342": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1343": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1344": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1345": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1346": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1347": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1348": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1349": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1350": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1351": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1352": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1353": {
+   "plan": "Monmouth County 2026",
+   "approved": "2025-10-27",
+   "expires": "2030-10-26",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1401": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1402": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1403": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1404": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1405": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1406": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1407": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1408": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1409": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1410": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1411": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1412": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1413": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1414": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1415": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1416": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1417": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1418": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1419": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1420": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1421": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1422": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1423": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1424": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1425": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1426": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1427": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1428": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1429": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1430": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1431": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1432": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1433": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1434": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1435": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1436": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1437": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1438": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1439": {
+   "plan": "Morris County 2025",
+   "approved": "2025-09-29",
+   "expires": "2030-09-28",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1501": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1502": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1503": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1504": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1505": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1506": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1507": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1508": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1509": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1510": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1511": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1512": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1513": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1514": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1515": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1516": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1517": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1518": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1519": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1520": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1521": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1522": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1523": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1524": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1525": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1526": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1527": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1528": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1529": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1530": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1531": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1532": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1533": {
+   "plan": "Ocean County 2025",
+   "approved": "2025-05-19",
+   "expires": "2030-05-18",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1601": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1602": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1603": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1604": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1605": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1606": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1607": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1608": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1609": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1610": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1611": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1612": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1613": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1614": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1615": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1616": {
+   "plan": "Passaic County 2025",
+   "approved": "2025-08-07",
+   "expires": "2030-08-06",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1701": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1702": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1703": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1704": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1705": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1706": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1707": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1708": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1709": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1710": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1711": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1712": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1713": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1714": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1715": {
+   "plan": "Salem County 2024",
+   "approved": "2025-04-11",
+   "expires": "2030-04-10",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1801": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1802": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1803": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1804": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1805": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1806": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1807": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1808": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1809": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1810": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1811": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1812": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1813": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1814": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1815": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1816": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1817": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1818": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1819": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1820": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1821": {
+   "plan": "Somerset County 2025",
+   "approved": "2025-06-03",
+   "expires": "2030-06-02",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1901": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1902": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1903": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1904": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1905": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1906": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1907": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1908": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1909": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1910": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1911": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1912": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1913": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1914": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1915": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1916": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1917": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1918": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1919": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1920": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1921": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1922": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1923": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "1924": {
+   "plan": "Sussex County 2025",
+   "approved": "2025-05-13",
+   "expires": "2030-05-12",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2001": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2002": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2003": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2004": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2005": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2006": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2007": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2008": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2009": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2010": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2011": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2012": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2013": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2014": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2015": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2016": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2017": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2018": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2019": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2020": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2021": {
+   "plan": "Union County 2026",
+   "approved": "2026-07-15",
+   "expires": "2031-07-14",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2101": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2102": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2103": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2104": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2105": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2106": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2107": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2108": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2109": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2110": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2111": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2112": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2113": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2114": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2115": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2116": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2117": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false
+  },
+  "2119": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2120": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2121": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2122": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  },
+  "2123": {
+   "plan": "Warren County 2021",
+   "approved": "2022-01-10",
+   "expires": "2027-01-09",
+   "town_status": "Approved",
+   "expired": false,
+   "update": {
+    "plan": "Warren County 2027",
+    "status": "In Review"
+   }
+  }
+ },
+ "unmatched": [
+  "Pine Valley borough (3458920)"
+ ]
+}

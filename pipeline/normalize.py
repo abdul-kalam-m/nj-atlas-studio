@@ -69,6 +69,8 @@ def convert(series: pd.Series, field: dict) -> pd.Series:
         return pd.Series(text_values(series, transform, field.get("value_labels")), index=series.index, dtype="string")
     if kind == "number" and transform == "sq_m_to_sq_mi":  # D-022
         return (pd.to_numeric(series, errors="coerce") / SQ_M_PER_SQ_MI).astype("float64")
+    if kind == "number" and transform == "share_to_percent":  # D-091: e.g. a TMDL's 0.84 reduction is 84%
+        return (pd.to_numeric(series, errors="coerce") * 100).astype("float64")
     if kind == "number" and transform == "zero_is_blank":  # D-028: e.g. year built 0 means unknown
         numbers = pd.to_numeric(series, errors="coerce").astype("float64")
         return numbers.where(numbers != 0)

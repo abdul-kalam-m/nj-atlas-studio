@@ -184,7 +184,77 @@ def build_soils(get_json=http_get_json, query=sda_query) -> dict:
     }
 
 
-BUILDERS = {"nj_soils_ssurgo": build_soils}
+# ---- nj_stormwater_303d: NJDEP's final 2022 303(d) list, stormwater parameters, by HUC14 (D-091) ----
+
+# The subwatershed layer NJDEP made for MS4 permittees, and its table of listed parameters (one row per HUC14,
+# parameter and designated use). The recipe nj_stormwater_impairments queries the layer; this table joins to it.
+STORMWATER_LAYER = ("https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/"
+                    "2020_NJDEP_Stormwater_303d_List_Impairments_for_New_Jersey_HUC14s/FeatureServer/106")
+STORMWATER_TABLE = STORMWATER_LAYER[:-3] + "107"
+# NJDEP's parameter names, as a planner reads them; any other name is kept as NJDEP writes it.
+PARAMETER_NAMES = {
+    "BENZO[A]PYRENE (PAHS)": "Benzo(a)pyrene (PAHs)", "CADMIUM": "Cadmium", "CHLORIDE": "Chloride", "CHROMIUM": "Chromium",
+    "COPPER": "Copper", "DISSOLVED OXYGEN": "Dissolved oxygen", "ENTEROCOCCUS": "Enterococcus",
+    "ESCHERICHIA COLI (E. COLI)": "E. coli", "FECAL COLIFORM": "Fecal coliform", "LEAD": "Lead", "NITRATE": "Nitrate",
+    "PCBS IN FISH TISSUE": "PCBs in fish tissue", "PH": "pH", "PHOSPHORUS, TOTAL": "Total phosphorus",
+    "TEMPERATURE": "Temperature", "TOTAL DISSOLVED SOLIDS (TDS)": "Total dissolved solids",
+    "TOTAL SUSPENDED SOLIDS (TSS)": "Total suspended solids", "TURBIDITY": "Turbidity",
+}
+USE_NAMES = {"Aquatic Life": "Aquatic life", "Aquatic Life Trout": "Trout aquatic life", "Fish Consumption": "Fish consumption",
+             "Public Water Supply": "Public water supply", "Recreation.Primary": "Primary recreation", "Shellfish": "Shellfish"}
+STORMWATER_COLUMNS = ["impairments", "uses", "listed", "listings"]
+
+
+def stormwater_rows(keys: list[str], listings: list[tuple[str, str | None, str | None]]) -> dict:
+    """keys: every HUC14 in the layer. listings: (HUC14, parameter, designated uses) rows of NJDEP's table.
+    Each key gets its listed parameters and uses in plain words, Listed or Not listed, and how many parameters;
+    a HUC14 with no listing gets 'Not listed' and '0', so no key falls through as its raw code."""
+    parameters, uses = defaultdict(set), defaultdict(set)
+    for huc, parameter, designated in listings:
+        if not huc or not parameter or not parameter.strip():
+            continue
+        parameters[huc].add(PARAMETER_NAMES.get(parameter.strip(), parameter.strip()))
+        for use in (designated or "").split(","):
+            if use.strip():
+                uses[huc].add(USE_NAMES.get(use.strip(), use.strip()))
+    rows = {}
+    for key in sorted(set(keys)):
+        listed = sorted(parameters.get(key, ()), key=str.lower)
+        rows[key] = ["; ".join(listed) or None, "; ".join(sorted(uses.get(key, ()), key=str.lower)) or None,
+                     "Listed" if listed else "Not listed", str(len(listed))]
+    return rows
+
+
+def build_stormwater(get_json=http_get_json) -> dict:
+    def every(url, fields):
+        out, offset = [], 0
+        while True:
+            page = get_json(url + "/query", {"where": "1=1", "outFields": fields, "returnGeometry": "false",
+                                             "orderByFields": "OBJECTID", "resultOffset": str(offset),
+                                             "resultRecordCount": "2000", "f": "json"})
+            out.extend(feature["attributes"] for feature in page.get("features", []))
+            if not page.get("exceededTransferLimit") and len(page.get("features", [])) < 2000:
+                return out
+            offset += 2000
+    keys = [row["HUC14"] for row in every(STORMWATER_LAYER, "HUC14") if row.get("HUC14")]
+    table = every(STORMWATER_TABLE, "HUC14,PARAMETER,DESIGNATED_USE")
+    rows = stormwater_rows(keys, [(r.get("HUC14"), r.get("PARAMETER"), r.get("DESIGNATED_USE")) for r in table])
+    matched = sum(1 for row in rows.values() if row[2] == "Listed")
+    return {
+        "description": "NJDEP's final 2022 303(d) list, filtered by NJDEP to the parameters related to stormwater run-on "
+                       "and run-off, by subwatershed (HUC14), for the layer NJDEP publishes for MS4 permittees (D-091). "
+                       "impairments: the listed parameters; uses: the designated uses they impair; listed: Listed or Not "
+                       "listed; listings: how many parameters are listed. Every HUC14 in the layer has a row.",
+        "key": "HUC14",
+        "source": {"publisher": "New Jersey Department of Environmental Protection (NJDEP)", "url": STORMWATER_TABLE,
+                   "queried_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                   "keys": len(rows), "matched": matched, "table_rows": len(table)},
+        "columns": STORMWATER_COLUMNS,
+        "rows": rows,
+    }
+
+
+BUILDERS = {"nj_soils_ssurgo": build_soils, "nj_stormwater_303d": build_stormwater}
 
 
 def write_lookup(root: Path, table: str, echo=print) -> dict:

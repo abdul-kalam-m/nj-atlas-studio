@@ -1,0 +1,59 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_tmdl_shellfish",
+  "title": "TMDLs for shellfish waters",
+  "category": "water",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "load reduction area", "plural": "load reduction areas"},
+  "summary": "Coastal drainage areas covered by Total Maximum Daily Loads for total coliform in shellfish-impaired waters, where stormwater and other nonpoint sources are the main sources.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Total_Maximum_Daily_Loads_TMDL_for_Shellfish_Impaired_Waters_in_New_Jersey/FeatureServer/113",
+    "where": "1=1",
+    "id_field": "OBJECTID",
+    "publisher": "New Jersey Department of Environmental Protection (NJDEP)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=6c7bd01126a44353a50e2ed6ea1a6df9",
+    "expected_count": {"min": 430, "max": 455}
+  },
+  "license": {
+    "name": "NJDEP Data Distribution Agreement",
+    "url": "https://www.arcgis.com/home/item.html?id=6c7bd01126a44353a50e2ed6ea1a6df9",
+    "attribution": "This map was developed using New Jersey Department of Environmental Protection Geographic Information System digital data, but this secondary product has not been verified by NJDEP and is not state-authorized or endorsed.",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "SITE_NAME", "name": "name", "label": "Water", "type": "text", "filter": "search", "popup": true},
+    {"source": "TMDL_TITLE", "name": "tmdl", "label": "TMDL", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "STATUS", "name": "status", "label": "Status", "type": "category", "filter": "checklist", "popup": true},
+    {"source": "FINAL_NPS_REDUCTION", "name": "nps_reduction", "label": "Nonpoint source reduction", "type": "number", "filter": "range", "popup": true, "unit": "%", "decimals": 0, "transform": "share_to_percent"},
+    {"source": "NJDEPLINK", "name": "document", "label": "TMDL document", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "nps_reduction": {"label": "Nonpoint source reduction", "kind": "graduated", "field": "nps_reduction", "classes": 4, "method": "quantile", "breaks": [25, 50, 75], "palette": "blues", "opacity": 0.6},
+    "outline": {"label": "Outline", "kind": "single", "color": "#1F78B4", "fill": false, "width": 1.5}
+  },
+  "default_style": "nps_reduction",
+  "legend": {"title": "Shellfish TMDLs"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["nps_reduction"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "NJDEP's shellfish TMDL areas for total coliform. Reductions are the TMDL's share of the nonpoint load to remove; the TMDL document sets the allocations an MS4 plan addresses.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "Every shellfish TMDL area", "where": "1=1", "expected": {"min": 430, "max": 455}}
+  ],
+  "examples": [
+    {"label": "Reduction of 75% or more", "conditions": [{"field": "nps_reduction", "op": "range", "min": 75, "max": null}]},
+    {"label": "Shellfish TMDL areas in Ocean County", "place": {"county_fips": "029"}, "conditions": []}
+  ]
+}

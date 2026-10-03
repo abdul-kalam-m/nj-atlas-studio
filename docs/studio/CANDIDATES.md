@@ -134,7 +134,8 @@ Next (v1.1): ring demographics as a list of the block groups a ring touches, wit
 - **Crash records and traffic volumes:** NJDOT publishes no open statewide layers; only the High Injury Network above.
 - **Fire, police and EMS stations:** no state-maintained layer; federal (HIFLD) and Rutgers copies have unclear currency and terms.
 - **Conservation Blueprint priority agricultural lands:** named in the pasted review; no public feature service found.
-- **Federal overlays:** HUD qualified census tracts, Opportunity Zones, and FEMA's own flood layer. Not checked yet.
+- **Federal overlays:** HUD qualified census tracts (2026), difficult development areas (2026) and low- and moderate-income block groups, and FEMA's National Risk Index by tract: added as drafts 2026-10-03 (D-094, O-14). Opportunity Zones and FEMA's own flood layer: not checked yet.
+- **Water quality (MS4):** NJDEP's 2022 and 2024 aquatic life and recreation assessments, its stormwater-related 303(d) list by HUC14 and its TMDL areas: added as drafts 2026-10-03 (D-091, O-14). Other designated uses (fish consumption, shellfish, water supply, trout) and the parameter-level 2024 layers are available from the same NJDEP account when a kit needs them.
 - **Rasters:** elevation, LiDAR and impervious surface. Studio's layers are shapes.
 - **Building footprints (2.9 million):** need the owner's storage (O-6).
 

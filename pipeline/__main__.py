@@ -77,13 +77,19 @@ def cmd_acs(args):
     return 0
 
 
+def cmd_deadlines(args):
+    from pipeline.deadlines import write_fema_snapshot
+    write_fema_snapshot(ROOT)
+    return 0
+
+
 def cmd_check(args):
     from pipeline.check import run_checks
     return 0 if run_checks(ROOT, args.layer, catalog_only=args.catalog) else 1
 
 
 EXPECTED_ERRORS = ("RecipeError", "FetchError", "MissingBoundaryError", "CatalogError", "PartitionError",
-                   "ValueError", "LookupTableError", "AcsError")
+                   "ValueError", "LookupTableError", "AcsError", "DeadlineError")
 
 
 def parser():
@@ -112,6 +118,7 @@ def parser():
     lookup.add_argument("table")
     acs = commands.add_parser("acs", help="Rebuild the ACS lookup tables from the Census summary files (D-086)")
     acs.add_argument("--refresh", action="store_true", help="Download the summary files again")
+    commands.add_parser("deadlines", help="Rebuild catalog/deadlines/fema_hmp.json from OpenFEMA (D-093)")
     check = commands.add_parser("check", help="Run the G1 data checks on built layers")
     check.add_argument("layer", nargs="?")
     check.add_argument("--catalog", action="store_true", help="Check only the layers in site/data/catalog.json")
@@ -121,7 +128,8 @@ def parser():
 def main(argv=None):
     args = parser().parse_args(argv)
     handler = {"validate": cmd_validate, "inspect": cmd_inspect, "fetch": cmd_fetch,
-               "build": cmd_build, "catalog": cmd_catalog, "check": cmd_check, "lookup": cmd_lookup, "acs": cmd_acs}[args.command]
+               "build": cmd_build, "catalog": cmd_catalog, "check": cmd_check, "lookup": cmd_lookup, "acs": cmd_acs,
+               "deadlines": cmd_deadlines}[args.command]
     try:
         return handler(args)
     except Exception as error:  # show expected problems as one clear line, not a traceback

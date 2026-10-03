@@ -42,7 +42,8 @@ def mini_atlas(tmp_path):
     build_from_raw(tmp_path, counties, county_raw)
     mun_raw = gpd.GeoDataFrame(
         {"MUN_LABEL": ["Pennsville Township", "Salem City", "Cape May City"], "MUN_CODE": ["1709", "1713", "0502"],
-         "MUN_TYPE": ["Township", "City", "City"], "POP2020": [12684, 5296, 2768], "POPDEN2020": [500, 2000, 960],
+         "MUN_TYPE": ["Township", "City", "City"], "CENSUS2020": ["3403357960", "3403365490", "3400910270"],
+         "POP2020": [12684, 5296, 2768], "POPDEN2020": [500, 2000, 960],
          "SQ_MILES": [24.6, 2.6, 2.9]},
         geometry=[box(-75.5, 39.6, -75.3, 39.8), box(-75.3, 39.5, -75.1, 39.6), box(-75.0, 38.9, -74.8, 39.0)],
         crs="EPSG:4326")

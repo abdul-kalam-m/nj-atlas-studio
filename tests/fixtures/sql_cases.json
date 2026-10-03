@@ -10,12 +10,13 @@
       {"source": "ACRES", "name": "acres", "type": "number", "filter": "range"},
       {"source": "YEAR", "name": "year", "type": "number", "filter": "range", "transform": "zero_is_blank"},
       {"source": "AREA", "name": "area_sq_mi", "type": "number", "filter": "range", "transform": "sq_m_to_sq_mi"},
+      {"source": "RED", "name": "reduction", "type": "number", "filter": "range", "transform": "share_to_percent"},
       {"source": "EFF", "name": "effective", "type": "date", "filter": "range"},
       {"source": "DEED", "name": "sale_date", "type": "date", "filter": "range", "transform": "yymmdd"}
     ]
   },
   "types": {"NAME": "string", "KIND": "string", "TYPE": "string", "CODE": "string", "SUBTYPE": "number", "ACRES": "number",
-            "YEAR": "number", "AREA": "number", "EFF": "date", "DEED": "string"},
+            "YEAR": "number", "AREA": "number", "RED": "number", "EFF": "date", "DEED": "string"},
   "conditions": [
     {"label": "in, one value", "conditions": [{"field": "kind", "op": "in", "values": ["Park"]}], "where": "KIND IN ('Park')"},
     {"label": "in, a quote is doubled", "conditions": [{"field": "kind", "op": "in", "values": ["Park", "O'Brien"]}], "where": "KIND IN ('Park', 'O''Brien')"},
@@ -36,6 +37,7 @@
     {"label": "number, both", "conditions": [{"field": "acres", "op": "range", "min": 1, "max": 2}], "where": "ACRES >= 1 AND ACRES <= 2"},
     {"label": "zero_is_blank leaves zeros out", "conditions": [{"field": "year", "op": "range", "min": 1900, "max": null}], "where": "YEAR >= 1900 AND YEAR <> 0"},
     {"label": "sq_m_to_sq_mi scales the bound", "conditions": [{"field": "area_sq_mi", "op": "range", "min": null, "max": 1}], "where": "AREA <= 2589988.110336"},
+    {"label": "share_to_percent scales the bound", "conditions": [{"field": "reduction", "op": "range", "min": 50, "max": null}], "where": "RED >= 0.5"},
     {"label": "date range, max inclusive", "conditions": [{"field": "effective", "op": "range", "min": "2008-01-01", "max": "2020-12-31"}], "where": "EFF >= DATE '2008-01-01' AND EFF < DATE '2021-01-01'"},
     {"label": "date max in a leap year", "conditions": [{"field": "effective", "op": "range", "min": null, "max": "2020-02-28"}], "where": "EFF < DATE '2020-02-29'"},
     {"label": "yymmdd after 2000", "conditions": [{"field": "sale_date", "op": "range", "min": "2020-01-01", "max": null}], "where": "((DEED >= '200101' AND DEED <= '291231'))"},

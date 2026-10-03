@@ -1,0 +1,56 @@
+{
+  "$schema": "../layer.schema.json",
+  "id": "nj_qualified_census_tracts",
+  "title": "HUD qualified census tracts, 2026",
+  "category": "community",
+  "status": "draft",
+  "geometry": "polygon",
+  "noun": {"singular": "qualified tract", "plural": "qualified tracts"},
+  "summary": "Census tracts HUD designates for 2026 under the Low-Income Housing Tax Credit: at least half of households under 60% of area median income, or a poverty rate of 25% or more.",
+  "source": {
+    "type": "arcgis",
+    "url": "https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/QUALIFIED_CENSUS_TRACTS_2026/FeatureServer/0",
+    "where": "STATE = '34'",
+    "id_field": "OBJECTID",
+    "publisher": "U.S. Department of Housing and Urban Development (HUD)",
+    "landing_page": "https://www.arcgis.com/home/item.html?id=f55f80843c9a436ba8e578a54cdd8cea",
+    "expected_count": {"min": 265, "max": 280}
+  },
+  "license": {
+    "name": "U.S. Government work; HUD eGIS terms of use",
+    "url": "https://www.arcgis.com/home/item.html?id=f55f80843c9a436ba8e578a54cdd8cea",
+    "attribution": "U.S. Department of Housing and Urban Development (HUD)",
+    "reviewed_by": null,
+    "reviewed_on": null
+  },
+  "fields": [
+    {"source": "NAME", "name": "name", "label": "Census tract", "type": "text", "filter": "search", "popup": true},
+    {"source": "GEOID", "name": "tract_id", "label": "Tract GEOID", "type": "text", "filter": "none", "popup": true}
+  ],
+  "label_field": "name",
+  "access": "live",
+  "area_mode": "intersects",
+  "min_zoom": 7,
+  "styles": {
+    "fill": {"label": "Fill", "kind": "single", "color": "#B7791F", "opacity": 0.45, "outline": "#8A5A12"},
+    "outline": {"label": "Outline", "kind": "single", "color": "#B7791F", "fill": false, "width": 2}
+  },
+  "default_style": "fill",
+  "legend": {"title": "Qualified census tracts, 2026"},
+  "buffer_role": "target",
+  "distance_query": true,
+  "list_fields": ["tract_id"],
+  "clip_mode": "mask",
+  "refresh_cadence": "live",
+  "leave_out": [],
+  "export_notes": [
+    {"text": "HUD's 2026 qualified census tracts (Internal Revenue Code section 42(d)(5)(B)). Tracts are the 2020 Census tracts HUD lists.", "on": ["list", "export", "print"]}
+  ],
+  "known_answers": [
+    {"label": "New Jersey's qualified tracts", "where": "STATE = '34'", "expected": {"min": 265, "max": 280}}
+  ],
+  "examples": [
+    {"label": "Qualified tracts in Camden County", "place": {"county_fips": "007"}, "conditions": []},
+    {"label": "Qualified tracts in Newark", "place": {"county_fips": "013", "mun_code": "0714"}, "conditions": []}
+  ]
+}

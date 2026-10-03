@@ -19,7 +19,13 @@ STYLE_KEY_GEOMETRY = {"fill": "polygon", "radius": "point", "widths": "line"}
 # Boundary layers are not buffered (D-074): administrative, political, statistical and hydrologic units, the
 # designations drawn on them, and planning and regulatory areas (D-083). A screening can still list them.
 BOUNDARY_CATEGORIES = {"boundaries", "government", "planning"}
-BOUNDARY_LAYERS = {"nj_subwatersheds", "nj_overburdened_communities", "nj_tax_blocks", "nj_acs_tracts", "nj_acs_block_groups"}
+BOUNDARY_LAYERS = {"nj_subwatersheds", "nj_overburdened_communities", "nj_tax_blocks", "nj_acs_tracts", "nj_acs_block_groups",
+                   # D-091: water quality assessment units and TMDL areas are drawn on subwatersheds; HUD and FEMA
+                   # designations on tracts, block groups and ZIP areas.
+                   "nj_aquatic_life_2024", "nj_aquatic_life_2022", "nj_recreation_2024", "nj_recreation_2022",
+                   "nj_stormwater_impairments", "nj_tmdl_streamsheds", "nj_tmdl_lakesheds", "nj_tmdl_shellfish",
+                   "nj_qualified_census_tracts", "nj_difficult_development_areas", "nj_low_mod_income",
+                   "nj_national_risk_index"}
 
 
 class RecipeError(ValueError):
@@ -225,9 +231,39 @@ def lookup_errors(root: Path, recipe: dict) -> list[str]:
     return errors
 
 
+def compare_errors(recipe: dict, others: dict[str, dict]) -> list[str]:
+    """A series (D-091): the earlier cycle's recipe exists, is queried live, and defines the key and every compared
+    field with the same output names, each a category or text field that can show the flag value."""
+    compare = recipe.get("compare")
+    if not compare:
+        return []
+    earlier = others.get(compare["with"])
+    if compare["with"] == recipe["id"]:
+        return ["compare.with names this layer itself"]
+    if earlier is None:
+        return [f"compare.with: no recipe named {compare['with']}"]
+    errors = []
+    if earlier["access"] == "copy":
+        errors.append(f"compare.with: {earlier['id']} is a copy layer; both cycles are queried live")
+    if recipe["status"] == "published" and earlier["status"] != "published":
+        errors.append(f"compare.with: {earlier['id']} must be published before this layer is")
+    for side in (recipe, earlier):
+        fields = {f["name"]: f for f in side["fields"]}
+        for name in [compare["key"], *compare["fields"]]:
+            field = fields.get(name)
+            if field is None:
+                errors.append(f"compare: {side['id']} has no output field '{name}'")
+            elif name != compare["key"] and field["type"] not in ("category", "text"):
+                errors.append(f"compare: {side['id']}.{name} must be a category or text field")
+            elif name != compare["key"] and compare["flag"] not in (field.get("value_labels") or {}).values():
+                errors.append(f"compare: '{compare['flag']}' is not a displayed value of {side['id']}.{name}")
+    return errors
+
+
 def validate_all(root: Path) -> dict[str, list[str]]:
     schema = load_schema(root)
     results = {}
+    recipes = {}
     for path in recipe_files(root):
         try:
             recipe = json.loads(path.read_text(encoding="utf-8"))
@@ -237,6 +273,10 @@ def validate_all(root: Path) -> dict[str, list[str]]:
         results[path.stem] = validate(recipe, schema, path.stem)
         if not results[path.stem]:
             results[path.stem] = lookup_errors(root, recipe)
+            recipes[path.stem] = recipe
+    for layer_id, recipe in recipes.items():
+        if not results[layer_id]:
+            results[layer_id] = compare_errors(recipe, recipes)
     return results
 
 
@@ -247,6 +287,10 @@ def get_recipe(root: Path, layer_id: str) -> dict:
         raise RecipeError(f"No recipe named {layer_id}: expected {path.relative_to(root)}")
     recipe = json.loads(path.read_text(encoding="utf-8"))
     problems = validate(recipe, load_schema(root), path.stem) or lookup_errors(root, recipe)
+    if not problems and "compare" in recipe:
+        earlier = root / "catalog" / "layers" / f"{recipe['compare']['with']}.json"
+        others = {recipe["compare"]["with"]: json.loads(earlier.read_text(encoding="utf-8"))} if earlier.exists() else {}
+        problems = compare_errors(recipe, others)
     if problems:
         raise RecipeError(f"Recipe {layer_id} is invalid:\n  " + "\n  ".join(problems))
     return recipe

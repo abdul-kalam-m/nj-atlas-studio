@@ -1,0 +1,49 @@
+{
+  "description": "Obligations whose dates a permit or rule sets (D-093), for Studio's calendar. Each names its source and the date someone read that source; change a date only from the source. level: the area level an obligation is listed at (municipality obligations also show for a town's tracts and block groups). Either a date or a yearly month and day. kit: the kit in catalog/kits.json that prepares for it; hazard_mitigation_kit does so for FEMA's plan expiration dates.",
+  "hazard_mitigation_kit": "hazard_mitigation",
+  "obligations": [
+    {
+      "id": "ms4_annual_report",
+      "title": "MS4 annual report and certification",
+      "program": "Tier A municipal stormwater permit",
+      "level": "municipality",
+      "yearly": {"month": 5, "day": 2},
+      "note": "Covers January 1 to December 31 of the year before, with the Supplemental Questionnaire; filed in NJDEP's Regulatory Services Portal.",
+      "kit": "ms4_watershed",
+      "source": {"label": "NJPDES Tier A MS4 general permit NJ0141852, Part IV.K.1.d", "url": "https://www.readington.gov/government/forms/engineering/138-tier-a-permit/file"},
+      "verified_on": "2026-10-03"
+    },
+    {
+      "id": "ms4_assessment_report",
+      "title": "Watershed assessment report",
+      "program": "Tier A municipal stormwater permit",
+      "level": "municipality",
+      "date": "2027-01-01",
+      "note": "Phase 2 of the watershed improvement plan: water quality projects by subwatershed, estimated load reductions, costs and funding sources (EDPA + 48 months).",
+      "kit": "ms4_watershed",
+      "source": {"label": "NJPDES Tier A MS4 general permit NJ0141852, Part IV.H.1.e", "url": "https://www.readington.gov/government/forms/engineering/138-tier-a-permit/file"},
+      "verified_on": "2026-10-03"
+    },
+    {
+      "id": "ms4_improvement_plan",
+      "title": "Final watershed improvement plan",
+      "program": "Tier A municipal stormwater permit",
+      "level": "municipality",
+      "date": "2027-12-01",
+      "note": "Phase 3: projects, schedule, costs and funding. The plan is then carried out on its own schedule and updated, when needed, after each two-year review of the Integrated Report and new TMDLs (EDPA + 59 months; Part IV.H.1.h-i).",
+      "kit": "ms4_watershed",
+      "source": {"label": "NJPDES Tier A MS4 general permit NJ0141852, Part IV.H.1.g", "url": "https://www.readington.gov/government/forms/engineering/138-tier-a-permit/file"},
+      "verified_on": "2026-10-03"
+    },
+    {
+      "id": "ms4_permit_term",
+      "title": "Tier A permit term ends",
+      "program": "Tier A municipal stormwater permit",
+      "level": "municipality",
+      "date": "2027-12-31",
+      "note": "Authorizations renew automatically when NJDEP reissues the general permit; the next permit's terms are not yet published.",
+      "source": {"label": "NJPDES Tier A MS4 general permit NJ0141852, authorization", "url": "https://www.readington.gov/government/forms/engineering/138-tier-a-permit/file"},
+      "verified_on": "2026-10-03"
+    }
+  ]
+}

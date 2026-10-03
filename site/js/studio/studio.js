@@ -4,10 +4,12 @@ import { TEXT } from './text.js';
 import { createRegistry, drawsFromTiles, displayFields, isSource, isTarget, outFields } from './registry.js';
 import { createClient } from './live.js';
 import { LiveLayer } from './tiles.js';
-import { createStudioMap } from './mapview.js';
+import { CHANGE_COLORS, createStudioMap } from './mapview.js';
 import { basemapCredit } from './basemaps.js';
 import { DrawTool } from './draw.js';
-import { createDoc, layerDoc, LEVEL_KEY, MAX_BUFFERS, MAX_LAYERS, nextBufferId, nextChartId, nextScreeningId, validate } from './mapdoc.js';
+import { createDoc, layerDoc, LEVEL_KEY, MAX_BUFFERS, MAX_DEADLINES, MAX_LAYERS, nextBufferId, nextChartId, nextScreeningId, validate } from './mapdoc.js';
+import { changeLines, changesCsv, compareCycles, unitFeatures } from './compare.js';
+import { deadlinesFor, icsFor } from './calendar.js';
 import { BARS, MAX_CHARTS, SQ_M_PER_ACRE, VALUE_CAP, binsFor, categoryTotals, completeness, fromCounts } from './chartdata.js';
 import { chartDefaults, chartSpec, fitChart, histogramClasses } from './chartspec.js';
 import { chartSvg } from './charts.js';
@@ -68,6 +70,9 @@ const app = {
   // Charts (D-088): computed data by chart ID, and the charts shown as tables.
   chartData: new Map(),
   chartTables: new Set(),
+  // Changes (D-091): the comparison's state, keyed by series and area; the calendar (D-093), from calendar.json.
+  changes: null,
+  calendar: null,
   ui: { tab: 'area', tool: 'buffer', editing: null, pickFor: null, ringStyle: null, selected: null,
     sections: { style: true, filter: false, about: false }, addQuery: '', candidates: null, candidatesFor: null, status: '' },
   embed: new URLSearchParams(location.search).get('embed') === '1',
@@ -479,6 +484,7 @@ async function syncArea() {
 
 async function syncOverlays() {
   if (!app.map) return;
+  syncChangesOverlay();
   const screening = app.doc.screenings[0];
   if (!screening) {
     app.ring = null;
@@ -529,6 +535,7 @@ export async function setDoc(next, { render = true, fit = false } = {}) {
   autoRunBuffers();
   syncCharts();
   syncTable();
+  syncChanges();
 }
 
 export function update(change, options) {
@@ -1032,6 +1039,94 @@ export const actions = {
     if (buffered) actions.startSelect();
   },
 
+  // A kit (D-092): its layers and presets, charts and page, methods note and, for a series, the Changes tool. Layers
+  // and charts already on the map stay; a kit chart the map already has is not added twice.
+  async applyKit(key) {
+    const kit = app.registry.catalog.kits?.[key];
+    if (!kit) return;
+    const layers = [];
+    for (const item of kit.layers) {
+      const existing = app.doc.layers.find((l) => l.id === item.id);
+      if (existing) { layers.push(existing); continue; }
+      const entry = app.registry.get(item.id);
+      if (!entry) continue;
+      const layer = layerDoc(item.id, entry);
+      layer.style.preset = item.preset;
+      if (item.visible === false) layer.visible = false;
+      try { layer.style.overrides = await resolveStyle(item.id, layer.style); } catch { /* preset colors */ }
+      layers.push(layer);
+    }
+    const stack = [...layers, ...app.doc.layers.filter((l) => !layers.some((t) => t.id === l.id))].slice(0, MAX_LAYERS);
+    const onMap = (id) => stack.some((layer) => layer.id === id);
+    await update((doc) => {
+      doc.layers = stack;
+      doc.charts = doc.charts.filter((chart) => onMap(chart.layer));
+      const placed = [];
+      for (const spec of kit.charts ?? []) {
+        if (!onMap(spec.layer)) continue;
+        const same = doc.charts.find((c) => c.layer === spec.layer && c.type === spec.type && c.field === spec.field && c.scope === 'area');
+        if (same) { placed.push(same.id); continue; }
+        if (doc.charts.length >= MAX_CHARTS) continue;
+        const entry = app.registry.get(spec.layer);
+        const chart = fitChart({ id: nextChartId(doc), layer: spec.layer, type: spec.type, scope: 'area', field: spec.field, measure: 'count',
+          sum_field: null, title: spec.title ?? '', max_bars: BARS.default }, entry);
+        doc.charts.push(chart);
+        placed.push(chart.id);
+      }
+      const page = kit.page ?? doc.layout.template;
+      doc.layout = { ...doc.layout, ...(kit.layout ?? {}), template: page, slots: placed.slice(0, TEMPLATES[page] ?? 0),
+        notes: doc.layout.notes || kit.notes || '' };
+      if (kit.compare && app.registry.get(kit.compare)) doc.comparisons = [{ id: 'k1', layer: kit.compare }];
+      if (!doc.title) doc.title = TEXT.templates.docTitle(kit.title, areaName());
+    });
+    app.ui.tool = kit.compare ? 'changes' : 'charts';
+    actions.setTab('analysis');
+  },
+
+  // Changes (D-091)
+  compare(layerId) {
+    update((doc) => { doc.comparisons = layerId ? [{ id: 'k1', layer: layerId }] : []; });
+  },
+  compareAgain: () => runComparison(),
+  clearComparison() {
+    update((doc) => { doc.comparisons = []; });
+  },
+  toggleChanges() {
+    app.ui.showChanges = app.ui.showChanges === false;
+    syncChangesOverlay();
+    panels.renderLegend(app);
+    panels.renderChanges(app);
+  },
+  downloadChanges() {
+    const changes = currentChanges();
+    if (!changes) return;
+    const entry = app.registry.get(changes.layer);
+    const { earlier, later } = entry.compare;
+    const lines = [`${TEXT.changes.printTitle(entry.compare.label, earlier, later)}: ${changes.area}`, ...notesOf(entry, 'export'),
+      ...app.registry.credits([entry.id, entry.compare.with])];
+    const csv = changesCsv(changes.result, { label: TEXT.changesLabel(dataDates()), lines, words: changeWords(entry), earlier, later });
+    download(`${slug(TEXT.changes.file(changes.area))}_${new Date().toISOString().slice(0, 10)}.csv`, csv, 'text/csv');
+    countExport(app.registry.catalog.counter_url, 'csv', true, app.pilot);
+  },
+
+  // The calendar (D-093): a town's own dates live in its map document.
+  addDeadline(title, date) {
+    if (!String(title ?? '').trim() || !/^\d{4}-\d{2}-\d{2}$/.test(String(date ?? ''))) return false;
+    if (app.doc.deadlines.length >= MAX_DEADLINES) return false;
+    update((doc) => { doc.deadlines.push({ title: String(title).trim().slice(0, 80), date }); });
+    return true;
+  },
+  removeDeadline(index) {
+    update((doc) => { doc.deadlines.splice(index, 1); });
+  },
+  downloadCalendar() {
+    const items = areaDeadlines();
+    if (!items.length) return;
+    const name = areaName();
+    const ics = icsFor(items, { calendarName: TEXT.deadlines.calendarName(name), words: deadlineWords(name) });
+    download(`${slug(TEXT.deadlines.file(name))}.ics`, ics, 'text/calendar');
+  },
+
   // Export
   setText(key, value) {
     update((doc) => { if (key === 'notes') doc.layout.notes = value; else doc[key] = value; }, { render: false });
@@ -1362,6 +1457,128 @@ function screeningFilters(screening) {
 }
 app.screeningFilters = screeningFilters;
 
+// ---- Changes between cycles (D-091) ----
+// Both cycles are read for the area alone, not the layer's filters, so a filter cannot hide a change. The result is
+// keyed by the series and the area; a result for another area is never shown (D-090), and a change of area runs
+// the comparison again.
+
+const COMPARE_CAP = 2000;
+const compareKey = (layerId) => JSON.stringify([layerId, areaKey()]);
+
+// The area as a where clause or an outline, for any catalog layer, on the map or not.
+async function areaQuery(entry) {
+  const docArea = app.doc.area;
+  const area = effectiveArea(docArea);
+  const county = docArea.county_fips ? unitName('county', docArea.county_fips) : null;
+  const slice = areaWhere(entry, { ...docArea, level: area.level }, { county });
+  const geometry = slice.outline ? await outlineOf(area) : null;
+  return { where: joinWhere(entry.source.where, slice.where), geometry };
+}
+
+async function cycleRows(entry, spec, withGeometry) {
+  const names = new Set([entry.label_field, spec.key, ...spec.fields]);
+  const fields = entry.fields.filter((field) => names.has(field.name));
+  const { where, geometry } = await areaQuery(entry);
+  const page = await app.client.allFeatures(entry.source.url, { where, geometry, outFields: outFields(entry, fields),
+    returnGeometry: withGeometry, precision: 6, ...(withGeometry ? { maxAllowableOffset: 0.0001 } : {}) }, COMPARE_CAP + 1);
+  const features = page.features.slice(0, COMPARE_CAP);
+  const rows = features.map((feature) => toRow(feature.properties ?? {}, entry));
+  return { rows, features: features.map((feature, i) => ({ type: 'Feature', geometry: feature.geometry, properties: rows[i] })),
+    capped: page.features.length > COMPARE_CAP || !page.complete };
+}
+
+async function runComparison() {
+  const comparison = app.doc.comparisons[0];
+  if (!comparison) return;
+  const key = compareKey(comparison.layer);
+  const later = app.registry.get(comparison.layer);
+  const earlier = later?.compare ? app.registry.get(later.compare.with) : null;
+  if (!earlier) {
+    app.changes = { key, status: 'error' };
+    panels.renderChanges(app);
+    return;
+  }
+  const area = areaName(); // read with the key, before anything is fetched
+  app.changes = { key, status: 'loading' };
+  syncChangesOverlay();
+  panels.renderChanges(app);
+  try {
+    const [now, before] = await Promise.all([cycleRows(later, later.compare, true), cycleRows(earlier, later.compare, false)]);
+    if (app.changes?.key !== key) return; // the area or the series changed while this ran
+    const result = compareCycles(before.rows, now.rows, later.compare, later.fields, later.label_field);
+    app.changes = { key, status: 'ready', layer: later.id, area, result, capped: now.capped || before.capped,
+      features: unitFeatures(now.features, result.units, later.compare.key) };
+  } catch (error) {
+    if (app.changes?.key !== key) return;
+    app.changes = { key, status: 'error', error };
+  }
+  syncChangesOverlay();
+  panels.renderLegend(app);
+  panels.renderChanges(app);
+}
+
+const syncChanges = debounce(() => {
+  const comparison = app.doc.comparisons[0];
+  if (!comparison) {
+    if (app.changes) {
+      app.changes = null;
+      syncChangesOverlay();
+      panels.renderLegend(app);
+      panels.renderChanges(app);
+    }
+    return;
+  }
+  if (app.changes?.key !== compareKey(comparison.layer)) runComparison();
+}, 250);
+
+// The comparison's result, only when it was made for the series and area on show now.
+function currentChanges() {
+  const comparison = app.doc.comparisons[0];
+  return comparison && app.changes?.status === 'ready' && app.changes.key === compareKey(comparison.layer) ? app.changes : null;
+}
+app.currentChanges = currentChanges;
+app.changesLoading = () => app.changes?.status === 'loading' && app.changes.key === compareKey(app.doc.comparisons[0]?.layer);
+
+function changesOverlay() {
+  const changes = currentChanges();
+  return changes && app.ui.showChanges !== false ? { type: 'FeatureCollection', features: changes.features } : EMPTY;
+}
+
+function syncChangesOverlay() {
+  app.map?.setOverlay('changes', changesOverlay());
+}
+
+function changeWords(entry) {
+  const C = TEXT.changes;
+  const { later } = entry.compare;
+  return { headers: C.columns, blank: C.blank, notListed: C.notInCycle, more: C.more,
+    kinds: { added: C.kinds.added(later), removed: C.kinds.removed(later), kept: C.kinds.kept },
+    summary: (title, counts) => C.printSummary(title, counts) };
+}
+
+// ---- The calendar (D-093) ----
+
+function localToday() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+function areaDeadlines() {
+  return app.calendar ? deadlinesFor(app.calendar, app.doc.area, { today: localToday(), local: app.doc.deadlines }) : [];
+}
+app.areaDeadlines = areaDeadlines;
+app.localToday = localToday;
+
+function deadlineWords(area) {
+  const D = TEXT.deadlines;
+  const title = (item) => (item.kind === 'expires' ? `${item.plan.expired ? D.planExpired : D.planExpires}: ${item.plan.plan}` : item.title);
+  return {
+    summary: (item) => `${title(item)} (${area})`,
+    description: (item) => D.description([item.program, item.note, item.kind === 'expires' && item.plan.update
+      ? D.update(item.plan.update.plan, item.plan.update.status) : null, item.source ? `${D.source}: ${item.source.label ?? item.source.publisher} ${item.source.url}` : null]),
+  };
+}
+
 // ---- Charts (D-088) ----
 // A chart's numbers come from what Studio already reads for its layer, so they match the layer's counts and table:
 // a copy layer's rows in the area, a live layer's grouped counts (or values) for its query, or a screening's
@@ -1580,6 +1797,15 @@ function legendGroups() {
       groups.push({ title: bufferName(buffer, entry, TEXT.buffer), rows: bufferLegend(buffer) });
     }
   }
+  const changes = currentChanges();
+  if (changes && app.ui.showChanges !== false) {
+    const { earlier, later } = app.registry.get(changes.layer).compare;
+    const present = new Set(changes.result.units.map((unit) => unit.kind));
+    const L = TEXT.changes.legendKinds;
+    groups.push({ title: TEXT.changes.legend(earlier, later), rows: ['added', 'removed', 'kept'].filter((kind) => present.has(kind)).map((kind) => ({
+      swatch: { geometry: 'polygon', color: CHANGE_COLORS[kind], fill: true, outline: CHANGE_COLORS[kind] },
+      label: kind === 'kept' ? L.kept : L[kind](later) })) });
+  }
   const screening = app.doc.screenings[0];
   if (screening) {
     groups.push({ title: TEXT.panels.screening, rows: [
@@ -1594,6 +1820,15 @@ function failedLayers() {
   return app.doc.layers.filter((l) => runtime(l.id).status === 'error').map((l) => app.registry.get(l.id).title);
 }
 
+// The Changes tool's lines for a print (D-091): its label, the counts and the notable findings, when shown.
+function printChangeLines() {
+  const changes = currentChanges();
+  if (!changes || app.ui.showChanges === false) return [];
+  const entry = app.registry.get(changes.layer);
+  const { earlier, later } = entry.compare;
+  return changeLines(changes.result, { title: TEXT.changes.printTitle(entry.compare.label, earlier, later), words: changeWords(entry) });
+}
+
 // Everything a print or PNG needs, drawn from the current map.
 function imageContext(failed = failedLayers()) {
   const screening = app.doc.screenings[0];
@@ -1603,7 +1838,8 @@ function imageContext(failed = failedLayers()) {
     doc, text: TEXT, bounds: app.map.bounds(), legend: legendGroups(), dates: dataDates(), leftOut: failed,
     credits: [...doc.credits, ...(basemap ? [TEXT.basemaps.credits[basemap]] : [])],
     label: screening ? TEXT.screeningLabel(dataDates()) : null,
-    notes: [...new Set([...(screening && app.results ? resultNotes(app.results) : []),
+    labels: printChangeLines().length ? [TEXT.changesLabel(dataDates())] : [],
+    notes: [...new Set([...printChangeLines(), ...(screening && app.results ? resultNotes(app.results) : []),
       ...doc.layers.filter((l) => l.visible).flatMap((l) => notesOf(app.registry.get(l.id), 'print')),
       ...app.doc.buffers.filter((b) => b.visible && app.outputs.has(b.id)).map((b) => presetOf(b, app.registry.get(b.layer))?.note)
         .filter(Boolean)])],
@@ -1614,6 +1850,7 @@ function imageContext(failed = failedLayers()) {
         if (rt.loader) printMap.setData(layer.id, rt.loader.lastData);
       }
       printMap.setArea(app.areaGeometry, app.doc.mask);
+      printMap.setOverlay('changes', changesOverlay());
       if (screening) {
         printMap.setOverlay('sites', { type: 'Feature', properties: {}, geometry: screening.source.geometry });
         if (app.ring) printMap.setOverlay('rings', app.ring);
@@ -1790,15 +2027,17 @@ async function boot() {
     return;
   }
   if (app.embed) document.body.classList.add('embed');
-  if (new URLSearchParams(location.search).has('debug')) window.studio = { app, actions, setDoc, update, imageContext, layerData, selectAt, chooseSite, ensureChartData };
+  if (new URLSearchParams(location.search).has('debug')) window.studio = { app, actions, setDoc, update, imageContext, layerData, selectAt, chooseSite, ensureChartData, runComparison };
   app.pilot = rememberPilot();
   app.client = createClient();
   panels.renderShell(app, actions);
+  const calendar = getJson('calendar.json').catch(() => null);
   const [catalog, places] = await Promise.all([getJson('studio.json'), getJson('places.json')]);
   app.registry = createRegistry(catalog);
   app.levels = places.levels;
   await Promise.all(['county', 'municipality'].map((level) => unitsNow(level).catch(() => [])));
   app.health = await loadHealth(dataUrl('health.json'));
+  app.calendar = await calendar;
   app.areaName = areaName;
   app.map = await createStudioMap($('map'), { basemap: app.doc.basemap, basemapMode: app.doc.basemap_mode, text: TEXT.basemaps,
     onBasemap: (name) => actions.setBasemap(name), onBasemapMode: (mode) => actions.setBasemapMode(mode) });

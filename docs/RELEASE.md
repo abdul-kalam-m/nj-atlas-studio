@@ -14,9 +14,10 @@ Studio at the site root and the atlas at `/atlas/`, plus an explicit list of dat
 
 1. **Owner, licenses (O-3).** For each layer to publish, read the terms at its `source.landing_page` and `license.url`. Then fill in `license.name`, `license.url`, `reviewed_by` and `reviewed_on`, and set `status` to `published`. Counties and municipalities must be published, because the area pickers need them. If any data layer is published, census tracts and block groups must be too, because every data layer's place columns come from them; `release.py` names any that are missing. [LICENSE_REVIEW.md](LICENSE_REVIEW.md) lists the evidence gathered so far.
 2. **Agent, rehearsal (optional).** `python tools/release.py --rehearsal` runs the whole process with drafts included. It never offers a push command.
-3. **Agent, release.** First copy the live `data/health.json` from `gh-pages` into `site/data/health.json`: the nightly source check updates it there, and the release publishes the local copy (found 2026-10-03, when a release put back a 6-day-old copy). Then `python tools/release.py` does the following:
+3. **Agent, release.** `python tools/release.py` does the following:
+   - uses the newer of the local `site/data/health.json` and the live site's (the nightly source check updates it on `gh-pages`; found 2026-10-03, when a release put back a 6-day-old copy, and automated the same day);
    - clears the copy layers' folders in `site/data/` and rebuilds them (add `--refresh` to download fresh data); hybrid and parked folders are kept;
-   - writes the catalog and runs every automated check;
+   - writes the catalog, the calendar (`calendar.json`, from `catalog/deadlines/`, D-093) and runs every automated check;
    - writes `site/data/release.json`;
    - prepares `build/pages/` as a new repository with one commit.
 
@@ -38,6 +39,12 @@ Studio at the site root and the atlas at `/atlas/`, plus an explicit list of dat
    git -C build/pages push <repository URL> HEAD:gh-pages
    ```
 5. **Agent, live check (M6-T4).** Run the G6 checks against the Pages URL and record them in PROGRESS.md.
+
+## The calendar's inputs (D-093)
+
+`catalog/deadlines/deadlines.json` is written by hand from each obligation's source. `catalog/deadlines/fema_hmp.json` is
+FEMA's hazard mitigation plan statuses: refresh it with `python -m pipeline deadlines` before a release (it needs the
+built municipal boundaries), review the diff, and commit it. A plan that changes status shows in the diff.
 
 ## Rolling back a release (agent route, no force push)
 

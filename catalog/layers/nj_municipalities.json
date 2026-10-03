@@ -26,6 +26,7 @@
   "fields": [
     {"source": "MUN_LABEL", "name": "municipality", "label": "Municipality", "type": "text", "filter": "search", "popup": true},
     {"source": "MUN_CODE", "name": "mun_code", "label": "Municipal code", "type": "text", "filter": "none", "popup": false},
+    {"source": "CENSUS2020", "name": "census_code", "label": "Census code", "type": "text", "filter": "none", "popup": false},
     {"source": "MUN_TYPE", "name": "mun_type", "label": "Type", "type": "category", "filter": "checklist", "popup": true},
     {"source": "POP2020", "name": "population_2020", "label": "Population (2020)", "type": "number", "filter": "range", "popup": true, "decimals": 0},
     {"source": "POPDEN2020", "name": "density_2020", "label": "People per square mile (2020)", "type": "number", "filter": "range", "popup": true, "decimals": 0},

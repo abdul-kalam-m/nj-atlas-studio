@@ -246,3 +246,37 @@ def test_map_copies_may_drop_at_most_ten_percent_as_slivers():
     assert flood["tiles"]["max_dropped_share"] == 0.08
     flood["tiles"]["max_dropped_share"] = 0.2
     assert problems_for(flood)
+
+
+def series():
+    later = json.loads((ROOT / "catalog" / "layers" / "nj_aquatic_life_2024.json").read_text(encoding="utf-8"))
+    earlier = json.loads((ROOT / "catalog" / "layers" / "nj_aquatic_life_2022.json").read_text(encoding="utf-8"))
+    return later, earlier
+
+
+def test_a_series_compares_fields_both_cycles_define():
+    from pipeline.recipes import compare_errors
+    later, earlier = series()
+    assert compare_errors(later, {earlier["id"]: earlier}) == []
+    assert compare_errors(later, {}) == ["compare.with: no recipe named nj_aquatic_life_2022"]
+    earlier["fields"] = [f for f in earlier["fields"] if f["name"] != "chloride"]
+    assert any("has no output field 'chloride'" in e for e in compare_errors(later, {earlier["id"]: earlier}))
+
+
+def test_a_series_flag_must_be_a_displayed_value_and_cycles_publish_together():
+    from pipeline.recipes import compare_errors
+    later, earlier = series()
+    later["compare"]["flag"] = "Non Attain"  # the source code, not what Studio shows
+    assert any("not a displayed value" in e for e in compare_errors(later, {earlier["id"]: earlier}))
+    later, earlier = series()
+    later["status"] = "published"
+    assert any("must be published before" in e for e in compare_errors(later, {earlier["id"]: earlier}))
+
+
+def test_compare_and_share_to_percent_follow_the_schema():
+    later, _ = series()
+    schema = load_schema(ROOT)
+    copy = dict(later, access="copy")
+    assert validate(copy, schema, later["id"])  # a copy layer cannot carry a series
+    later["fields"][2] = {**later["fields"][2], "transform": "share_to_percent"}  # a category field
+    assert any("number" in problem for problem in validate(later, schema, later["id"]))

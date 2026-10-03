@@ -83,8 +83,8 @@
           "unit": {"description": "Shown after numbers, e.g. 'acres' or 'sq mi'.", "type": "string", "maxLength": 12},
           "decimals": {"description": "Decimals shown in the viewer and written to CSV. Data keeps full precision so filters match the source (D-018). Default 2.", "type": "integer", "minimum": 0, "maximum": 6},
           "transform": {
-            "description": "Optional clean-up. last3 keeps the last 3 characters; zfill3/zfill4 left-pad with zeros; titlecase turns 'CAPE MAY' into 'Cape May' (all applied before type conversion). sq_m_to_sq_mi turns square meters into square miles and zero_is_blank blanks zeros (number fields only, D-022, D-028). yymmdd reads dates like '941008' as 1994-10-08, with years 00-29 in the 2000s (date fields only, D-028).",
-            "enum": ["last3", "zfill3", "zfill4", "titlecase", "upper", "sq_m_to_sq_mi", "zero_is_blank", "yymmdd"]
+            "description": "Optional clean-up. last3 keeps the last 3 characters; zfill3/zfill4 left-pad with zeros; titlecase turns 'CAPE MAY' into 'Cape May' (all applied before type conversion). sq_m_to_sq_mi turns square meters into square miles, share_to_percent turns a share (0.84) into a percent (84) and zero_is_blank blanks zeros (number fields only, D-022, D-028, D-091). yymmdd reads dates like '941008' as 1994-10-08, with years 00-29 in the 2000s (date fields only, D-028).",
+            "enum": ["last3", "zfill3", "zfill4", "titlecase", "upper", "sq_m_to_sq_mi", "share_to_percent", "zero_is_blank", "yymmdd"]
           },
           "lookup": {
             "description": "A table join (D-085, D-086): the value comes from a column of catalog/lookups/<table>.json, keyed by this field's source value. Copy layers join at build time, and any field type but date may use it. Live and hybrid layers join in the browser: Studio's catalog turns the column into value_labels, so there it is for text and category fields only. Not with value_labels or transform.",
@@ -105,7 +105,7 @@
           {"if": {"required": ["lookup"]}, "then": {"not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["transform"]}]}}},
           {"if": {"properties": {"type": {"const": "date"}}}, "then": {"not": {"anyOf": [{"required": ["value_labels"]}, {"required": ["lookup"]}]}}},
           {"if": {"properties": {"type": {"const": "date"}}}, "then": {"properties": {"filter": {"enum": ["range", "none"]}}}},
-          {"if": {"required": ["transform"], "properties": {"transform": {"enum": ["sq_m_to_sq_mi", "zero_is_blank"]}}}, "then": {"properties": {"type": {"const": "number"}}}},
+          {"if": {"required": ["transform"], "properties": {"transform": {"enum": ["sq_m_to_sq_mi", "share_to_percent", "zero_is_blank"]}}}, "then": {"properties": {"type": {"const": "number"}}}},
           {"if": {"required": ["transform"], "properties": {"transform": {"const": "yymmdd"}}}, "then": {"properties": {"type": {"const": "date"}}}}
         ]
       }
@@ -205,6 +205,19 @@
         }
       }
     },
+    "compare": {
+      "description": "Live layers only (D-091): this layer is one cycle of a series its publisher issues as separate layers, such as NJDEP's Integrated Report assessments. Studio's Changes tool joins it to the earlier cycle's layer `with` on the output field `key`, and lists, for each field in `fields`, the units that have the displayed value `flag` in either cycle: new, gone or in both. Both recipes define `key` and every compared field with the same output names.",
+      "type": "object", "additionalProperties": false, "required": ["label", "with", "key", "fields", "flag", "earlier", "later"],
+      "properties": {
+        "label": {"description": "The series' short name in the Changes tool, prints and downloads, e.g. 'Aquatic life use'.", "type": "string", "minLength": 3, "maxLength": 40},
+        "with": {"description": "The earlier cycle's layer ID.", "type": "string", "pattern": "^nj_[a-z0-9_]{2,40}$"},
+        "key": {"description": "The output field that names a unit in both cycles.", "type": "string", "pattern": "^[a-z][a-z0-9_]{0,30}$"},
+        "fields": {"type": "array", "minItems": 1, "maxItems": 20, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,30}$"}},
+        "flag": {"description": "The displayed value that is a finding, e.g. 'Not attaining'.", "type": "string", "minLength": 2, "maxLength": 40},
+        "earlier": {"description": "The earlier cycle's name, e.g. '2022'.", "type": "string", "minLength": 2, "maxLength": 20},
+        "later": {"description": "This layer's cycle name, e.g. '2024'.", "type": "string", "minLength": 2, "maxLength": 20}
+      }
+    },
     "known_answers": {
       "description": "Live and hybrid layers only: counts the nightly health check runs against the source. where uses source field names.",
       "type": "array", "maxItems": 5,
@@ -278,7 +291,7 @@
       "then": {
         "required": ["place_tags", "tiles"],
         "properties": {"area_mode": {"const": "tags"}, "refresh_cadence": {"enum": ["quarterly", "yearly_check", "static"]}},
-        "not": {"anyOf": [{"required": ["min_zoom"]}, {"required": ["live_min_zoom"]}, {"required": ["distance_query"]}, {"required": ["known_answers"]}]}
+        "not": {"anyOf": [{"required": ["min_zoom"]}, {"required": ["live_min_zoom"]}, {"required": ["distance_query"]}, {"required": ["known_answers"]}, {"required": ["compare"]}]}
       }
     },
     {
@@ -287,7 +300,7 @@
       "then": {
         "required": ["tiles", "distance_query"],
         "properties": {"area_mode": {"enum": ["code", "intersects"]}, "refresh_cadence": {"enum": ["quarterly", "yearly_check", "static"]}},
-        "not": {"anyOf": [{"required": ["place_tags"]}, {"required": ["partition"]}, {"required": ["min_zoom"]}]}
+        "not": {"anyOf": [{"required": ["place_tags"]}, {"required": ["partition"]}, {"required": ["min_zoom"]}, {"required": ["compare"]}]}
       }
     },
     {

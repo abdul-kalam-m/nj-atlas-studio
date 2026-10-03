@@ -150,3 +150,15 @@ Recorded as in D-083, for the owner's review.
 | NJDOT | High Injury Network (now the combined layer) | The State's legal statement and 23 U.S.C. § 407 | Published, with a § 407 note on downloads |
 | Highlands Council | Land Use Capability Zones | "May not be reproduced or redistributed for use by anyone without first obtaining written permission"; printed maps allowed | **Draft** (O-13) |
 | SADC | Agricultural Development Areas | Spatial Data Distribution Protocol: internal use; no redistribution without written permission; printed maps allowed | **Draft** (O-12) |
+
+## Layers added 2026-10-03 (D-091, D-094), drafts awaiting review (O-14)
+
+Every item below was read on 2026-10-03 from the publisher's ArcGIS Online item (owner shown) and its service. All are
+public items; every service answers anonymous queries from the browser and passed the health check.
+
+| Publisher | Layers | Terms, as found | Suggested |
+| --- | --- | --- | --- |
+| NJDEP (item owner NJDEPBGIS) | Aquatic life use, 2024 and 2022 assessments; Recreation use, 2024 and 2022 assessments; Stormwater-related impairments, 2022 list (with its HUC14 table, joined as `catalog/lookups/nj_stormwater_303d.json`); TMDLs for streams, lakes and shellfish waters | Each item's terms: "New Jersey Department of Environmental Protection (NJDEP) Data Distribution Agreement", the agreement already accepted for the published NJDEP layers (O-3). The assessments' service copyright reads "NJDEP, DWMS/BWQSA Edition 20230707". | Same name and the NJDEP credit sentence; URL: each layer's item page (already in the recipes) |
+| HUD (item owner HUD.Official.Content) | Qualified census tracts, 2026; Difficult development areas, 2026; Low and moderate income areas (block groups, 2016-2020 ACS) | Each item: HUD and the authors "assume no responsibility for the use or misuse of the dataset", no warranty. A US federal work (17 U.S.C. § 105). | "U.S. Government work; HUD eGIS terms of use", credit "U.S. Department of Housing and Urban Development (HUD)" |
+| FEMA (item owner FEMA_NationalRiskIndex) | National Risk Index by census tract, December 2025 (1.20.0) | The item's terms: FEMA's terms and conditions for data offered through its API and download services, and the FEMA Privacy Policy. A US federal work. | "FEMA terms and conditions for public data", credit "FEMA National Risk Index, version 1.20.0 (December 2025)" |
+| FEMA (OpenFEMA) | Hazard mitigation plan statuses, used by the calendar (`catalog/deadlines/fema_hmp.json`), not a map layer | OpenFEMA's terms for its API; a US federal work | Credited on the calendar's own line; no recipe |

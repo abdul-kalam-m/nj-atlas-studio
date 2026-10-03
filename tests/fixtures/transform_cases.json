@@ -21,6 +21,8 @@
     {"label": "zero_is_blank blanks zero", "field": {"type": "number", "transform": "zero_is_blank"}, "value": 0, "expected": null},
     {"label": "zero_is_blank keeps other numbers", "field": {"type": "number", "transform": "zero_is_blank"}, "value": 1935, "expected": 1935},
     {"label": "square meters to square miles", "field": {"type": "number", "transform": "sq_m_to_sq_mi"}, "value": 2589988.110336, "expected": 1.0},
+    {"label": "share to percent", "field": {"type": "number", "transform": "share_to_percent"}, "value": 0.5, "expected": 50.0},
+    {"label": "share to percent, missing", "field": {"type": "number", "transform": "share_to_percent"}, "value": null, "expected": null},
     {"label": "ArcGIS epoch milliseconds", "field": {"type": "date"}, "value": 1262304000000, "expected": "2010-01-01"},
     {"label": "a text date", "field": {"type": "date"}, "value": "2020-05-17", "expected": "2020-05-17"},
     {"label": "yymmdd, 1900s", "field": {"type": "date", "transform": "yymmdd"}, "value": "941008", "expected": "1994-10-08"},
