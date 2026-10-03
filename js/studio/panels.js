@@ -3,15 +3,17 @@
 import { el, svgEl } from './dom.js';
 import { isTarget, isSource } from './registry.js';
 import { presetStyle } from './style.js';
-import { combinedRows, resultNotes } from './screening.js';
+import { combinedRows, notesOf, resultNotes } from './screening.js';
+import { planFor } from './calendar.js';
+import { CHANGE_COLORS } from './mapview.js';
 import { BUFFER_PRESETS_FT, MAX_BUFFERS, MAX_LAYERS } from './mapdoc.js';
 import { MAX_BUFFER_FEATURES, MAX_DISTANCE, MAX_RINGS, OUTLINE_STYLES, SELECTS, UNITS, bufferName, formatDistance, presetOf } from './buffer.js';
 import { CHART_TYPES, MAX_CHARTS, SCOPES, BARS } from './chartdata.js';
 import { chartFields, chartMeasures } from './chartspec.js';
 import { svgNode } from './charts.js';
 import { TEMPLATES, composeArea } from './layoutgeom.js';
-import { legendNode, ringSwatchStyle } from './export.js';
-import { formatCount, formatValue } from '../format.js';
+import { fitPrintSide, legendNode, ringSwatchStyle } from './export.js';
+import { formatCount, formatDate, formatValue } from '../format.js';
 import { pickerLevels, unitsFor, LEVEL_KEYS, pickerNeeds } from '../places.js';
 
 const $ = (id) => document.getElementById(id);
@@ -183,7 +185,58 @@ export function renderArea(app) {
     ...pickers,
     outside,
     ...addressForm(app, false),
+    ...deadlineNodes(app),
   );
+}
+
+// The area's deadlines (D-093): dates a permit or rule sets, FEMA's plan expiration, and the town's own dates.
+function deadlineNodes(app) {
+  const D = app.text.deadlines;
+  if (!app.calendar) return [];
+  const area = app.doc.area;
+  const nodes = [el('h3', { class: 'section-title', text: D.heading })];
+  if (!area.county_fips && !area.mun_code) return [...nodes, el('p', { class: 'hint', text: D.pick })];
+  const items = app.areaDeadlines();
+  const kits = app.registry.catalog.kits ?? {};
+  const fema = app.calendar.hmp?.source;
+  const plan = planFor(app.calendar, area);
+  const femaLink = fema ? el('a', { href: fema.page ?? fema.url, target: '_blank', rel: 'noopener', text: D.asOf(formatDate(fema.refreshed ?? fema.queried_at?.slice(0, 10))) }) : null;
+  if (plan && !plan.record?.expires) {
+    nodes.push(el('p', { class: 'hint deadline-status' }, [plan.record?.update ? `${D.noPlan} ${D.update(plan.record.update.plan, plan.record.update.status)}` : D.noRecord,
+      ' ', femaLink]));
+  }
+  const list = items.map((item) => {
+    const kind = item.kind;
+    const title = kind === 'expires' ? (item.plan.expired ? D.planExpired : D.planExpires) : item.title;
+    const detail = kind === 'expires'
+      ? [D.planName(item.plan.plan, item.plan.approved ? formatDate(item.plan.approved) : null),
+        plan?.scope === 'municipality' && item.plan.town_status ? D.townStatus(item.plan.town_status) : null,
+        plan?.scope === 'county' && item.plan.towns ? D.countyTowns(item.plan.towns, item.plan.towns_not_approved) : null,
+        item.plan.update ? D.update(item.plan.update.plan, item.plan.update.status) : null]
+      : kind === 'local' ? [D.yours] : [item.program, item.yearly ? D.yearly : null];
+    const source = kind === 'expires' ? femaLink?.cloneNode(true)
+      : item.source ? el('a', { href: item.source.url, target: '_blank', rel: 'noopener', text: item.source.label }) : null;
+    return el('li', { class: `deadline ${kind}${item.days < 0 ? ' past' : item.days <= 90 ? ' soon' : ''}` }, [
+      el('div', { class: 'deadline-date' }, [el('strong', { text: formatDate(item.date) }), el('span', { class: 'hint', text: D.inDays(item.days) })]),
+      el('div', { class: 'deadline-body' }, [
+        el('span', { class: 'deadline-title', text: title }),
+        el('span', { class: 'hint', text: detail.filter(Boolean).join(' · ') }),
+        item.note ? el('span', { class: 'hint deadline-note', text: item.note }) : null,
+        el('span', { class: 'deadline-links' }, [source,
+          item.kit && kits[item.kit] ? el('button', { type: 'button', class: 'link-button', text: D.openKit, onclick: () => app.actions.applyKit(item.kit) }) : null,
+          kind === 'local' ? el('button', { type: 'button', class: 'link-button', text: app.text.remove, 'aria-label': D.removeDate(item.title),
+            onclick: () => app.actions.removeDeadline(item.index) }) : null].filter(Boolean))])]);
+  });
+  nodes.push(list.length ? el('ol', { class: 'deadline-list' }, list) : el('p', { class: 'hint', text: D.none }));
+  const what = el('input', { id: 'deadline-what', type: 'text', maxlength: '80', autocomplete: 'off' });
+  const when = el('input', { id: 'deadline-when', type: 'date' });
+  nodes.push(el('div', { class: 'button-row' }, [
+    items.length ? el('button', { type: 'button', class: 'secondary', text: D.ics, onclick: () => app.actions.downloadCalendar() }) : null].filter(Boolean)));
+  nodes.push(el('details', { class: 'deadline-add' }, [el('summary', { text: D.add }),
+    el('div', { class: 'field' }, [el('label', { for: 'deadline-what', text: D.what }), what]),
+    el('div', { class: 'field inline' }, [el('label', { for: 'deadline-when', text: D.when }), when,
+      el('button', { type: 'button', class: 'secondary', text: D.save, onclick: () => app.actions.addDeadline(what.value, when.value) })])]));
+  return nodes;
 }
 
 // ---- Layers ----
@@ -514,13 +567,23 @@ export function openTemplates(app) {
     document.body.append(dialog);
   }
   const templates = Object.entries(app.registry.catalog.templates ?? {});
-  dialog.replaceChildren(
+  const kits = Object.entries(app.registry.catalog.kits ?? {});
+  // Kits (D-092) name the deadlines they prepare for, from the calendar (D-093).
+  const prepares = (key) => [...(app.calendar?.obligations ?? []).filter((o) => o.kit === key).map((o) => o.title),
+    ...(app.calendar?.hmp?.kit === key ? [T.deadlines.planExpires] : [])];
+  dialog.replaceChildren(...[
     el('div', { class: 'dialog-head' }, [el('h2', { id: 'template-title', text: T.templates.heading }),
       el('button', { type: 'button', class: 'icon', 'aria-label': T.close, text: '×', onclick: () => dialog.close() })]),
+    kits.length ? el('h3', { class: 'section-title', text: T.templates.kits }) : null,
+    kits.length ? el('div', { class: 'catalog' }, kits.map(([key, kit]) => el('button', { type: 'button', class: 'template-item kit-item',
+      onclick: () => { dialog.close(); app.actions.applyKit(key); } }, [
+      el('strong', { text: kit.title }), el('span', { class: 'hint', text: kit.summary }),
+      prepares(key).length ? el('span', { class: 'hint kit-for', text: T.templates.prepares(prepares(key).join('; ')) }) : null]))) : null,
+    kits.length ? el('h3', { class: 'section-title', text: T.templates.templates }) : null,
     el('div', { class: 'catalog' }, templates.map(([key, template]) => el('button', { type: 'button', class: 'template-item',
       onclick: () => { dialog.close(); app.actions.applyTemplate(key); } }, [
       el('strong', { text: template.title }), el('span', { class: 'hint', text: template.summary })]))),
-  );
+  ].filter(Boolean));
   if (!dialog.open) dialog.showModal();
 }
 
@@ -528,7 +591,7 @@ export function renderLayers(app) {
   const T = app.text;
   const buttons = el('div', { class: 'button-row' }, [
     el('button', { type: 'button', class: 'primary', text: T.layers.add, disabled: app.doc.layers.length >= MAX_LAYERS, onclick: () => openCatalog(app) }),
-    app.registry.catalog.templates && Object.keys(app.registry.catalog.templates).length
+    Object.keys(app.registry.catalog.templates ?? {}).length || Object.keys(app.registry.catalog.kits ?? {}).length
       ? el('button', { type: 'button', class: 'secondary', text: T.templates.start, onclick: () => app.actions.openTemplates() }) : null,
   ].filter(Boolean));
   $('panel-layers').replaceChildren(...[buttons,
@@ -559,10 +622,67 @@ function bufferRow(app, buffer) {
 export function renderAnalysis(app) {
   const T = app.text;
   const tool = app.ui.tool;
-  const switcher = el('div', { class: 'segmented', role: 'group', 'aria-label': T.analysis.tools }, ['buffer', 'screening', 'charts'].map((key) =>
+  const switcher = el('div', { class: 'segmented', role: 'group', 'aria-label': T.analysis.tools }, ['buffer', 'screening', 'charts', 'changes'].map((key) =>
     el('button', { type: 'button', 'aria-pressed': String(tool === key), text: T.analysis[key], onclick: () => app.actions.setTool(key) })));
-  const nodes = tool === 'screening' ? screeningNodes(app) : tool === 'charts' ? chartToolNodes(app) : bufferToolNodes(app);
+  const nodes = tool === 'screening' ? screeningNodes(app) : tool === 'charts' ? chartToolNodes(app) : tool === 'changes' ? changesToolNodes(app) : bufferToolNodes(app);
   $('panel-analysis').replaceChildren(switcher, ...nodes);
+}
+
+// ---- Analysis: changes between cycles (D-091) ----
+
+export function renderChanges(app) {
+  if (app.ui.tab === 'analysis' && app.ui.tool === 'changes') renderAnalysis(app);
+}
+
+function changesToolNodes(app) {
+  const C = app.text.changes;
+  const series = app.registry.layers.filter((entry) => entry.compare && app.registry.has(entry.compare.with));
+  if (!series.length) return [el('p', { class: 'hint', text: C.none })];
+  const comparison = app.doc.comparisons[0];
+  const fallback = series.find((entry) => app.doc.layers.some((layer) => layer.id === entry.id)) ?? series[0];
+  const select = el('select', { id: 'compare-series' }, series.map((entry) =>
+    el('option', { value: entry.id, text: C.option(entry.compare.label, entry.compare.earlier, entry.compare.later) })));
+  select.value = comparison?.layer ?? app.ui.compareChoice ?? fallback.id;
+  select.addEventListener('change', () => {
+    app.ui.compareChoice = select.value;
+    if (comparison) app.actions.compare(select.value);
+  });
+  const loading = app.changesLoading();
+  const nodes = [el('div', { class: 'field' }, [el('label', { for: 'compare-series', text: C.series }), select]),
+    el('div', { class: 'button-row' }, [
+      el('button', { type: 'button', class: 'primary', text: loading ? C.running : C.run, disabled: loading,
+        onclick: () => (comparison?.layer === select.value ? app.actions.compareAgain() : app.actions.compare(select.value)) }),
+      comparison ? el('button', { type: 'button', class: 'secondary', text: C.clear, onclick: () => app.actions.clearComparison() }) : null].filter(Boolean))];
+  if (comparison && app.changes?.status === 'error') nodes.push(el('p', { class: 'hint error', text: C.failed }));
+  const changes = app.currentChanges();
+  if (!changes) return nodes;
+  const entry = app.registry.get(changes.layer);
+  const { earlier, later, flag } = entry.compare;
+  const { counts } = changes.result;
+  nodes.push(el('p', { class: 'label-box', text: app.text.changesLabel(formatDate(new Date().toISOString().slice(0, 10))) }),
+    el('p', { class: 'changes-summary' }, [el('strong', { text: C.summary(changes.area, formatCount(counts.units),
+      counts.units === 1 ? entry.noun.singular : entry.noun.plural) }), ' ', C.counts(counts)]));
+  if (changes.capped) nodes.push(el('p', { class: 'hint', text: C.capped }));
+  nodes.push(el('div', { class: 'button-row' }, [
+    el('button', { type: 'button', class: 'secondary', 'aria-pressed': String(app.ui.showChanges !== false), text: C.show, onclick: () => app.actions.toggleChanges() }),
+    el('button', { type: 'button', class: 'secondary', text: C.download, disabled: !changes.result.changes.length, onclick: () => app.actions.downloadChanges() })]));
+  if (!changes.result.changes.length) return [...nodes, el('p', { class: 'hint', text: C.nothing(flag) })];
+  const headings = { added: C.group.added(flag, later), removed: C.group.removed(flag, earlier, later), kept: C.group.kept(flag) };
+  for (const kind of ['added', 'removed', 'kept']) {
+    const rows = changes.result.changes.filter((change) => change.kind === kind);
+    if (!rows.length) continue;
+    nodes.push(el('details', { class: `changes-group ${kind}`, open: kind !== 'kept' }, [
+      el('summary', {}, [el('span', { class: 'change-key', style: `background:${CHANGE_COLORS[kind]}` }), `${headings[kind]} (${formatCount(rows.length)})`]),
+      el('div', { class: 'table-scroll small' }, el('table', { class: 'chart-table changes-table' }, [
+        el('thead', {}, el('tr', {}, [el('th', { scope: 'col', text: C.columns.unit }), el('th', { scope: 'col', text: C.columns.field }),
+          el('th', { scope: 'col', text: earlier }), el('th', { scope: 'col', text: later })])),
+        el('tbody', {}, rows.map((change) => el('tr', {}, [el('td', { text: change.name }), el('td', { text: change.label }),
+          el('td', { text: change.inEarlier ? change.was ?? C.blank : C.notInCycle }),
+          el('td', { text: change.inLater ? change.now ?? C.blank : C.notInCycle })])))]))]));
+  }
+  const notes = notesOf(entry, 'list');
+  if (notes.length) nodes.push(el('p', { class: 'hint', text: notes.join(' ') }));
+  return nodes;
 }
 
 // ---- Analysis: charts (D-088) ----
@@ -1126,6 +1246,7 @@ export function showPrintPreview(app, root, page, onPrint) {
     sheet,
   );
   if (!dialog.open) dialog.showModal();
+  fitPrintSide(root, page);
 }
 
 // ---- Legend, popups, table ----

@@ -86,7 +86,7 @@ function rangeClause(column, field, condition, type) {
     if (min !== null && min !== undefined) parts.push(`${column} >= DATE ${quote(min)}`);
     if (max !== null && max !== undefined) parts.push(`${column} < DATE ${quote(nextDay(max))}`);
   } else {
-    const scale = field.transform === 'sq_m_to_sq_mi' ? SQ_M_PER_SQ_MI : 1;
+    const scale = field.transform === 'sq_m_to_sq_mi' ? SQ_M_PER_SQ_MI : field.transform === 'share_to_percent' ? 0.01 : 1;
     if (min !== null && min !== undefined) parts.push(`${column} >= ${literal(min * scale, 'number')}`);
     if (max !== null && max !== undefined) parts.push(`${column} <= ${literal(max * scale, 'number')}`);
     if (field.transform === 'zero_is_blank') parts.push(`${column} <> 0`);

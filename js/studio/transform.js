@@ -67,6 +67,7 @@ export function convertValue(value, field) {
     let number = transform && TEXT_TRANSFORMS[transform] ? toNumber(TEXT_TRANSFORMS[transform](asText(value) ?? '')) : toNumber(value);
     if (number === null) return null;
     if (transform === 'sq_m_to_sq_mi') number /= SQ_M_PER_SQ_MI;
+    if (transform === 'share_to_percent') number *= 100; // D-091
     if (transform === 'zero_is_blank' && number === 0) return null;
     return number;
   }

@@ -29,7 +29,14 @@ function loadLibrary() {
   return libraryPromise;
 }
 
+// The Changes tool's units (D-091), colored by what changed in them. Units with no finding are not drawn.
+export const CHANGE_COLORS = { added: '#C0392B', removed: '#2E7D4F', kept: '#B8860B' };
+const changeColor = ['match', ['get', 'kind'], 'added', CHANGE_COLORS.added, 'removed', CHANGE_COLORS.removed, CHANGE_COLORS.kept];
+
 const OVERLAYS = [
+  { id: 'changes', layers: [
+    { id: 'changes-fill', type: 'fill', filter: ['!=', ['get', 'kind'], 'none'], paint: { 'fill-color': changeColor, 'fill-opacity': 0.18 } },
+    { id: 'changes-line', type: 'line', filter: ['!=', ['get', 'kind'], 'none'], paint: { 'line-color': changeColor, 'line-width': 2.5 } }] },
   { id: 'rings', layers: [
     { id: 'ring-fill', type: 'fill', paint: { 'fill-color': '#9A3B26', 'fill-opacity': 0.06 } },
     { id: 'ring-line', type: 'line', paint: { 'line-color': '#9A3B26', 'line-width': 2, 'line-dasharray': [3, 2] } }] },
