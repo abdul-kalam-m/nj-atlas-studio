@@ -1,438 +1,438 @@
 {
-  "checked_at": "2026-10-29T13:00:15Z",
+  "checked_at": "2026-10-30T12:54:32Z",
   "rate_limited": 0,
   "layers": {
     "nj_air_permits": {
       "ok": true,
       "problem": null,
       "count": 17013,
-      "ms": 637
+      "ms": 747
     },
     "nj_archaeological_grid": {
       "ok": true,
       "problem": null,
       "count": 5793,
-      "ms": 487
+      "ms": 207
     },
     "nj_bridges": {
       "ok": true,
       "problem": null,
       "count": 7878,
-      "ms": 621
+      "ms": 535
     },
     "nj_brownfield_areas": {
       "ok": true,
       "problem": null,
       "count": 39,
-      "ms": 1666
+      "ms": 886
     },
     "nj_brownfield_inventory": {
       "ok": true,
       "problem": null,
       "count": 818,
-      "ms": 404
+      "ms": 173
     },
     "nj_bus_lines": {
       "ok": true,
       "problem": null,
       "count": 264,
-      "ms": 520
+      "ms": 437
     },
     "nj_bus_stops": {
       "ok": true,
       "problem": null,
       "count": 19739,
-      "ms": 503
+      "ms": 572
     },
     "nj_c1_waters": {
       "ok": true,
       "problem": null,
       "count": 100059,
-      "ms": 466
+      "ms": 578
     },
     "nj_cafra_zone": {
       "ok": true,
       "problem": null,
       "count": 158,
-      "ms": 355
+      "ms": 186
     },
     "nj_child_care": {
       "ok": true,
       "problem": null,
       "count": 4091,
-      "ms": 771
+      "ms": 414
     },
     "nj_colleges": {
       "ok": true,
       "problem": null,
       "count": 78,
-      "ms": 1183
+      "ms": 1529
     },
     "nj_congressional_districts": {
       "ok": true,
       "problem": null,
       "count": 12,
-      "ms": 594
+      "ms": 705
     },
     "nj_contaminated_sites": {
       "ok": true,
       "problem": null,
-      "count": 12605,
-      "ms": 1336
+      "count": 12600,
+      "ms": 699
     },
     "nj_cso_outfalls": {
       "ok": true,
       "problem": null,
       "count": 211,
-      "ms": 549
+      "ms": 295
     },
     "nj_deed_notices": {
       "ok": true,
       "problem": null,
       "count": 4337,
-      "ms": 630
+      "ms": 286
     },
     "nj_election_districts": {
       "ok": true,
       "problem": null,
       "count": 6348,
-      "ms": 1683
+      "ms": 1502
     },
     "nj_electric_utilities": {
       "ok": true,
       "problem": null,
       "count": 51,
-      "ms": 369
+      "ms": 181
     },
     "nj_flood_zones": {
       "ok": true,
       "problem": null,
       "count": 109075,
-      "ms": 865
+      "ms": 4260
     },
     "nj_fuel_stations": {
       "ok": true,
       "problem": null,
       "count": 1773,
-      "ms": 443
+      "ms": 200
     },
     "nj_gas_utilities": {
       "ok": true,
       "problem": null,
       "count": 33,
-      "ms": 410
+      "ms": 187
     },
     "nj_groundwater_cea": {
       "ok": true,
       "problem": null,
       "count": 6962,
-      "ms": 565
+      "ms": 587
     },
     "nj_groundwater_cke": {
       "ok": true,
       "problem": null,
       "count": 240,
-      "ms": 318
+      "ms": 187
     },
     "nj_groundwater_recharge": {
       "ok": true,
       "problem": null,
       "count": 191436,
-      "ms": 696
+      "ms": 521
     },
     "nj_high_injury_network": {
       "ok": true,
       "problem": null,
       "count": 145,
-      "ms": 343
+      "ms": 544
     },
     "nj_highlands_areas": {
       "ok": true,
       "problem": null,
       "count": 7,
-      "ms": 312
+      "ms": 957
     },
     "nj_historic_districts": {
       "ok": true,
       "problem": null,
       "count": 2070,
-      "ms": 389
+      "ms": 192
     },
     "nj_historic_properties": {
       "ok": true,
       "problem": null,
       "count": 148056,
-      "ms": 739
+      "ms": 620
     },
     "nj_hospitals": {
       "ok": true,
       "problem": null,
       "count": 71,
-      "ms": 874
+      "ms": 1078
     },
     "nj_land_capacity": {
       "ok": true,
       "problem": null,
       "count": 26707,
-      "ms": 2019
+      "ms": 1904
     },
     "nj_land_use": {
       "ok": true,
       "problem": null,
       "count": 590537,
-      "ms": 1757
+      "ms": 1500
     },
     "nj_landfills": {
       "ok": true,
       "problem": null,
       "count": 412,
-      "ms": 350
+      "ms": 227
     },
     "nj_legislative_districts": {
       "ok": true,
       "problem": null,
       "count": 40,
-      "ms": 533
+      "ms": 512
     },
     "nj_libraries": {
       "ok": true,
       "problem": null,
       "count": 447,
-      "ms": 550
+      "ms": 1194
     },
     "nj_long_term_care": {
       "ok": true,
       "problem": null,
       "count": 730,
-      "ms": 466
+      "ms": 581
     },
     "nj_meadowlands_district": {
       "ok": true,
       "problem": null,
       "count": 1,
-      "ms": 552
+      "ms": 178
     },
     "nj_mitigation_banks": {
       "ok": true,
       "problem": null,
       "count": 23,
-      "ms": 977
+      "ms": 189
     },
     "nj_mitigation_service_areas": {
       "ok": true,
       "problem": null,
       "count": 22,
-      "ms": 301
+      "ms": 258
     },
     "nj_ms4_inlets": {
       "ok": true,
       "problem": null,
       "count": 77613,
-      "ms": 1029
+      "ms": 978
     },
     "nj_ms4_outfalls": {
       "ok": true,
       "problem": null,
       "count": 73793,
-      "ms": 915
+      "ms": 966
     },
     "nj_natural_heritage_sites": {
       "ok": true,
       "problem": null,
       "count": 343,
-      "ms": 331
+      "ms": 271
     },
     "nj_njpdes_facilities": {
       "ok": true,
       "problem": null,
       "count": 3574,
-      "ms": 306
+      "ms": 290
     },
     "nj_overburdened_communities": {
       "ok": true,
       "problem": null,
       "count": 3180,
-      "ms": 1327
+      "ms": 1378
     },
     "nj_parcels": {
       "ok": true,
       "problem": null,
       "count": 3481240,
-      "ms": 1814
+      "ms": 1443
     },
     "nj_pinelands_area": {
       "ok": true,
       "problem": null,
       "count": 1,
-      "ms": 344
+      "ms": 258
     },
     "nj_power_plants": {
       "ok": true,
       "problem": null,
       "count": 77,
-      "ms": 329
+      "ms": 183
     },
     "nj_preserved_farmland": {
       "ok": true,
       "problem": null,
       "count": 8983,
-      "ms": 263
+      "ms": 314
     },
     "nj_rail_lines": {
       "ok": true,
       "problem": null,
       "count": 13,
-      "ms": 588
+      "ms": 552
     },
     "nj_rail_stations": {
       "ok": true,
       "problem": null,
       "count": 234,
-      "ms": 401
+      "ms": 395
     },
     "nj_redevelopment_areas": {
       "ok": true,
       "problem": null,
       "count": 757,
-      "ms": 475
+      "ms": 215
     },
     "nj_rehabilitation_areas": {
       "ok": true,
       "problem": null,
       "count": 225,
-      "ms": 521
+      "ms": 341
     },
     "nj_roads": {
       "ok": true,
       "problem": null,
       "count": 489277,
-      "ms": 1892
+      "ms": 1839
     },
     "nj_school_districts_elementary": {
       "ok": true,
       "problem": null,
       "count": 171,
-      "ms": 326
+      "ms": 631
     },
     "nj_school_districts_secondary": {
       "ok": true,
       "problem": null,
       "count": 46,
-      "ms": 315
+      "ms": 436
     },
     "nj_school_districts_unified": {
       "ok": true,
       "problem": null,
       "count": 339,
-      "ms": 304
+      "ms": 539
     },
     "nj_schools": {
       "ok": true,
       "problem": null,
       "count": 3736,
-      "ms": 414
+      "ms": 359
     },
     "nj_sewer_service_areas": {
       "ok": true,
       "problem": null,
       "count": 1285,
-      "ms": 368
+      "ms": 379
     },
     "nj_soils": {
       "ok": true,
       "problem": null,
       "count": 116800,
-      "ms": 1740
+      "ms": 1371
     },
     "nj_streams": {
       "ok": true,
       "problem": null,
       "count": 269525,
-      "ms": 792
+      "ms": 694
     },
     "nj_subwatersheds": {
       "ok": true,
       "problem": null,
       "count": 970,
-      "ms": 319
+      "ms": 209
     },
     "nj_tax_blocks": {
       "ok": true,
       "problem": null,
       "count": 165961,
-      "ms": 2177
+      "ms": 1172
     },
     "nj_tidal_flood_elevation": {
       "ok": true,
       "problem": null,
       "count": 54571,
-      "ms": 5165
+      "ms": 4066
     },
     "nj_tidelands_claims": {
       "ok": true,
       "problem": null,
       "count": 28697,
-      "ms": 577
+      "ms": 1609
     },
     "nj_transition_areas_loi": {
       "ok": true,
       "problem": null,
-      "count": 2066,
-      "ms": 1027
+      "count": 2067,
+      "ms": 4475
     },
     "nj_urban_enterprise_zones": {
       "ok": true,
       "problem": null,
       "count": 37,
-      "ms": 1010
+      "ms": 535
     },
     "nj_wards": {
       "ok": true,
       "problem": null,
       "count": 829,
-      "ms": 1834
+      "ms": 1555
     },
     "nj_water_purveyors": {
       "ok": true,
       "problem": null,
       "count": 566,
-      "ms": 430
+      "ms": 189
     },
     "nj_water_quality_classes": {
       "ok": true,
       "problem": null,
       "count": 284763,
-      "ms": 658
+      "ms": 952
     },
     "nj_waterbodies": {
       "ok": true,
       "problem": null,
       "count": 39774,
-      "ms": 380
+      "ms": 294
     },
     "nj_wellhead_areas": {
       "ok": true,
       "problem": null,
       "count": 6288,
-      "ms": 634
+      "ms": 239
     },
     "nj_wetland_loi_lines": {
       "ok": true,
       "problem": null,
-      "count": 3691,
-      "ms": 947
+      "count": 3693,
+      "ms": 766
     },
     "nj_wetlands": {
       "ok": true,
       "problem": null,
       "count": 143206,
-      "ms": 2869
+      "ms": 2428
     },
     "nj_wild_scenic_rivers": {
       "ok": true,
       "problem": null,
       "count": 5,
-      "ms": 2106
+      "ms": 5728
     }
   },
   "code_counts": {
